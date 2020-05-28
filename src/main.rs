@@ -67,11 +67,58 @@ fn convert_title_to_id(title: &str) -> String {
 
     let substitutions = [
         (" ", "-"),
+        ("(", ""),
+        (")", ""),
+        ("?", ""),
+        ("!", ""),
+        ("'", ""),
+        ("\"", ""),
+        ("#", ""),
+        ("%", ""),
+        ("&", ""),
+        ("*", ""),
+        (",", ""),
         (".", "-"),
+        ("/", "-"),
+        (":", "-"),
+        (";", ""),
+        ("@", "-at-"),
+        ("\\", ""),
+        ("`", ""),
+        ("$", ""),
+        ("^", ""),
+        ("|", ""),
+        // Remove known semantic markup from the ID:
+        ("[package]", ""),
+        ("[option]", ""),
+        ("[parameter]", ""),
+        ("[variable]", ""),
+        ("[command]", ""),
+        ("[replaceable]", ""),
+        ("[filename]", ""),
+        ("[literal]", ""),
+        ("[systemitem]", ""),
+        ("[application]", ""),
+        ("[function]", ""),
+        ("[gui]", ""),
+        // Remove square brackets only after semantic markup:
+        ("[", ""),
+        ("]", ""),
+        // TODO: Curly braces shouldn't appear in the title in the first place.
+        // They'd be interpreted as attributes there.
+        // Print an error in that case? Escape them with AciiDoc escapes?
+        ("{", ""),
+        ("}", ""),
     ];
 
     for (old, new) in substitutions.iter() {
         title = title.replace(old, new);
+    }
+
+    // Make sure the converted ID doesn't contain double dashes ("--"), because
+    // that breaks references to the ID
+    while title.contains("--") {
+        title = title.replace("--", "-");
     }
 
     title
