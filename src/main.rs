@@ -1,14 +1,14 @@
 use std::env;
 
 extern crate clap;
-use clap::{Arg, App};
+use clap::{Arg, ArgMatches, App};
 
 fn main() {
     let plain_args: Vec<String> = env::args().collect();
     println!("Plain args: {:#?}", plain_args);
 
     // Define command-line options
-    let mut clap_app = App::new("newdoc")
+    let clap_app = App::new("newdoc")
         .version("v2.0.0")
         .author("Marek Suchánek")
         .about("Generate an AsciiDoc file using a modular template")
@@ -46,20 +46,32 @@ fn main() {
              .help("Generate the file without any comments"));
 
 
-    if plain_args.len() <= 1 {
-        println!("No arguments, printing help.");
-        let _clap_result = clap_app.print_help();
-    } else {
-        let matches = clap_app.get_matches();
+    // if plain_args.len() <= 1 {
+    //     println!("No arguments, printing help.");
+    //     let _clap_result = clap_app.print_help();
+    // } else {
+    //     let matches = clap_app.get_matches();
 
         // List the passed command-line options, just for debugging
-        println!("{:#?}", matches);
-    }
+    //     println!("{:#?}", matches);
+    // }
 
-    let test_title = "This is a testing title.";
-    println!("Test title: {}", test_title);
-    let converted_to_id = convert_title_to_id(test_title);
-    println!("Converted ID: {}", converted_to_id);
+    let matches = clap_app.get_matches();
+    println!("{:#?}", matches);
+
+    for module_type in ["assembly", "concept", "procedure", "reference"].iter() {
+        process_module_type(&matches, module_type);
+    }
+}
+
+fn process_module_type(matches: &ArgMatches, module_type: &str) {
+    if let Some(titles_iterator) = matches.values_of(module_type) {
+        let titles: Vec<&str> = titles_iterator.collect();
+        println!("We have a module of type {}, titled {:?}", module_type, titles);
+
+        let ids: Vec<String> = titles.iter().map(|title| convert_title_to_id(title)).collect();
+        println!("And the IDs are: {:?}", ids);
+    }
 }
 
 fn convert_title_to_id(title: &str) -> String {
