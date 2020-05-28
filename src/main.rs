@@ -1,9 +1,14 @@
+use std::env;
+
 extern crate clap;
 use clap::{Arg, App};
 
 fn main() {
+    let plain_args: Vec<String> = env::args().collect();
+    println!("Plain args: {:#?}", plain_args);
+
     // Define command-line options
-    let matches = App::new("newdoc")
+    let mut clap_app = App::new("newdoc")
         .version("v2.0.0")
         .author("Marek Suchánek")
         .about("Generate an AsciiDoc file using a modular template")
@@ -38,9 +43,26 @@ fn main() {
         .arg(Arg::with_name("no-comments")
              .short("C")
              .long("no-comments")
-             .help("Generate the file without any comments"))
-        .get_matches();
+             .help("Generate the file without any comments"));
 
-    // List the passed command-line options, just for debugging
-    println!("{:#?}", matches);
+
+    if plain_args.len() <= 1 {
+        println!("No arguments, printing help.");
+        let _clap_result = clap_app.print_help();
+    } else {
+        let matches = clap_app.get_matches();
+
+        // List the passed command-line options, just for debugging
+        println!("{:#?}", matches);
+    }
+
+    let test_title = "This is a testing title.";
+    println!("Test title: {}", test_title);
+    let converted_to_id = convert_title_to_id(test_title);
+    println!("Converted ID: {}", converted_to_id);
 }
+
+fn convert_title_to_id(title: &str) -> String {
+    String::from(title)
+}
+
