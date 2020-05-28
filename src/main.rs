@@ -1,7 +1,7 @@
 use std::env;
 
 extern crate clap;
-use clap::{Arg, ArgMatches, App};
+use clap::{App, Arg, ArgMatches};
 
 fn main() {
     let plain_args: Vec<String> = env::args().collect();
@@ -12,39 +12,48 @@ fn main() {
         .version("v2.0.0")
         .author("Marek Suchánek")
         .about("Generate an AsciiDoc file using a modular template")
-        .arg(Arg::with_name("assembly")
-             .short("a")
-             .long("assembly")
-             .takes_value(true)
-             .value_name("title")
-             .multiple(true)
-             .help("Create an assembly file"))
-        .arg(Arg::with_name("concept")
-             .short("c")
-             .long("concept")
-             .takes_value(true)
-             .value_name("title")
-             .multiple(true)
-             .help("Create a concept module"))
-        .arg(Arg::with_name("procedure")
-             .short("p")
-             .long("procedure")
-             .takes_value(true)
-             .value_name("title")
-             .multiple(true)
-             .help("Create a procedure module"))
-        .arg(Arg::with_name("reference")
-             .short("r")
-             .long("reference")
-             .takes_value(true)
-             .value_name("title")
-             .multiple(true)
-             .help("Create a reference module"))
-        .arg(Arg::with_name("no-comments")
-             .short("C")
-             .long("no-comments")
-             .help("Generate the file without any comments"));
-
+        .arg(
+            Arg::with_name("assembly")
+                .short("a")
+                .long("assembly")
+                .takes_value(true)
+                .value_name("title")
+                .multiple(true)
+                .help("Create an assembly file"),
+        )
+        .arg(
+            Arg::with_name("concept")
+                .short("c")
+                .long("concept")
+                .takes_value(true)
+                .value_name("title")
+                .multiple(true)
+                .help("Create a concept module"),
+        )
+        .arg(
+            Arg::with_name("procedure")
+                .short("p")
+                .long("procedure")
+                .takes_value(true)
+                .value_name("title")
+                .multiple(true)
+                .help("Create a procedure module"),
+        )
+        .arg(
+            Arg::with_name("reference")
+                .short("r")
+                .long("reference")
+                .takes_value(true)
+                .value_name("title")
+                .multiple(true)
+                .help("Create a reference module"),
+        )
+        .arg(
+            Arg::with_name("no-comments")
+                .short("C")
+                .long("no-comments")
+                .help("Generate the file without any comments"),
+        );
 
     // if plain_args.len() <= 1 {
     //     println!("No arguments, printing help.");
@@ -52,7 +61,7 @@ fn main() {
     // } else {
     //     let matches = clap_app.get_matches();
 
-        // List the passed command-line options, just for debugging
+    // List the passed command-line options, just for debugging
     //     println!("{:#?}", matches);
     // }
 
@@ -141,4 +150,3 @@ fn convert_title_to_id(title: &str) -> String {
 
     title
 }
-
