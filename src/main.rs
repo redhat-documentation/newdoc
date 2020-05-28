@@ -67,11 +67,17 @@ fn main() {
 fn process_module_type(matches: &ArgMatches, module_type: &str) {
     if let Some(titles_iterator) = matches.values_of(module_type) {
         let titles: Vec<&str> = titles_iterator.collect();
-        println!("We have a module of type {}, titled {:?}", module_type, titles);
 
-        let ids: Vec<String> = titles.iter().map(|title| convert_title_to_id(title)).collect();
-        println!("And the IDs are: {:?}", ids);
+        for title in titles {
+            process_module(module_type, title)
+        }
     }
+}
+
+fn process_module(module_type: &str, title: &str) {
+    let module_id = convert_title_to_id(title);
+    println!("We have a module of type {}, titled {}", module_type, title);
+    println!("And the ID is: {}", module_id);
 }
 
 fn convert_title_to_id(title: &str) -> String {
