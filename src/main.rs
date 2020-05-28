@@ -53,6 +53,12 @@ fn main() {
                 .short("C")
                 .long("no-comments")
                 .help("Generate the file without any comments"),
+        )
+        .arg(
+            Arg::with_name("no-prefixes")
+                .short("-P")
+                .long("no-prefixes")
+                .help("Do not use module type prefixes (e.g. `proc_`) in file names"),
         );
 
     // if plain_args.len() <= 1 {
