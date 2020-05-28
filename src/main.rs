@@ -68,6 +68,24 @@ fn main() {
     let matches = clap_app.get_matches();
     println!("{:#?}", matches);
 
+    // Load the AsciiDoc templates and embed them into the binary, accessible as str slices
+    let assembly_template = include_str!("../templates/assembly_title.adoc");
+    let concept_template = include_str!("../templates/con_title.adoc");
+    let procedure_template = include_str!("../templates/proc_title.adoc");
+    let reference_template = include_str!("../templates/ref_title.adoc");
+
+    // Just use the templates in a random way to check that they are there
+    let templates_length: usize = [
+        assembly_template,
+        concept_template,
+        procedure_template,
+        reference_template,
+    ]
+    .iter()
+    .map(|template| template.len())
+    .sum();
+    println!("Length of all the templates combined: {}", templates_length);
+
     for module_type in ["assembly", "concept", "procedure", "reference"].iter() {
         process_module_type(&matches, module_type);
     }
