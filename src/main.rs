@@ -63,6 +63,17 @@ fn main() {
 }
 
 fn convert_title_to_id(title: &str) -> String {
-    String::from(title)
+    let mut title = String::from(title).to_lowercase();
+
+    let substitutions = [
+        (" ", "-"),
+        (".", "-"),
+    ];
+
+    for (old, new) in substitutions.iter() {
+        title = title.replace(old, new);
+    }
+
+    title
 }
 
