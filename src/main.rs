@@ -1,5 +1,5 @@
-use std::path::Path;
 use std::fs;
+use std::path::Path;
 
 extern crate clap;
 use clap::{App, AppSettings, Arg, ArgMatches};
@@ -16,7 +16,6 @@ struct Options {
 }
 
 fn main() {
-
     // Define command-line options
     let clap_app = App::new("newdoc")
         .version("v2.0.0")
@@ -79,8 +78,16 @@ fn main() {
     let options = Options {
         // Comments and prefixes are enabled (true) by default unless you disable them
         // on the command line
-        comments: if matches.occurrences_of("no-comments") > 0 { false } else { true },
-        prefixes: if matches.occurrences_of("no-prefixes") > 0 { false } else { true },
+        comments: if matches.occurrences_of("no-comments") > 0 {
+            false
+        } else {
+            true
+        },
+        prefixes: if matches.occurrences_of("no-prefixes") > 0 {
+            false
+        } else {
+            true
+        },
     };
 
     for module_type in ["assembly", "concept", "procedure", "reference"].iter() {
@@ -170,7 +177,12 @@ fn convert_title_to_id(title: &str) -> String {
     title
 }
 
-fn compose_module_text(title: &str, module_id: &str, module_type: &str, options: &Options) -> String {
+fn compose_module_text(
+    title: &str,
+    module_id: &str,
+    module_type: &str,
+    options: &Options,
+) -> String {
     // Pick the right template
     let current_template = match module_type {
         "assembly" => ASSEMBLY_TEMPLATE,
@@ -240,7 +252,7 @@ fn write_module(file_name: &str, content: &String) {
             Ok(()) => {
                 println!("File generated: {}", file_name);
                 println!("include::<path>/{}[leveloffset=+1]", file_name);
-            },
+            }
             // If the write fails, print why it failed
             Err(e) => {
                 println!("Failed to write the file: {}", e);
