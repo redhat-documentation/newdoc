@@ -10,6 +10,8 @@ const CONCEPT_TEMPLATE: &str = include_str!("../templates/con_title.adoc");
 const PROCEDURE_TEMPLATE: &str = include_str!("../templates/proc_title.adoc");
 const REFERENCE_TEMPLATE: &str = include_str!("../templates/ref_title.adoc");
 
+// This struct will store options based on the command-line arguments,
+// and will be passed to various functions across the program.
 struct Options {
     comments: bool,
     prefixes: bool,
@@ -17,7 +19,7 @@ struct Options {
 
 fn main() {
     // Define command-line options
-    let clap_app = App::new("newdoc")
+    let cmdline_args = App::new("newdoc")
         .version("v2.0.0")
         .author("Marek Suchánek")
         .about("Generate an AsciiDoc file using a modular template")
@@ -70,26 +72,28 @@ fn main() {
                 .short("-P")
                 .long("no-prefixes")
                 .help("Do not use module type prefixes (e.g. `proc_`) in file names"),
-        );
-
-    let matches = clap_app.get_matches();
+        ).get_matches();
 
     // Set current options based on the command-line options
     let options = Options {
         // Comments and prefixes are enabled (true) by default unless you disable them
         // on the command line. If the no-comments or no-prefixes option is passed
         // (occurences > 0), the feature is disabled, so the option is set to false.
-        comments: matches.occurrences_of("no-comments") == 0,
-        prefixes: matches.occurrences_of("no-prefixes") == 0,
+        comments: cmdline_args.occurrences_of("no-comments") == 0,
+        prefixes: cmdline_args.occurrences_of("no-prefixes") == 0,
     };
 
+    // TODO: Streamline how we store metadata about module types. A struct, perhaps?
+    // For each module type, see if it occurs on the command line and process it
     for module_type in ["assembly", "concept", "procedure", "reference"].iter() {
-        process_module_type(&matches, module_type, &options);
+        process_module_type(&cmdline_args, module_type, &options);
     }
 }
 
-fn process_module_type(matches: &ArgMatches, module_type: &str, options: &Options) {
-    if let Some(titles_iterator) = matches.values_of(module_type) {
+fn process_module_type(cmdline_args: &ArgMatches, module_type: &str, options: &Options) {
+    // Check if the given module type occurs on the command line
+    if let Some(titles_iterator) = cmdline_args.values_of(module_type) {
+        // Porcess all module titles in the module type
         for title in titles_iterator {
             process_module(module_type, title, &options);
         }
@@ -99,18 +103,20 @@ fn process_module_type(matches: &ArgMatches, module_type: &str, options: &Option
 fn process_module(module_type: &str, title: &str, options: &Options) {
     // TODO: Add a comment in the generated file with a pre-filled include statement
 
+    // Derive the module properties from its title
     let module_id = convert_title_to_id(title);
-
     let module_text = compose_module_text(title, &module_id, module_type, &options);
-
     let file_name = compose_file_name(&module_id, module_type, &options);
 
+    // Write the module text into the file with the appropriate file name
     write_module(&file_name, &module_text);
 }
 
 fn convert_title_to_id(title: &str) -> String {
-    let mut title = String::from(title).to_lowercase();
+    // The ID is all lower-case
+    let mut title_with_replacements = String::from(title).to_lowercase();
 
+    // Replace characters that aren't allowed in the ID, usually with a dash or an empty string
     let substitutions = [
         (" ", "-"),
         ("(", ""),
@@ -157,17 +163,18 @@ fn convert_title_to_id(title: &str) -> String {
         ("}", ""),
     ];
 
+    // Perform all the defined replacements on the title
     for (old, new) in substitutions.iter() {
-        title = title.replace(old, new);
+        title_with_replacements = title_with_replacements.replace(old, new);
     }
 
     // Make sure the converted ID doesn't contain double dashes ("--"), because
     // that breaks references to the ID
-    while title.contains("--") {
-        title = title.replace("--", "-");
+    while title_with_replacements.contains("--") {
+        title_with_replacements = title_with_replacements.replace("--", "-");
     }
 
-    title
+    title_with_replacements
 }
 
 fn compose_module_text(
@@ -235,6 +242,7 @@ fn compose_file_name(module_id: &str, module_type: &str, options: &Options) -> S
 fn write_module(file_name: &str, content: &str) {
     // If the target file already exists, just print out an error
     if Path::new(file_name).exists() {
+        // TODO: Add a prompt enabling the user to overwrite the existing file
         println!("File already exists: {}", file_name);
     } else {
         // If the target file doesn't exist, try to write to it
