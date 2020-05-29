@@ -1,9 +1,8 @@
-use std::env;
 use std::path::Path;
 use std::fs;
 
 extern crate clap;
-use clap::{App, Arg, ArgMatches};
+use clap::{App, AppSettings, Arg, ArgMatches};
 
 // Load the AsciiDoc templates at build time
 const ASSEMBLY_TEMPLATE: &str = include_str!("../templates/assembly_title.adoc");
@@ -12,14 +11,14 @@ const PROCEDURE_TEMPLATE: &str = include_str!("../templates/proc_title.adoc");
 const REFERENCE_TEMPLATE: &str = include_str!("../templates/ref_title.adoc");
 
 fn main() {
-    let plain_args: Vec<String> = env::args().collect();
-    println!("Plain args: {:#?}", plain_args);
 
     // Define command-line options
     let clap_app = App::new("newdoc")
         .version("v2.0.0")
         .author("Marek Suchánek")
         .about("Generate an AsciiDoc file using a modular template")
+        // If no arguments are provided, print help
+        .setting(AppSettings::ArgRequiredElseHelp)
         .arg(
             Arg::with_name("assembly")
                 .short("a")
@@ -68,16 +67,6 @@ fn main() {
                 .long("no-prefixes")
                 .help("Do not use module type prefixes (e.g. `proc_`) in file names"),
         );
-
-    // if plain_args.len() <= 1 {
-    //     println!("No arguments, printing help.");
-    //     let _clap_result = clap_app.print_help();
-    // } else {
-    //     let matches = clap_app.get_matches();
-
-    // List the passed command-line options, just for debugging
-    //     println!("{:#?}", matches);
-    // }
 
     let matches = clap_app.get_matches();
     println!("{:#?}", matches);
