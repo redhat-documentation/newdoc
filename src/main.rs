@@ -1,4 +1,6 @@
 use std::env;
+use std::path::Path;
+use std::fs;
 
 extern crate clap;
 use clap::{App, Arg, ArgMatches};
@@ -115,6 +117,8 @@ fn process_module(module_type: &str, title: &str) {
 
     let file_name = compose_file_name(&module_id, module_type);
     println!("And the file name is {}", file_name);
+
+    write_module(&file_name, &module_text);
 }
 
 fn convert_title_to_id(title: &str) -> String {
@@ -218,4 +222,24 @@ fn compose_file_name(module_id: &str, module_type: &str) -> String {
     let file_name = [prefix, module_id, suffix].join("");
 
     file_name
+}
+
+fn write_module(file_name: &str, content: &String) {
+    // If the target file already exists, just print out an error
+    if Path::new(file_name).exists() {
+        println!("File already exists: {}", file_name);
+    } else {
+        // If the target file doesn't exist, try to write to it
+        let result = fs::write(file_name, content);
+        match result {
+            // If the write succeeds, print the include statement
+            Ok(()) => {
+                println!("include::<path>/{}[leveloffset=+1]", file_name);
+            },
+            // If the write fails, print why it failed
+            Err(e) => {
+                println!("Failed to write the file: {}", e);
+            }
+        }
+    }
 }
