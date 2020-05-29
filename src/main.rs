@@ -77,17 +77,10 @@ fn main() {
     // Set current options based on the command-line options
     let options = Options {
         // Comments and prefixes are enabled (true) by default unless you disable them
-        // on the command line
-        comments: if matches.occurrences_of("no-comments") > 0 {
-            false
-        } else {
-            true
-        },
-        prefixes: if matches.occurrences_of("no-prefixes") > 0 {
-            false
-        } else {
-            true
-        },
+        // on the command line. If the no-comments or no-prefixes option is passed
+        // (occurences > 0), the feature is disabled, so the option is set to false.
+        comments: matches.occurrences_of("no-comments") == 0,
+        prefixes: matches.occurrences_of("no-prefixes") == 0,
     };
 
     for module_type in ["assembly", "concept", "procedure", "reference"].iter() {
@@ -220,27 +213,26 @@ fn compose_module_text(
 }
 
 fn compose_file_name(module_id: &str, module_type: &str, options: &Options) -> String {
-    let prefix = match options.prefixes {
+    let prefix = if options.prefixes {
         // If prefixes are enabled, pick the right file prefix
-        true => match module_type {
+        match module_type {
             "assembly" => "assembly_",
             "concept" => "con_",
             "procedure" => "proc_",
             "reference" => "ref_",
             _ => unimplemented!(),
-        },
+        }
+    } else {
         // If prefixes are disabled, use an empty string for the prefix
-        false => "",
+        ""
     };
 
     let suffix = ".adoc";
 
-    let file_name = [prefix, module_id, suffix].join("");
-
-    file_name
+    [prefix, module_id, suffix].join("")
 }
 
-fn write_module(file_name: &str, content: &String) {
+fn write_module(file_name: &str, content: &str) {
     // If the target file already exists, just print out an error
     if Path::new(file_name).exists() {
         println!("File already exists: {}", file_name);
