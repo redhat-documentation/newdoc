@@ -210,16 +210,17 @@ fn compose_module_text(title: &str, module_id: &str, module_type: &str, options:
 }
 
 fn compose_file_name(module_id: &str, module_type: &str, options: &Options) -> String {
-    if !options.prefixes {
-        println!("No prefix");
-    }
-    // Pick the right file prefix
-    let prefix = match module_type {
-        "assembly" => "assembly_",
-        "concept" => "con_",
-        "procedure" => "proc_",
-        "reference" => "ref_",
-        _ => unimplemented!(),
+    let prefix = match options.prefixes {
+        // If prefixes are enabled, pick the right file prefix
+        true => match module_type {
+            "assembly" => "assembly_",
+            "concept" => "con_",
+            "procedure" => "proc_",
+            "reference" => "ref_",
+            _ => unimplemented!(),
+        },
+        // If prefixes are disabled, use an empty string for the prefix
+        false => "",
     };
 
     let suffix = ".adoc";
