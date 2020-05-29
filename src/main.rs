@@ -97,15 +97,13 @@ fn process_module_type(matches: &ArgMatches, module_type: &str, options: &Option
 }
 
 fn process_module(module_type: &str, title: &str, options: &Options) {
+    // TODO: Add a comment in the generated file with a pre-filled include statement
+
     let module_id = convert_title_to_id(title);
-    println!("We have a module of type {}, titled {}", module_type, title);
-    println!("And the ID is: {}", module_id);
 
     let module_text = compose_module_text(title, &module_id, module_type, &options);
-    println!("The applied template:\n{}", module_text);
 
     let file_name = compose_file_name(&module_id, module_type, &options);
-    println!("And the file name is {}", file_name);
 
     write_module(&file_name, &module_text);
 }
@@ -240,6 +238,7 @@ fn write_module(file_name: &str, content: &String) {
         match result {
             // If the write succeeds, print the include statement
             Ok(()) => {
+                println!("File generated: {}", file_name);
                 println!("include::<path>/{}[leveloffset=+1]", file_name);
             },
             // If the write fails, print why it failed
