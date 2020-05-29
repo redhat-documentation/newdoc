@@ -58,7 +58,7 @@ checksum = "9457b06509d27052635f90d6466700c65095fdf75409b3fbdd903e988b886f49"
 
 [[package]]
 name = "newdoc"
-version = "0.1.0"
+version = "2.0.0"
 dependencies = [
  "clap",
 ]
