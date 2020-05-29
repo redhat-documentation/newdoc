@@ -4,10 +4,10 @@ extern crate clap;
 use clap::{App, Arg, ArgMatches};
 
 // Load the AsciiDoc templates at build time
-const ASSEMBLY_TEMPLATE: &'static str = include_str!("../templates/assembly_title.adoc");
-const CONCEPT_TEMPLATE: &'static str = include_str!("../templates/con_title.adoc");
-const PROCEDURE_TEMPLATE: &'static str = include_str!("../templates/proc_title.adoc");
-const REFERENCE_TEMPLATE: &'static str = include_str!("../templates/ref_title.adoc");
+const ASSEMBLY_TEMPLATE: &str = include_str!("../templates/assembly_title.adoc");
+const CONCEPT_TEMPLATE: &str = include_str!("../templates/con_title.adoc");
+const PROCEDURE_TEMPLATE: &str = include_str!("../templates/proc_title.adoc");
+const REFERENCE_TEMPLATE: &str = include_str!("../templates/ref_title.adoc");
 
 fn main() {
     let plain_args: Vec<String> = env::args().collect();
