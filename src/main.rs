@@ -109,8 +109,12 @@ fn process_module(module_type: &str, title: &str) {
     let module_id = convert_title_to_id(title);
     println!("We have a module of type {}, titled {}", module_type, title);
     println!("And the ID is: {}", module_id);
-    let module_text = compose_module_text(title, module_type);
+
+    let module_text = compose_module_text(title, &module_id, module_type);
     println!("The applied template:\n{}", module_text);
+
+    let file_name = compose_file_name(&module_id, module_type);
+    println!("And the file name is {}", file_name);
 }
 
 fn convert_title_to_id(title: &str) -> String {
@@ -175,10 +179,7 @@ fn convert_title_to_id(title: &str) -> String {
     title
 }
 
-fn compose_module_text(title: &str, module_type: &str) -> String {
-    // Create the ID
-    let module_id = convert_title_to_id(title);
-
+fn compose_module_text(title: &str, module_id: &str, module_type: &str) -> String {
     // Pick the right template
     let current_template = match module_type {
         "assembly" => ASSEMBLY_TEMPLATE,
@@ -189,7 +190,7 @@ fn compose_module_text(title: &str, module_type: &str) -> String {
     };
 
     // Define the strings that will be replaced in the template
-    let replacements = [("${module_title}", title), ("${module_id}", &module_id)];
+    let replacements = [("${module_title}", title), ("${module_id}", module_id)];
 
     // Perform substitutions in the template
     // TODO: Create a separate function to perform a replacement
@@ -200,4 +201,22 @@ fn compose_module_text(title: &str, module_type: &str) -> String {
     }
 
     template_with_replacements
+}
+
+fn compose_file_name(module_id: &str, module_type: &str) -> String {
+    // Pick the right file prefix
+    let prefix = match module_type {
+        "assembly" => "assembly_",
+        "concept" => "con_",
+        "procedure" => "proc_",
+        "reference" => "ref_",
+        _ => unimplemented!(),
+    };
+
+    let suffix = ".adoc";
+
+    // let file_name = [prefix, module_id, suffix].join("");
+    let file_name = format!("{}{}{}", prefix, module_id, suffix);
+
+    file_name
 }
