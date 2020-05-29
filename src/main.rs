@@ -99,7 +99,6 @@ fn main() {
 
 fn process_module_type(matches: &ArgMatches, module_type: &str) {
     if let Some(titles_iterator) = matches.values_of(module_type) {
-
         for title in titles_iterator {
             process_module(module_type, title)
         }
@@ -182,18 +181,15 @@ fn compose_module_text(title: &str, module_type: &str) -> String {
 
     // Pick the right template
     let current_template = match module_type {
-                   "assembly" => ASSEMBLY_TEMPLATE,
-                   "concept" => CONCEPT_TEMPLATE,
-                   "procedure" => PROCEDURE_TEMPLATE,
-                   "reference" => REFERENCE_TEMPLATE,
-                   _ => unimplemented!(),
-               };
+        "assembly" => ASSEMBLY_TEMPLATE,
+        "concept" => CONCEPT_TEMPLATE,
+        "procedure" => PROCEDURE_TEMPLATE,
+        "reference" => REFERENCE_TEMPLATE,
+        _ => unimplemented!(),
+    };
 
     // Define the strings that will be replaced in the template
-    let replacements = [
-        ("${module_title}", title),
-        ("${module_id}", &module_id),
-    ];
+    let replacements = [("${module_title}", title), ("${module_id}", &module_id)];
 
     // Perform substitutions in the template
     // TODO: Create a separate function to perform a replacement
@@ -201,8 +197,7 @@ fn compose_module_text(title: &str, module_type: &str) -> String {
 
     for (old, new) in replacements.iter() {
         template_with_replacements = template_with_replacements.replace(old, new);
-    };
+    }
 
     template_with_replacements
 }
-
