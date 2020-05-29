@@ -110,6 +110,8 @@ fn process_module(module_type: &str, title: &str) {
     let module_id = convert_title_to_id(title);
     println!("We have a module of type {}, titled {}", module_type, title);
     println!("And the ID is: {}", module_id);
+    let module_text = compose_module_text(title, module_type);
+    println!("The applied template:\n{}", module_text);
 }
 
 fn convert_title_to_id(title: &str) -> String {
@@ -173,3 +175,34 @@ fn convert_title_to_id(title: &str) -> String {
 
     title
 }
+
+fn compose_module_text(title: &str, module_type: &str) -> String {
+    // Create the ID
+    let module_id = convert_title_to_id(title);
+
+    // Pick the right template
+    let current_template = match module_type {
+                   "assembly" => ASSEMBLY_TEMPLATE,
+                   "concept" => CONCEPT_TEMPLATE,
+                   "procedure" => PROCEDURE_TEMPLATE,
+                   "reference" => REFERENCE_TEMPLATE,
+                   _ => unimplemented!(),
+               };
+
+    // Define the strings that will be replaced in the template
+    let replacements = [
+        ("${module_title}", title),
+        ("${module_id}", &module_id),
+    ];
+
+    // Perform substitutions in the template
+    // TODO: Create a separate function to perform a replacement
+    let mut template_with_replacements = String::from(current_template);
+
+    for (old, new) in replacements.iter() {
+        template_with_replacements = template_with_replacements.replace(old, new);
+    };
+
+    template_with_replacements
+}
+
