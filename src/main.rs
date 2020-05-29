@@ -3,6 +3,12 @@ use std::env;
 extern crate clap;
 use clap::{App, Arg, ArgMatches};
 
+// Load the AsciiDoc templates at build time
+const ASSEMBLY_TEMPLATE: &'static str = include_str!("../templates/assembly_title.adoc");
+const CONCEPT_TEMPLATE: &'static str = include_str!("../templates/con_title.adoc");
+const PROCEDURE_TEMPLATE: &'static str = include_str!("../templates/proc_title.adoc");
+const REFERENCE_TEMPLATE: &'static str = include_str!("../templates/ref_title.adoc");
+
 fn main() {
     let plain_args: Vec<String> = env::args().collect();
     println!("Plain args: {:#?}", plain_args);
@@ -74,18 +80,12 @@ fn main() {
     let matches = clap_app.get_matches();
     println!("{:#?}", matches);
 
-    // Load the AsciiDoc templates and embed them into the binary, accessible as str slices
-    let assembly_template = include_str!("../templates/assembly_title.adoc");
-    let concept_template = include_str!("../templates/con_title.adoc");
-    let procedure_template = include_str!("../templates/proc_title.adoc");
-    let reference_template = include_str!("../templates/ref_title.adoc");
-
     // Just use the templates in a random way to check that they are there
     let templates_length: usize = [
-        assembly_template,
-        concept_template,
-        procedure_template,
-        reference_template,
+        ASSEMBLY_TEMPLATE,
+        CONCEPT_TEMPLATE,
+        PROCEDURE_TEMPLATE,
+        REFERENCE_TEMPLATE,
     ]
     .iter()
     .map(|template| template.len())
