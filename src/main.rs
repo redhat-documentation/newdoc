@@ -69,19 +69,6 @@ fn main() {
         );
 
     let matches = clap_app.get_matches();
-    println!("{:#?}", matches);
-
-    // Just use the templates in a random way to check that they are there
-    let templates_length: usize = [
-        ASSEMBLY_TEMPLATE,
-        CONCEPT_TEMPLATE,
-        PROCEDURE_TEMPLATE,
-        REFERENCE_TEMPLATE,
-    ]
-    .iter()
-    .map(|template| template.len())
-    .sum();
-    println!("Length of all the templates combined: {}", templates_length);
 
     for module_type in ["assembly", "concept", "procedure", "reference"].iter() {
         process_module_type(&matches, module_type);
