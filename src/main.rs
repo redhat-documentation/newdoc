@@ -99,9 +99,8 @@ fn main() {
 
 fn process_module_type(matches: &ArgMatches, module_type: &str) {
     if let Some(titles_iterator) = matches.values_of(module_type) {
-        let titles: Vec<&str> = titles_iterator.collect();
 
-        for title in titles {
+        for title in titles_iterator {
             process_module(module_type, title)
         }
     }
