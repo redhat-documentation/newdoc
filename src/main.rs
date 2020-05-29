@@ -10,6 +10,11 @@ const CONCEPT_TEMPLATE: &str = include_str!("../templates/con_title.adoc");
 const PROCEDURE_TEMPLATE: &str = include_str!("../templates/proc_title.adoc");
 const REFERENCE_TEMPLATE: &str = include_str!("../templates/ref_title.adoc");
 
+struct Options {
+    comments: bool,
+    prefixes: bool,
+}
+
 fn main() {
 
     // Define command-line options
@@ -70,28 +75,36 @@ fn main() {
 
     let matches = clap_app.get_matches();
 
+    // Set current options based on the command-line options
+    let options = Options {
+        // Comments and prefixes are enabled (true) by default unless you disable them
+        // on the command line
+        comments: if matches.occurrences_of("no-comments") > 0 { false } else { true },
+        prefixes: if matches.occurrences_of("no-prefixes") > 0 { false } else { true },
+    };
+
     for module_type in ["assembly", "concept", "procedure", "reference"].iter() {
-        process_module_type(&matches, module_type);
+        process_module_type(&matches, module_type, &options);
     }
 }
 
-fn process_module_type(matches: &ArgMatches, module_type: &str) {
+fn process_module_type(matches: &ArgMatches, module_type: &str, options: &Options) {
     if let Some(titles_iterator) = matches.values_of(module_type) {
         for title in titles_iterator {
-            process_module(module_type, title)
+            process_module(module_type, title, &options);
         }
     }
 }
 
-fn process_module(module_type: &str, title: &str) {
+fn process_module(module_type: &str, title: &str, options: &Options) {
     let module_id = convert_title_to_id(title);
     println!("We have a module of type {}, titled {}", module_type, title);
     println!("And the ID is: {}", module_id);
 
-    let module_text = compose_module_text(title, &module_id, module_type);
+    let module_text = compose_module_text(title, &module_id, module_type, &options);
     println!("The applied template:\n{}", module_text);
 
-    let file_name = compose_file_name(&module_id, module_type);
+    let file_name = compose_file_name(&module_id, module_type, &options);
     println!("And the file name is {}", file_name);
 
     write_module(&file_name, &module_text);
@@ -159,7 +172,7 @@ fn convert_title_to_id(title: &str) -> String {
     title
 }
 
-fn compose_module_text(title: &str, module_id: &str, module_type: &str) -> String {
+fn compose_module_text(title: &str, module_id: &str, module_type: &str, options: &Options) -> String {
     // Pick the right template
     let current_template = match module_type {
         "assembly" => ASSEMBLY_TEMPLATE,
@@ -180,10 +193,26 @@ fn compose_module_text(title: &str, module_id: &str, module_type: &str) -> Strin
         template_with_replacements = template_with_replacements.replace(old, new);
     }
 
+    // If comments are disabled via an option, delete comment lines from the content
+    // TODO: This doesn't handle AsciiDoc comment blocks at all
+    if !options.comments {
+        // Filter out comment lines in an iterator
+        let lines = template_with_replacements
+            .lines()
+            .filter(|line| !line.starts_with("//"));
+        // Connect the iterator back into a String, connecting with newlines
+        template_with_replacements = lines.collect::<Vec<&str>>().join("\n");
+        // Add a final newline at the end of the file
+        template_with_replacements.push('\n');
+    }
+
     template_with_replacements
 }
 
-fn compose_file_name(module_id: &str, module_type: &str) -> String {
+fn compose_file_name(module_id: &str, module_type: &str, options: &Options) -> String {
+    if !options.prefixes {
+        println!("No prefix");
+    }
     // Pick the right file prefix
     let prefix = match module_type {
         "assembly" => "assembly_",
