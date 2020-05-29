@@ -1,7 +1,9 @@
 [package]
 name = "newdoc"
-version = "0.1.0"
+version = "2.0.0"
+description = "Generate an AsciiDoc file using a modular template"
 authors = ["Marek Suchánek <marek.suchanek@protonmail.com>"]
+license = "GPL-3.0-or-later"
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -9,3 +11,9 @@ edition = "2018"
 [dependencies]
 clap = "2"
 
+
+[package.metadata.rpm.cargo]
+buildflags = ["--release"]
+
+[package.metadata.rpm.targets]
+newdoc = { path = "/usr/bin/newdoc" }
