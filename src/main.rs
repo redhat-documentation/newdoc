@@ -215,8 +215,7 @@ fn compose_file_name(module_id: &str, module_type: &str) -> String {
 
     let suffix = ".adoc";
 
-    // let file_name = [prefix, module_id, suffix].join("");
-    let file_name = format!("{}{}{}", prefix, module_id, suffix);
+    let file_name = [prefix, module_id, suffix].join("");
 
     file_name
 }
