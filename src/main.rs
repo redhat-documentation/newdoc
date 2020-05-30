@@ -1,7 +1,6 @@
 use std::fs;
 use std::io::{self, Write};
 use std::path::PathBuf;
-use std::process;
 
 extern crate clap;
 use clap::{App, AppSettings, Arg, Values};
@@ -324,9 +323,9 @@ fn write_module(file_name: &str, content: &str, options: &Options) {
             "y" | "yes" => { println!("Rewriting the file."); },
             _ => {
                 println!("Preserving the existing file.");
-                // TODO: This exits the whole program, even if there are more modules in the queue.
-                // Change the exit to just break from generating this particular module.
-                process::exit(1);
+                // Break from generating this particular module.
+                // Other modules that might be in the queue will be generated on next iteration.
+                return;
             },
         };
     }
