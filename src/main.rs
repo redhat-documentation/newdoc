@@ -10,11 +10,41 @@ const CONCEPT_TEMPLATE: &str = include_str!("../templates/concept.adoc");
 const PROCEDURE_TEMPLATE: &str = include_str!("../templates/procedure.adoc");
 const REFERENCE_TEMPLATE: &str = include_str!("../templates/reference.adoc");
 
+// All possible types of the AsciiDoc module
+#[derive(Debug)]
 enum ModuleType {
     Assembly,
     Concept,
     Procedure,
     Reference,
+}
+
+// The module with all its metadata and the generated AsciiDoc content
+#[derive(Debug)]
+struct Module {
+    mod_type: ModuleType,
+    title: String,
+    id: String,
+    file_name: String,
+    text: String,
+}
+
+impl Module {
+    // The constructor for the Module struct
+    pub fn new(mod_type: ModuleType, title: &str, options: &Options) -> Module {
+        let title = String::from(title);
+        let id = Module::convert_title_to_id(&title);
+        let file_name = Module::compose_file_name(&id, &mod_type, &options);
+        let text = Module::compose_text(&title, &id, &mod_type, &options);
+
+        Module {
+            mod_type,
+            title,
+            id,
+            file_name,
+            text,
+        }
+    }
 }
 
 // This struct will store options based on the command-line arguments,
@@ -106,7 +136,7 @@ fn main() {
         },
     };
 
-    // TODO: Streamline how we store metadata about module types. A struct, perhaps?
+    // TODO: Maybe attach these strings to the ModuleType enum somehow
     // For each module type, see if it occurs on the command line and process it
     for module_type_str in ["assembly", "concept", "procedure", "reference"].iter() {
         // Check if the given module type occurs on the command line
@@ -116,157 +146,156 @@ fn main() {
     }
 }
 
-fn process_module_type(titles:Values, module_type_str: &str, options: &Options) {
-    // Convert the string mmodule type to an enum
-    let module_type = match module_type_str {
-        "assembly" => ModuleType::Assembly,
-        "concept" => ModuleType::Concept,
-        "procedure" => ModuleType::Procedure,
-        "reference" => ModuleType::Reference,
-        _ => unimplemented!(),
-    };
-
+fn process_module_type(titles: Values, module_type_str: &str, options: &Options) {
     // Process all module titles in the module type
     for title in titles {
-        process_module(&module_type, title, &options);
+        // Convert the string module type to an enum.
+        // This must be done for each title separately so that the title can own the ModuleType.
+        let module_type = match module_type_str {
+            "assembly" => ModuleType::Assembly,
+            "concept" => ModuleType::Concept,
+            "procedure" => ModuleType::Procedure,
+            "reference" => ModuleType::Reference,
+            _ => unimplemented!(),
+        };
+        process_module(module_type, title, &options);
     }
 }
 
-fn process_module(module_type: &ModuleType, title: &str, options: &Options) {
-    // TODO: Add a comment in the generated file with a pre-filled include statement
-
-    // Derive the module properties from its title
-    let module_id = convert_title_to_id(title);
-    let module_text = compose_module_text(title, &module_id, &module_type, &options);
-    let file_name = compose_file_name(&module_id, &module_type, &options);
+fn process_module(module_type: ModuleType, title: &str, options: &Options) {
+    let module = Module::new(module_type, title, &options);
 
     // Write the module text into the file with the appropriate file name
-    write_module(&file_name, &module_text, &options);
+    write_module(&module.file_name, &module.text, &options);
 }
 
-fn convert_title_to_id(title: &str) -> String {
-    // The ID is all lower-case
-    let mut title_with_replacements = String::from(title).to_lowercase();
+impl Module {
+    fn convert_title_to_id(title: &str) -> String {
+        // The ID is all lower-case
+        let mut title_with_replacements = String::from(title).to_lowercase();
 
-    // Replace characters that aren't allowed in the ID, usually with a dash or an empty string
-    let substitutions = [
-        (" ", "-"),
-        ("(", ""),
-        (")", ""),
-        ("?", ""),
-        ("!", ""),
-        ("'", ""),
-        ("\"", ""),
-        ("#", ""),
-        ("%", ""),
-        ("&", ""),
-        ("*", ""),
-        (",", ""),
-        (".", "-"),
-        ("/", "-"),
-        (":", "-"),
-        (";", ""),
-        ("@", "-at-"),
-        ("\\", ""),
-        ("`", ""),
-        ("$", ""),
-        ("^", ""),
-        ("|", ""),
-        // Remove known semantic markup from the ID:
-        ("[package]", ""),
-        ("[option]", ""),
-        ("[parameter]", ""),
-        ("[variable]", ""),
-        ("[command]", ""),
-        ("[replaceable]", ""),
-        ("[filename]", ""),
-        ("[literal]", ""),
-        ("[systemitem]", ""),
-        ("[application]", ""),
-        ("[function]", ""),
-        ("[gui]", ""),
-        // Remove square brackets only after semantic markup:
-        ("[", ""),
-        ("]", ""),
-        // TODO: Curly braces shouldn't appear in the title in the first place.
-        // They'd be interpreted as attributes there.
-        // Print an error in that case? Escape them with AciiDoc escapes?
-        ("{", ""),
-        ("}", ""),
-    ];
+        // Replace characters that aren't allowed in the ID, usually with a dash or an empty string
+        let substitutions = [
+            (" ", "-"),
+            ("(", ""),
+            (")", ""),
+            ("?", ""),
+            ("!", ""),
+            ("'", ""),
+            ("\"", ""),
+            ("#", ""),
+            ("%", ""),
+            ("&", ""),
+            ("*", ""),
+            (",", ""),
+            (".", "-"),
+            ("/", "-"),
+            (":", "-"),
+            (";", ""),
+            ("@", "-at-"),
+            ("\\", ""),
+            ("`", ""),
+            ("$", ""),
+            ("^", ""),
+            ("|", ""),
+            // Remove known semantic markup from the ID:
+            ("[package]", ""),
+            ("[option]", ""),
+            ("[parameter]", ""),
+            ("[variable]", ""),
+            ("[command]", ""),
+            ("[replaceable]", ""),
+            ("[filename]", ""),
+            ("[literal]", ""),
+            ("[systemitem]", ""),
+            ("[application]", ""),
+            ("[function]", ""),
+            ("[gui]", ""),
+            // Remove square brackets only after semantic markup:
+            ("[", ""),
+            ("]", ""),
+            // TODO: Curly braces shouldn't appear in the title in the first place.
+            // They'd be interpreted as attributes there.
+            // Print an error in that case? Escape them with AciiDoc escapes?
+            ("{", ""),
+            ("}", ""),
+        ];
 
-    // Perform all the defined replacements on the title
-    for (old, new) in substitutions.iter() {
-        title_with_replacements = title_with_replacements.replace(old, new);
-    }
-
-    // Make sure the converted ID doesn't contain double dashes ("--"), because
-    // that breaks references to the ID
-    while title_with_replacements.contains("--") {
-        title_with_replacements = title_with_replacements.replace("--", "-");
-    }
-
-    title_with_replacements
-}
-
-fn compose_module_text(
-    title: &str,
-    module_id: &str,
-    module_type: &ModuleType,
-    options: &Options,
-) -> String {
-    // Pick the right template
-    let current_template = match module_type {
-        ModuleType::Assembly => ASSEMBLY_TEMPLATE,
-        ModuleType::Concept => CONCEPT_TEMPLATE,
-        ModuleType::Procedure => PROCEDURE_TEMPLATE,
-        ModuleType::Reference => REFERENCE_TEMPLATE,
-    };
-
-    // Define the strings that will be replaced in the template
-    let replacements = [("${module_title}", title), ("${module_id}", module_id)];
-
-    // Perform substitutions in the template
-    // TODO: Create a separate function to perform a replacement
-    let mut template_with_replacements = String::from(current_template);
-
-    for (old, new) in replacements.iter() {
-        template_with_replacements = template_with_replacements.replace(old, new);
-    }
-
-    // If comments are disabled via an option, delete comment lines from the content
-    // TODO: This doesn't handle AsciiDoc comment blocks at all
-    if !options.comments {
-        // Filter out comment lines in an iterator
-        let lines = template_with_replacements
-            .lines()
-            .filter(|line| !line.starts_with("//"));
-        // Connect the iterator back into a String, connecting with newlines
-        template_with_replacements = lines.collect::<Vec<&str>>().join("\n");
-        // Add a final newline at the end of the file
-        template_with_replacements.push('\n');
-    }
-
-    template_with_replacements
-}
-
-fn compose_file_name(module_id: &str, module_type: &ModuleType, options: &Options) -> String {
-    let prefix = if options.prefixes {
-        // If prefixes are enabled, pick the right file prefix
-        match module_type {
-            ModuleType::Assembly => "assembly_",
-            ModuleType::Concept => "con_",
-            ModuleType::Procedure => "proc_",
-            ModuleType::Reference => "ref_",
+        // Perform all the defined replacements on the title
+        for (old, new) in substitutions.iter() {
+            title_with_replacements = title_with_replacements.replace(old, new);
         }
-    } else {
-        // If prefixes are disabled, use an empty string for the prefix
-        ""
-    };
 
-    let suffix = ".adoc";
+        // Make sure the converted ID doesn't contain double dashes ("--"), because
+        // that breaks references to the ID
+        while title_with_replacements.contains("--") {
+            title_with_replacements = title_with_replacements.replace("--", "-");
+        }
 
-    [prefix, module_id, suffix].join("")
+        title_with_replacements
+    }
+
+    fn compose_text(
+        title: &str,
+        module_id: &str,
+        module_type: &ModuleType,
+        options: &Options,
+    ) -> String {
+        // TODO: Add a comment in the generated file with a pre-filled include statement
+
+        // Pick the right template
+        let current_template = match module_type {
+            ModuleType::Assembly => ASSEMBLY_TEMPLATE,
+            ModuleType::Concept => CONCEPT_TEMPLATE,
+            ModuleType::Procedure => PROCEDURE_TEMPLATE,
+            ModuleType::Reference => REFERENCE_TEMPLATE,
+        };
+
+        // Define the strings that will be replaced in the template
+        let replacements = [("${module_title}", title), ("${module_id}", module_id)];
+
+        // Perform substitutions in the template
+        // TODO: Create a separate function to perform a replacement
+        let mut template_with_replacements = String::from(current_template);
+
+        for (old, new) in replacements.iter() {
+            template_with_replacements = template_with_replacements.replace(old, new);
+        }
+
+        // If comments are disabled via an option, delete comment lines from the content
+        // TODO: This doesn't handle AsciiDoc comment blocks at all
+        if !options.comments {
+            // Filter out comment lines in an iterator
+            let lines = template_with_replacements
+                .lines()
+                .filter(|line| !line.starts_with("//"));
+            // Connect the iterator back into a String, connecting with newlines
+            template_with_replacements = lines.collect::<Vec<&str>>().join("\n");
+            // Add a final newline at the end of the file
+            template_with_replacements.push('\n');
+        }
+
+        template_with_replacements
+    }
+
+    fn compose_file_name(module_id: &str, module_type: &ModuleType, options: &Options) -> String {
+        let prefix = if options.prefixes {
+            // If prefixes are enabled, pick the right file prefix
+            match module_type {
+                ModuleType::Assembly => "assembly_",
+                ModuleType::Concept => "con_",
+                ModuleType::Procedure => "proc_",
+                ModuleType::Reference => "ref_",
+            }
+        } else {
+            // If prefixes are disabled, use an empty string for the prefix
+            ""
+        };
+
+        let suffix = ".adoc";
+
+        [prefix, module_id, suffix].join("")
+    }
 }
 
 fn write_module(file_name: &str, content: &str, options: &Options) {
