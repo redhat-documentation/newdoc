@@ -2,13 +2,20 @@ use std::fs;
 use std::path::PathBuf;
 
 extern crate clap;
-use clap::{App, AppSettings, Arg, ArgMatches};
+use clap::{App, AppSettings, Arg, Values};
 
 // Load the AsciiDoc templates at build time
 const ASSEMBLY_TEMPLATE: &str = include_str!("../templates/assembly.adoc");
 const CONCEPT_TEMPLATE: &str = include_str!("../templates/concept.adoc");
 const PROCEDURE_TEMPLATE: &str = include_str!("../templates/procedure.adoc");
 const REFERENCE_TEMPLATE: &str = include_str!("../templates/reference.adoc");
+
+enum ModuleType {
+    Assembly,
+    Concept,
+    Procedure,
+    Reference,
+}
 
 // This struct will store options based on the command-line arguments,
 // and will be passed to various functions across the program.
@@ -101,28 +108,37 @@ fn main() {
 
     // TODO: Streamline how we store metadata about module types. A struct, perhaps?
     // For each module type, see if it occurs on the command line and process it
-    for module_type in ["assembly", "concept", "procedure", "reference"].iter() {
-        process_module_type(&cmdline_args, module_type, &options);
-    }
-}
-
-fn process_module_type(cmdline_args: &ArgMatches, module_type: &str, options: &Options) {
-    // Check if the given module type occurs on the command line
-    if let Some(titles_iterator) = cmdline_args.values_of(module_type) {
-        // Porcess all module titles in the module type
-        for title in titles_iterator {
-            process_module(module_type, title, &options);
+    for module_type_str in ["assembly", "concept", "procedure", "reference"].iter() {
+        // Check if the given module type occurs on the command line
+        if let Some(titles_iterator) = cmdline_args.values_of(module_type_str) {
+            process_module_type(titles_iterator, module_type_str, &options);
         }
     }
 }
 
-fn process_module(module_type: &str, title: &str, options: &Options) {
+fn process_module_type(titles:Values, module_type_str: &str, options: &Options) {
+    // Convert the string mmodule type to an enum
+    let module_type = match module_type_str {
+        "assembly" => ModuleType::Assembly,
+        "concept" => ModuleType::Concept,
+        "procedure" => ModuleType::Procedure,
+        "reference" => ModuleType::Reference,
+        _ => unimplemented!(),
+    };
+
+    // Process all module titles in the module type
+    for title in titles {
+        process_module(&module_type, title, &options);
+    }
+}
+
+fn process_module(module_type: &ModuleType, title: &str, options: &Options) {
     // TODO: Add a comment in the generated file with a pre-filled include statement
 
     // Derive the module properties from its title
     let module_id = convert_title_to_id(title);
-    let module_text = compose_module_text(title, &module_id, module_type, &options);
-    let file_name = compose_file_name(&module_id, module_type, &options);
+    let module_text = compose_module_text(title, &module_id, &module_type, &options);
+    let file_name = compose_file_name(&module_id, &module_type, &options);
 
     // Write the module text into the file with the appropriate file name
     write_module(&file_name, &module_text, &options);
@@ -196,16 +212,15 @@ fn convert_title_to_id(title: &str) -> String {
 fn compose_module_text(
     title: &str,
     module_id: &str,
-    module_type: &str,
+    module_type: &ModuleType,
     options: &Options,
 ) -> String {
     // Pick the right template
     let current_template = match module_type {
-        "assembly" => ASSEMBLY_TEMPLATE,
-        "concept" => CONCEPT_TEMPLATE,
-        "procedure" => PROCEDURE_TEMPLATE,
-        "reference" => REFERENCE_TEMPLATE,
-        _ => unimplemented!(),
+        ModuleType::Assembly => ASSEMBLY_TEMPLATE,
+        ModuleType::Concept => CONCEPT_TEMPLATE,
+        ModuleType::Procedure => PROCEDURE_TEMPLATE,
+        ModuleType::Reference => REFERENCE_TEMPLATE,
     };
 
     // Define the strings that will be replaced in the template
@@ -235,15 +250,14 @@ fn compose_module_text(
     template_with_replacements
 }
 
-fn compose_file_name(module_id: &str, module_type: &str, options: &Options) -> String {
+fn compose_file_name(module_id: &str, module_type: &ModuleType, options: &Options) -> String {
     let prefix = if options.prefixes {
         // If prefixes are enabled, pick the right file prefix
         match module_type {
-            "assembly" => "assembly_",
-            "concept" => "con_",
-            "procedure" => "proc_",
-            "reference" => "ref_",
-            _ => unimplemented!(),
+            ModuleType::Assembly => "assembly_",
+            ModuleType::Concept => "con_",
+            ModuleType::Procedure => "proc_",
+            ModuleType::Reference => "ref_",
         }
     } else {
         // If prefixes are disabled, use an empty string for the prefix
