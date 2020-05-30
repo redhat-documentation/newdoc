@@ -1,5 +1,7 @@
 use std::fs;
+use std::io::{self, Write};
 use std::path::PathBuf;
+use std::process;
 
 extern crate clap;
 use clap::{App, AppSettings, Arg, Values};
@@ -305,21 +307,41 @@ fn write_module(file_name: &str, content: &str, options: &Options) {
 
     // If the target file already exists, just print out an error
     if full_path.exists() {
-        // TODO: Add a prompt enabling the user to overwrite the existing file
+        // A prompt enabling the user to overwrite the existing file
         println!("File already exists: {}", full_path.display());
-    } else {
-        // If the target file doesn't exist, try to write to it
-        let result = fs::write(full_path, content);
-        match result {
-            // If the write succeeds, print the include statement
-            Ok(()) => {
-                println!("File generated: {}", full_path.display());
-                println!("include::<path>/{}[leveloffset=+1]", file_name);
-            }
-            // If the write fails, print why it failed
-            Err(e) => {
-                println!("Failed to write the file: {}", e);
-            }
+        print!("Do you want to overwrite it? [y/N] ");
+        // We must manually flush the buffer or else the printed string doesn't appear.
+        // The buffer otherwise waits for a newline.
+        io::stdout().flush().unwrap();
+
+        let mut answer = String::new();
+
+        io::stdin()
+            .read_line(&mut answer)
+            .expect("Failed to read the response");
+
+        match answer.trim().to_lowercase().as_str() {
+            "y" | "yes" => { println!("Rewriting the file."); },
+            _ => {
+                println!("Preserving the existing file.");
+                // TODO: This exits the whole program, even if there are more modules in the queue.
+                // Change the exit to just break from generating this particular module.
+                process::exit(1);
+            },
+        };
+    }
+
+    // If the target file doesn't exist, try to write to it
+    let result = fs::write(full_path, content);
+    match result {
+        // If the write succeeds, print the include statement
+        Ok(()) => {
+            println!("File generated: {}", full_path.display());
+            println!("include::<path>/{}[leveloffset=+1]", file_name);
+        }
+        // If the write fails, print why it failed
+        Err(e) => {
+            println!("Failed to write the file: {}", e);
         }
     }
 }
