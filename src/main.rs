@@ -1,5 +1,5 @@
 use std::fs;
-use std::path::Path;
+use std::path::PathBuf;
 
 extern crate clap;
 use clap::{App, AppSettings, Arg, ArgMatches};
@@ -15,6 +15,7 @@ const REFERENCE_TEMPLATE: &str = include_str!("../templates/ref_title.adoc");
 struct Options {
     comments: bool,
     prefixes: bool,
+    target_dir: String,
 }
 
 fn main() {
@@ -69,10 +70,19 @@ fn main() {
         )
         .arg(
             Arg::with_name("no-prefixes")
-                .short("-P")
+                .short("P")
                 .long("no-prefixes")
                 .help("Do not use module type prefixes (e.g. `proc_`) in file names"),
-        ).get_matches();
+        )
+        .arg(
+            Arg::with_name("target-dir")
+                .short("-T")
+                .long("target-dir")
+                .takes_value(true)
+                .value_name("directory")
+                .help("Save the generated files in this directory"),
+        )
+        .get_matches();
 
     // Set current options based on the command-line options
     let options = Options {
@@ -81,6 +91,12 @@ fn main() {
         // (occurences > 0), the feature is disabled, so the option is set to false.
         comments: cmdline_args.occurrences_of("no-comments") == 0,
         prefixes: cmdline_args.occurrences_of("no-prefixes") == 0,
+        // Set the target directory as specified or fall back on the current directory
+        target_dir: if let Some(dir) = cmdline_args.value_of("target-dir") {
+            String::from(dir)
+        } else {
+            String::from(".")
+        },
     };
 
     // TODO: Streamline how we store metadata about module types. A struct, perhaps?
@@ -109,7 +125,7 @@ fn process_module(module_type: &str, title: &str, options: &Options) {
     let file_name = compose_file_name(&module_id, module_type, &options);
 
     // Write the module text into the file with the appropriate file name
-    write_module(&file_name, &module_text);
+    write_module(&file_name, &module_text, &options);
 }
 
 fn convert_title_to_id(title: &str) -> String {
@@ -239,18 +255,22 @@ fn compose_file_name(module_id: &str, module_type: &str, options: &Options) -> S
     [prefix, module_id, suffix].join("")
 }
 
-fn write_module(file_name: &str, content: &str) {
+fn write_module(file_name: &str, content: &str, options: &Options) {
+    // Compose the full (but still relative) file path from the target directory and the file name
+    let full_path_buf: PathBuf = [&options.target_dir, file_name].iter().collect();
+    let full_path = full_path_buf.as_path();
+
     // If the target file already exists, just print out an error
-    if Path::new(file_name).exists() {
+    if full_path.exists() {
         // TODO: Add a prompt enabling the user to overwrite the existing file
-        println!("File already exists: {}", file_name);
+        println!("File already exists: {}", full_path.display());
     } else {
         // If the target file doesn't exist, try to write to it
-        let result = fs::write(file_name, content);
+        let result = fs::write(full_path, content);
         match result {
             // If the write succeeds, print the include statement
             Ok(()) => {
-                println!("File generated: {}", file_name);
+                println!("File generated: {}", full_path.display());
                 println!("include::<path>/{}[leveloffset=+1]", file_name);
             }
             // If the write fails, print why it failed
