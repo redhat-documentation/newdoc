@@ -307,8 +307,8 @@ fn write_module(file_name: &str, content: &str, options: &Options) {
     // If the target file already exists, just print out an error
     if full_path.exists() {
         // A prompt enabling the user to overwrite the existing file
-        println!("File already exists: {}", full_path.display());
-        print!("Do you want to overwrite it? [y/N] ");
+        eprintln!("File already exists: {}", full_path.display());
+        eprint!("Do you want to overwrite it? [y/N] ");
         // We must manually flush the buffer or else the printed string doesn't appear.
         // The buffer otherwise waits for a newline.
         io::stdout().flush().unwrap();
@@ -321,10 +321,10 @@ fn write_module(file_name: &str, content: &str, options: &Options) {
 
         match answer.trim().to_lowercase().as_str() {
             "y" | "yes" => {
-                println!("Rewriting the file.");
+                eprintln!("Rewriting the file.");
             }
             _ => {
-                println!("Preserving the existing file.");
+                eprintln!("Preserving the existing file.");
                 // Break from generating this particular module.
                 // Other modules that might be in the queue will be generated on next iteration.
                 return;
@@ -337,12 +337,12 @@ fn write_module(file_name: &str, content: &str, options: &Options) {
     match result {
         // If the write succeeds, print the include statement
         Ok(()) => {
-            println!("File generated: {}", full_path.display());
-            println!("include::<path>/{}[leveloffset=+1]", file_name);
+            eprintln!("File generated: {}", full_path.display());
+            eprintln!("include::<path>/{}[leveloffset=+1]", file_name);
         }
         // If the write fails, print why it failed
         Err(e) => {
-            println!("Failed to write the file: {}", e);
+            eprintln!("Failed to write the file: {}", e);
         }
     }
 }
