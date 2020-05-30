@@ -320,13 +320,15 @@ fn write_module(file_name: &str, content: &str, options: &Options) {
             .expect("Failed to read the response");
 
         match answer.trim().to_lowercase().as_str() {
-            "y" | "yes" => { println!("Rewriting the file."); },
+            "y" | "yes" => {
+                println!("Rewriting the file.");
+            }
             _ => {
                 println!("Preserving the existing file.");
                 // Break from generating this particular module.
                 // Other modules that might be in the queue will be generated on next iteration.
                 return;
-            },
+            }
         };
     }
 
