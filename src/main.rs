@@ -11,7 +11,7 @@ const CONCEPT_TEMPLATE: &str = include_str!("../templates/concept.adoc");
 const PROCEDURE_TEMPLATE: &str = include_str!("../templates/procedure.adoc");
 const REFERENCE_TEMPLATE: &str = include_str!("../templates/reference.adoc");
 
-// All possible types of the AsciiDoc module
+/// All possible types of the AsciiDoc module
 #[derive(Debug)]
 enum ModuleType {
     Assembly,
@@ -20,7 +20,7 @@ enum ModuleType {
     Reference,
 }
 
-// The module with all its metadata and the generated AsciiDoc content
+/// A representation of the module with all its metadata and the generated AsciiDoc content
 #[derive(Debug)]
 struct Module {
     mod_type: ModuleType,
@@ -31,7 +31,7 @@ struct Module {
 }
 
 impl Module {
-    // The constructor for the Module struct
+    /// The constructor for the Module struct
     pub fn new(mod_type: ModuleType, title: &str, options: &Options) -> Module {
         let title = String::from(title);
         let id = Module::convert_title_to_id(&title);
@@ -48,8 +48,8 @@ impl Module {
     }
 }
 
-// This struct will store options based on the command-line arguments,
-// and will be passed to various functions across the program.
+/// This struct stores options based on the command-line arguments,
+/// and is passed to various functions across the program.
 struct Options {
     comments: bool,
     prefixes: bool,
@@ -147,8 +147,9 @@ fn main() {
     }
 }
 
+/// Process all titles that have been specified on the command line and that belong to a single
+/// module type.
 fn process_module_type(titles: Values, module_type_str: &str, options: &Options) {
-    // Process all module titles in the module type
     for title in titles {
         // Convert the string module type to an enum.
         // This must be done for each title separately so that the title can own the ModuleType.
@@ -163,6 +164,8 @@ fn process_module_type(titles: Values, module_type_str: &str, options: &Options)
     }
 }
 
+/// For a particular title that belong to a module type, create a `Module` instance
+/// and let the `write_module()` procedure write it to the disk.
 fn process_module(module_type: ModuleType, title: &str, options: &Options) {
     let module = Module::new(module_type, title, &options);
 
@@ -171,6 +174,18 @@ fn process_module(module_type: ModuleType, title: &str, options: &Options) {
 }
 
 impl Module {
+    /// Create an ID string that is derived from the human-readable title. The ID is usable as:
+    ///
+    /// * An AsciiDoc section ID
+    /// * A DocBook section ID
+    /// * A file name
+    ///
+    /// ## Examples
+    ///
+    /// ```
+    /// let title = "Testing newdoc";
+    /// assert_eq!(String::from("testing-newdoc"), Module::convert_title_to_id(title));
+    /// ```
     fn convert_title_to_id(title: &str) -> String {
         // The ID is all lower-case
         let mut title_with_replacements = String::from(title).to_lowercase();
@@ -236,6 +251,8 @@ impl Module {
         title_with_replacements
     }
 
+    /// Perform string replacements in the modular template that matches the `ModuleType`.
+    /// Return the template text with all replacements.
     fn compose_text(
         title: &str,
         module_id: &str,
@@ -279,6 +296,9 @@ impl Module {
         template_with_replacements
     }
 
+    /// Prepare the file name for the generated file.
+    ///
+    /// The file name is based on the module ID, with the `.adoc` extension and an optional prefix.
     fn compose_file_name(module_id: &str, module_type: &ModuleType, options: &Options) -> String {
         let prefix = if options.prefixes {
             // If prefixes are enabled, pick the right file prefix
@@ -299,6 +319,7 @@ impl Module {
     }
 }
 
+/// Write the generated module content to the path specified in `options` with the set file name.
 fn write_module(file_name: &str, content: &str, options: &Options) {
     // Compose the full (but still relative) file path from the target directory and the file name
     let full_path_buf: PathBuf = [&options.target_dir, file_name].iter().collect();
