@@ -142,14 +142,20 @@ fn main() {
     for module_type_str in ["assembly", "concept", "procedure", "reference"].iter() {
         // Check if the given module type occurs on the command line
         if let Some(titles_iterator) = cmdline_args.values_of(module_type_str) {
-            process_module_type(titles_iterator, module_type_str, &options);
+            let modules = process_module_type(titles_iterator, module_type_str, &options);
+
+            for module in modules.iter() {
+                write_module(&module.file_name, &module.text, &options);
+            }
         }
     }
 }
 
 /// Process all titles that have been specified on the command line and that belong to a single
 /// module type.
-fn process_module_type(titles: Values, module_type_str: &str, options: &Options) {
+fn process_module_type(titles: Values, module_type_str: &str, options: &Options) -> Vec<Module> {
+    let mut modules_from_type = Vec::new();
+
     for title in titles {
         // Convert the string module type to an enum.
         // This must be done for each title separately so that the title can own the ModuleType.
@@ -163,8 +169,10 @@ fn process_module_type(titles: Values, module_type_str: &str, options: &Options)
 
         let module = Module::new(module_type, title, &options);
 
-        write_module(&module.file_name, &module.text, &options);
+        modules_from_type.push(module);
     }
+
+    modules_from_type
 }
 
 impl Module {
