@@ -160,17 +160,11 @@ fn process_module_type(titles: Values, module_type_str: &str, options: &Options)
             "reference" => ModuleType::Reference,
             _ => unimplemented!(),
         };
-        process_module(module_type, title, &options);
+
+        let module = Module::new(module_type, title, &options);
+
+        write_module(&module.file_name, &module.text, &options);
     }
-}
-
-/// For a particular title that belong to a module type, create a `Module` instance
-/// and let the `write_module()` procedure write it to the disk.
-fn process_module(module_type: ModuleType, title: &str, options: &Options) {
-    let module = Module::new(module_type, title, &options);
-
-    // Write the module text into the file with the appropriate file name
-    write_module(&module.file_name, &module.text, &options);
 }
 
 impl Module {
