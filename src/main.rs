@@ -270,7 +270,11 @@ impl Module {
         };
 
         // Define the strings that will be replaced in the template
-        let replacements = [("${module_title}", title), ("${module_id}", module_id)];
+        let replacements = [
+            ("${module_title}", title),
+            ("${module_id}", module_id),
+            ("${include_statements}", "Include modules here."),
+        ];
 
         // Perform substitutions in the template
         // TODO: Create a separate function to perform a replacement
