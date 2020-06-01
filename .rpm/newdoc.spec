@@ -8,6 +8,7 @@ Version: @@VERSION@@
 Release: @@RELEASE@@
 License: GPLv3+
 Group: Applications/Text
+Obsoletes: python3-newdoc, python2-newdoc
 Source0: %{name}-%{version}.tar.gz
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
