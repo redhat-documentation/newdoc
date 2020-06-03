@@ -65,6 +65,35 @@ It has not been tested on Microsoft Windows.
 * To specify the directory where `newdoc` saves the generated file, add the `--target-dir=<directory>` or `-T <directory>` option.
 
 
+## Packaging and distributing newdoc as an RPM
+
+1. Install the  `cargo` package manager. For details, see <https://rustup.rs/>.
+
+2. Install the `cargo-rpm` extension:
+
+    ```
+    $ cargo install cargo-rpm
+    ```
+
+3. In the `newdoc` project directory, build RPM packages:
+
+    ```
+    $ cargo rpm build
+    ```
+
+    This command build packages in the `target/release/rpmbuild/` directory.
+
+4. Log into the Copr repository administration: <https://copr.fedorainfracloud.org/coprs/mareksu/newdoc-rs/>.
+
+5. Go to the **Builds** tab.
+
+6. Click **New Build** and select **Upload**.
+
+7. In the **Provide the source** section, upload the most recent SRPM package from the `target/release/rpmbuild/SRPMS/` directory.
+
+8. Click **Build**.
+
+
 ## Additional resources
 
 * [Modular Documentation Reference Guide](https://redhat-documentation.github.io/modular-docs/)
