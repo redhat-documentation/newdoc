@@ -150,27 +150,33 @@ fn main() {
     // TODO: This is only for debugging. Remove it when it's no longer needed.
     println!("args: {:#?}", cmdline_args);
 
+    // Store all modules except for PopulatedAssembly that will be created in this Vec
+    let mut non_populated: Vec<Module> = Vec::new();
+
     // TODO: Maybe attach these strings to the ModuleType enum somehow
     // For each module type, see if it occurs on the command line and process it
-    let non_populated = for module_type_str in ["assembly", "include-in", "concept", "procedure", "reference"].iter() {
+    for module_type_str in ["assembly", "concept", "procedure", "reference"].iter() {
         // Check if the given module type occurs on the command line
         if let Some(titles_iterator) = cmdline_args.values_of(module_type_str) {
-            let modules = process_module_type(titles_iterator, module_type_str, &options);
+            let mut modules = process_module_type(titles_iterator, module_type_str, &options);
 
-            for module in modules.iter() {
-                write_module(&module.file_name, &module.text, &options);
-            }
+            // Move all the newly created modules into the common Vec
+            non_populated.append(&mut modules);
+        }
+    }
 
-            modules
-        } else {
-            Vec::new()
-        };
-    };
+    // Write all non-populated modules to the disk
+    for module in non_populated.iter() {
+        write_module(&module.file_name, &module.text, &options);
+    }
 
+    // Treat the PopulatedAssembly module as a special case:
+    // * There can be only one PopulatedAssembly
+    // * It must be generated after the other modules so that it can use their include statements
     if let Some(title) = cmdline_args.value_of("include-in") {
         let mut populated = Module::new(ModuleType::PopulatedAssembly, title, &options);
-        populated.text = String::from("Gotcha");
-        println!("{}", populated.text);
+        populated.text = populated.text.replace("Include modules here.\n", "Include statements are placed here.");
+        write_module(&populated.file_name, &populated.text, &options);
     }
 }
 
