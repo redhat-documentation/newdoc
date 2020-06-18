@@ -15,6 +15,7 @@ const REFERENCE_TEMPLATE: &str = include_str!("../templates/reference.adoc");
 #[derive(Debug)]
 enum ModuleType {
     Assembly,
+    PopulatedAssembly,
     Concept,
     Procedure,
     Reference,
@@ -27,6 +28,7 @@ struct Module {
     title: String,
     id: String,
     file_name: String,
+    include_statement: String,
     text: String,
 }
 
@@ -36,6 +38,7 @@ impl Module {
         let title = String::from(title);
         let id = Module::convert_title_to_id(&title);
         let file_name = Module::compose_file_name(&id, &mod_type, &options);
+        let include_statement = Module::compose_include_statement(&file_name);
         let text = Module::compose_text(&title, &id, &mod_type, &options);
 
         Module {
@@ -43,6 +46,7 @@ impl Module {
             title,
             id,
             file_name,
+            include_statement,
             text,
         }
     }
@@ -72,6 +76,15 @@ fn main() {
                 .value_name("title")
                 .multiple(true)
                 .help("Create an assembly file"),
+        )
+        .arg(
+            Arg::with_name("include-in")
+                .short("i")
+                .long("include-in")
+                .takes_value(true)
+                .value_name("title")
+                .multiple(false)
+                .help("Create an assembly that includes the other specified modules"),
         )
         .arg(
             Arg::with_name("concept")
@@ -137,40 +150,82 @@ fn main() {
         },
     };
 
+    // TODO: This is only for debugging. Remove it when it's no longer needed.
+    println!("args: {:#?}", cmdline_args);
+
+    // Store all modules except for PopulatedAssembly that will be created in this Vec
+    let mut non_populated: Vec<Module> = Vec::new();
+
     // TODO: Maybe attach these strings to the ModuleType enum somehow
     // For each module type, see if it occurs on the command line and process it
     for module_type_str in ["assembly", "concept", "procedure", "reference"].iter() {
         // Check if the given module type occurs on the command line
         if let Some(titles_iterator) = cmdline_args.values_of(module_type_str) {
-            process_module_type(titles_iterator, module_type_str, &options);
+            let mut modules = process_module_type(titles_iterator, module_type_str, &options);
+
+            // Move all the newly created modules into the common Vec
+            non_populated.append(&mut modules);
         }
+    }
+
+    // Write all non-populated modules to the disk
+    for module in non_populated.iter() {
+        write_module(&module, &options);
+    }
+
+    // Treat the PopulatedAssembly module as a special case:
+    // * There can be only one PopulatedAssembly
+    // * It must be generated after the other modules so that it can use their include statements
+    if let Some(title) = cmdline_args.value_of("include-in") {
+        // Generate the Populated Assembly module
+        let mut populated = Module::new(ModuleType::PopulatedAssembly, title, &options);
+
+        // Gather all include statements for the other modules
+        // TODO: Figure out if this can be done without calling .to_owned on all the Strings
+        let includes: Vec<String> = non_populated
+            .iter()
+            .map(|module| module.include_statement.to_owned())
+            .collect();
+
+        if includes.is_empty() {
+            eprintln!("You have provided no modules to include in the assembly.");
+        } else {
+            // Join the includes into a block of text, with blank lines in between to prevent
+            // the AsciiDoc syntax to blend between modules
+            let includes_text = includes.join("\n\n");
+
+            populated.text = populated
+                .text
+                .replace("${include_statements}", &includes_text);
+        }
+
+        write_module(&populated, &options);
     }
 }
 
 /// Process all titles that have been specified on the command line and that belong to a single
 /// module type.
-fn process_module_type(titles: Values, module_type_str: &str, options: &Options) {
+fn process_module_type(titles: Values, module_type_str: &str, options: &Options) -> Vec<Module> {
+    let mut modules_from_type = Vec::new();
+
     for title in titles {
         // Convert the string module type to an enum.
         // This must be done for each title separately so that the title can own the ModuleType.
         let module_type = match module_type_str {
             "assembly" => ModuleType::Assembly,
+            "include-in" => ModuleType::PopulatedAssembly,
             "concept" => ModuleType::Concept,
             "procedure" => ModuleType::Procedure,
             "reference" => ModuleType::Reference,
             _ => unimplemented!(),
         };
-        process_module(module_type, title, &options);
+
+        let module = Module::new(module_type, title, &options);
+
+        modules_from_type.push(module);
     }
-}
 
-/// For a particular title that belong to a module type, create a `Module` instance
-/// and let the `write_module()` procedure write it to the disk.
-fn process_module(module_type: ModuleType, title: &str, options: &Options) {
-    let module = Module::new(module_type, title, &options);
-
-    // Write the module text into the file with the appropriate file name
-    write_module(&module.file_name, &module.text, &options);
+    modules_from_type
 }
 
 impl Module {
@@ -263,7 +318,7 @@ impl Module {
 
         // Pick the right template
         let current_template = match module_type {
-            ModuleType::Assembly => ASSEMBLY_TEMPLATE,
+            ModuleType::Assembly | ModuleType::PopulatedAssembly => ASSEMBLY_TEMPLATE,
             ModuleType::Concept => CONCEPT_TEMPLATE,
             ModuleType::Procedure => PROCEDURE_TEMPLATE,
             ModuleType::Reference => REFERENCE_TEMPLATE,
@@ -278,6 +333,15 @@ impl Module {
 
         for (old, new) in replacements.iter() {
             template_with_replacements = template_with_replacements.replace(old, new);
+        }
+
+        // Skip this particular replacement in PupulatedAssembly, which picks it up later
+        match module_type {
+            ModuleType::PopulatedAssembly => {}
+            _ => {
+                template_with_replacements = template_with_replacements
+                    .replace("${include_statements}", "Include modules here.");
+            }
         }
 
         // If comments are disabled via an option, delete comment lines from the content
@@ -303,7 +367,7 @@ impl Module {
         let prefix = if options.prefixes {
             // If prefixes are enabled, pick the right file prefix
             match module_type {
-                ModuleType::Assembly => "assembly_",
+                ModuleType::Assembly | ModuleType::PopulatedAssembly => "assembly_",
                 ModuleType::Concept => "con_",
                 ModuleType::Procedure => "proc_",
                 ModuleType::Reference => "ref_",
@@ -317,12 +381,18 @@ impl Module {
 
         [prefix, module_id, suffix].join("")
     }
+
+    /// Prepare an include statement that can be used to include the generated file from elsewhere.
+    fn compose_include_statement(file_name: &str) -> String {
+        format!("include::<path>/{}[leveloffset=+1]", file_name)
+    }
 }
 
 /// Write the generated module content to the path specified in `options` with the set file name.
-fn write_module(file_name: &str, content: &str, options: &Options) {
+// fn write_module(file_name: &str, content: &str, options: &Options) {
+fn write_module(module: &Module, options: &Options) {
     // Compose the full (but still relative) file path from the target directory and the file name
-    let full_path_buf: PathBuf = [&options.target_dir, file_name].iter().collect();
+    let full_path_buf: PathBuf = [&options.target_dir, &module.file_name].iter().collect();
     let full_path = full_path_buf.as_path();
 
     // If the target file already exists, just print out an error
@@ -354,12 +424,12 @@ fn write_module(file_name: &str, content: &str, options: &Options) {
     }
 
     // If the target file doesn't exist, try to write to it
-    let result = fs::write(full_path, content);
+    let result = fs::write(full_path, &module.text);
     match result {
         // If the write succeeds, print the include statement
         Ok(()) => {
             eprintln!("File generated: {}", full_path.display());
-            eprintln!("include::<path>/{}[leveloffset=+1]", file_name);
+            eprintln!("{}", module.include_statement);
         }
         // If the write fails, print why it failed
         Err(e) => {

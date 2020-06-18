@@ -64,6 +64,14 @@ It has not been tested on Microsoft Windows.
 
 * To specify the directory where `newdoc` saves the generated file, add the `--target-dir=<directory>` or `-T <directory>` option.
 
+* To generate an assembly with include statements for other generated modules, use the `--include-in` or `-i` option:
+
+    ```
+    $ newdoc --include-in "An assembly for two modules" --concept "First module" --procedure "Second module"
+    ```
+
+    This creates the two modules and an assembly that features the include statements for the modules.
+
 
 ## Packaging and distributing newdoc as an RPM
 
