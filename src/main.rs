@@ -37,6 +37,7 @@ impl Module {
         let title = String::from(title);
         let id = Module::convert_title_to_id(&title);
         let file_name = Module::compose_file_name(&id, &mod_type, &options);
+        let include_statement = Module::compose_include_statement(&file_name);
         let text = Module::compose_text(&title, &id, &mod_type, &options);
 
         Module {
@@ -175,7 +176,7 @@ fn main() {
     // * It must be generated after the other modules so that it can use their include statements
     if let Some(title) = cmdline_args.value_of("include-in") {
         let mut populated = Module::new(ModuleType::PopulatedAssembly, title, &options);
-        populated.text = populated.text.replace("Include modules here.\n", "Include statements are placed here.");
+        populated.text = populated.text.replace("Include modules here.\n", "Include statements are placed here.\n");
         write_module(&populated.file_name, &populated.text, &options);
     }
 }
@@ -305,6 +306,7 @@ impl Module {
         let replacements = [
             ("${module_title}", title),
             ("${module_id}", module_id),
+            // TODO: Keep the include placeholder in PopulatedAssembly, to be used later
             ("${include_statements}", "Include modules here."),
         ];
 
@@ -352,6 +354,10 @@ impl Module {
         let suffix = ".adoc";
 
         [prefix, module_id, suffix].join("")
+    }
+
+    fn compose_include_statement(file_name: &str) -> String {
+        format!("include::<path>/{}[leveloffset=+1]", file_name)
     }
 }
 
