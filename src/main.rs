@@ -189,7 +189,7 @@ fn main() {
             // the AsciiDoc syntax to blend between modules
             let includes_text = includes.join("\n\n");
 
-            populated.text = populated.text.replace("Include modules here.", &includes_text);
+            populated.text = populated.text.replace("${include_statements}", &includes_text);
         } else {
             eprintln!("You have provided no modules to include in the assembly.");
         }
@@ -322,8 +322,6 @@ impl Module {
         let replacements = [
             ("${module_title}", title),
             ("${module_id}", module_id),
-            // TODO: Keep the include placeholder in PopulatedAssembly, to be used later
-            ("${include_statements}", "Include modules here."),
         ];
 
         // Perform substitutions in the template
@@ -332,6 +330,12 @@ impl Module {
 
         for (old, new) in replacements.iter() {
             template_with_replacements = template_with_replacements.replace(old, new);
+        }
+
+        // Skip this particular replacement in PupulatedAssembly, which picks it up later
+        match module_type {
+            ModuleType::PopulatedAssembly => { },
+            _ => { template_with_replacements = template_with_replacements.replace("${include_statements}", "Include modules here."); }
         }
 
         // If comments are disabled via an option, delete comment lines from the content
