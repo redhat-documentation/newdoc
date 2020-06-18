@@ -177,13 +177,22 @@ fn main() {
     // * There can be only one PopulatedAssembly
     // * It must be generated after the other modules so that it can use their include statements
     if let Some(title) = cmdline_args.value_of("include-in") {
+        // Generate the Populated Assembly module
+        let mut populated = Module::new(ModuleType::PopulatedAssembly, title, &options);
+
         // Gather all include statements for the other modules
         // TODO: Figure out if this can be done without calling .to_owned on all the Strings
         let includes: Vec<String> = non_populated.iter().map(|module| module.include_statement.to_owned()).collect();
-        let includes_text = includes.join("\n\n");
 
-        let mut populated = Module::new(ModuleType::PopulatedAssembly, title, &options);
-        populated.text = populated.text.replace("Include modules here.", &includes_text);
+        if includes.len() > 0 {
+            // Join the includes into a block of text, with blank lines in between to prevent
+            // the AsciiDoc syntax to blend between modules
+            let includes_text = includes.join("\n\n");
+
+            populated.text = populated.text.replace("Include modules here.", &includes_text);
+        } else {
+            eprintln!("You have provided no modules to include in the assembly.");
+        }
         write_module(&populated, &options);
     }
 }
