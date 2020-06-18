@@ -28,6 +28,7 @@ struct Module {
     title: String,
     id: String,
     file_name: String,
+    include_statement: String,
     text: String,
 }
 
@@ -45,6 +46,7 @@ impl Module {
             title,
             id,
             file_name,
+            include_statement,
             text,
         }
     }
@@ -168,7 +170,7 @@ fn main() {
 
     // Write all non-populated modules to the disk
     for module in non_populated.iter() {
-        write_module(&module.file_name, &module.text, &options);
+        write_module(&module, &options);
     }
 
     // Treat the PopulatedAssembly module as a special case:
@@ -177,7 +179,7 @@ fn main() {
     if let Some(title) = cmdline_args.value_of("include-in") {
         let mut populated = Module::new(ModuleType::PopulatedAssembly, title, &options);
         populated.text = populated.text.replace("Include modules here.\n", "Include statements are placed here.\n");
-        write_module(&populated.file_name, &populated.text, &options);
+        write_module(&populated, &options);
     }
 }
 
@@ -362,9 +364,10 @@ impl Module {
 }
 
 /// Write the generated module content to the path specified in `options` with the set file name.
-fn write_module(file_name: &str, content: &str, options: &Options) {
+// fn write_module(file_name: &str, content: &str, options: &Options) {
+fn write_module(module: &Module, options: &Options) {
     // Compose the full (but still relative) file path from the target directory and the file name
-    let full_path_buf: PathBuf = [&options.target_dir, file_name].iter().collect();
+    let full_path_buf: PathBuf = [&options.target_dir, &module.file_name].iter().collect();
     let full_path = full_path_buf.as_path();
 
     // If the target file already exists, just print out an error
@@ -396,12 +399,12 @@ fn write_module(file_name: &str, content: &str, options: &Options) {
     }
 
     // If the target file doesn't exist, try to write to it
-    let result = fs::write(full_path, content);
+    let result = fs::write(full_path, &module.text);
     match result {
         // If the write succeeds, print the include statement
         Ok(()) => {
             eprintln!("File generated: {}", full_path.display());
-            eprintln!("include::<path>/{}[leveloffset=+1]", file_name);
+            eprintln!("{}", module.include_statement);
         }
         // If the write fails, print why it failed
         Err(e) => {
