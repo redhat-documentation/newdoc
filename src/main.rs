@@ -74,13 +74,13 @@ fn main() {
                 .help("Create an assembly file"),
         )
         .arg(
-            Arg::with_name("includes")
+            Arg::with_name("include-in")
                 .short("i")
-                .long("includes")
+                .long("include-in")
                 .takes_value(true)
                 .value_name("title")
                 .multiple(false)
-                .help("Create an assembly with includes for the other specified modules")
+                .help("Create an assembly that includes the other specified modules")
         )
         .arg(
             Arg::with_name("concept")
@@ -151,7 +151,7 @@ fn main() {
 
     // TODO: Maybe attach these strings to the ModuleType enum somehow
     // For each module type, see if it occurs on the command line and process it
-    for module_type_str in ["assembly", "includes", "concept", "procedure", "reference"].iter() {
+    for module_type_str in ["assembly", "include-in", "concept", "procedure", "reference"].iter() {
         // Check if the given module type occurs on the command line
         if let Some(titles_iterator) = cmdline_args.values_of(module_type_str) {
             let modules = process_module_type(titles_iterator, module_type_str, &options);
@@ -173,7 +173,7 @@ fn process_module_type(titles: Values, module_type_str: &str, options: &Options)
         // This must be done for each title separately so that the title can own the ModuleType.
         let module_type = match module_type_str {
             "assembly" => ModuleType::Assembly,
-            "includes" => ModuleType::Assembly,
+            "include-in" => ModuleType::Assembly,
             "concept" => ModuleType::Concept,
             "procedure" => ModuleType::Procedure,
             "reference" => ModuleType::Reference,
