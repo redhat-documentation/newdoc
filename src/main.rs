@@ -152,7 +152,7 @@ fn main() {
 
     // TODO: Maybe attach these strings to the ModuleType enum somehow
     // For each module type, see if it occurs on the command line and process it
-    for module_type_str in ["assembly", "include-in", "concept", "procedure", "reference"].iter() {
+    let non_populated = for module_type_str in ["assembly", "include-in", "concept", "procedure", "reference"].iter() {
         // Check if the given module type occurs on the command line
         if let Some(titles_iterator) = cmdline_args.values_of(module_type_str) {
             let modules = process_module_type(titles_iterator, module_type_str, &options);
@@ -160,7 +160,17 @@ fn main() {
             for module in modules.iter() {
                 write_module(&module.file_name, &module.text, &options);
             }
-        }
+
+            modules
+        } else {
+            Vec::new()
+        };
+    };
+
+    if let Some(title) = cmdline_args.value_of("include-in") {
+        let mut populated = Module::new(ModuleType::PopulatedAssembly, title, &options);
+        populated.text = String::from("Gotcha");
+        println!("{}", populated.text);
     }
 }
 
