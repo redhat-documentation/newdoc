@@ -177,8 +177,13 @@ fn main() {
     // * There can be only one PopulatedAssembly
     // * It must be generated after the other modules so that it can use their include statements
     if let Some(title) = cmdline_args.value_of("include-in") {
+        // Gather all include statements for the other modules
+        // TODO: Figure out if this can be done without calling .to_owned on all the Strings
+        let includes: Vec<String> = non_populated.iter().map(|module| module.include_statement.to_owned()).collect();
+        let includes_text = includes.join("\n\n");
+
         let mut populated = Module::new(ModuleType::PopulatedAssembly, title, &options);
-        populated.text = populated.text.replace("Include modules here.\n", "Include statements are placed here.\n");
+        populated.text = populated.text.replace("Include modules here.", &includes_text);
         write_module(&populated, &options);
     }
 }
@@ -358,6 +363,7 @@ impl Module {
         [prefix, module_id, suffix].join("")
     }
 
+    /// Prepare an include statement that can be used to include the generated file from elsewhere.
     fn compose_include_statement(file_name: &str) -> String {
         format!("include::<path>/{}[leveloffset=+1]", file_name)
     }
