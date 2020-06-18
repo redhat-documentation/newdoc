@@ -15,6 +15,7 @@ const REFERENCE_TEMPLATE: &str = include_str!("../templates/reference.adoc");
 #[derive(Debug)]
 enum ModuleType {
     Assembly,
+    PopulatedAssembly,
     Concept,
     Procedure,
     Reference,
@@ -173,7 +174,7 @@ fn process_module_type(titles: Values, module_type_str: &str, options: &Options)
         // This must be done for each title separately so that the title can own the ModuleType.
         let module_type = match module_type_str {
             "assembly" => ModuleType::Assembly,
-            "include-in" => ModuleType::Assembly,
+            "include-in" => ModuleType::PopulatedAssembly,
             "concept" => ModuleType::Concept,
             "procedure" => ModuleType::Procedure,
             "reference" => ModuleType::Reference,
@@ -278,7 +279,7 @@ impl Module {
 
         // Pick the right template
         let current_template = match module_type {
-            ModuleType::Assembly => ASSEMBLY_TEMPLATE,
+            ModuleType::Assembly | ModuleType::PopulatedAssembly => ASSEMBLY_TEMPLATE,
             ModuleType::Concept => CONCEPT_TEMPLATE,
             ModuleType::Procedure => PROCEDURE_TEMPLATE,
             ModuleType::Reference => REFERENCE_TEMPLATE,
@@ -322,7 +323,7 @@ impl Module {
         let prefix = if options.prefixes {
             // If prefixes are enabled, pick the right file prefix
             match module_type {
-                ModuleType::Assembly => "assembly_",
+                ModuleType::Assembly | ModuleType::PopulatedAssembly => "assembly_",
                 ModuleType::Concept => "con_",
                 ModuleType::Procedure => "proc_",
                 ModuleType::Reference => "ref_",
