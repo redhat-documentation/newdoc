@@ -74,6 +74,15 @@ fn main() {
                 .help("Create an assembly file"),
         )
         .arg(
+            Arg::with_name("includes")
+                .short("i")
+                .long("includes")
+                .takes_value(true)
+                .value_name("title")
+                .multiple(false)
+                .help("Create an assembly with includes for the other specified modules")
+        )
+        .arg(
             Arg::with_name("concept")
                 .short("c")
                 .long("concept")
@@ -136,6 +145,9 @@ fn main() {
             String::from(".")
         },
     };
+
+    // TODO: This is only for debugging. Remove it when it's no longer needed.
+    println!("args: {:#?}", cmdline_args);
 
     // TODO: Maybe attach these strings to the ModuleType enum somehow
     // For each module type, see if it occurs on the command line and process it
