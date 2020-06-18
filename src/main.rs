@@ -187,7 +187,9 @@ fn main() {
             .map(|module| module.include_statement.to_owned())
             .collect();
 
-        if includes.len() > 0 {
+        if includes.is_empty() {
+            eprintln!("You have provided no modules to include in the assembly.");
+        } else {
             // Join the includes into a block of text, with blank lines in between to prevent
             // the AsciiDoc syntax to blend between modules
             let includes_text = includes.join("\n\n");
@@ -195,9 +197,8 @@ fn main() {
             populated.text = populated
                 .text
                 .replace("${include_statements}", &includes_text);
-        } else {
-            eprintln!("You have provided no modules to include in the assembly.");
         }
+
         write_module(&populated, &options);
     }
 }
