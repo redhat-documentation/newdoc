@@ -19,7 +19,7 @@ It has not been tested on Microsoft Windows.
 * On a different Linux distribution, on macOS, or on Microsoft Windows, use the `cargo` package manager:
 
     ```
-    # cargo install newdoc
+    $ cargo install newdoc
     ```
 
     For installing `cargo`, see <https://rustup.rs/>.
