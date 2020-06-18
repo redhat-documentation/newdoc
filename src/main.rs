@@ -84,7 +84,7 @@ fn main() {
                 .takes_value(true)
                 .value_name("title")
                 .multiple(false)
-                .help("Create an assembly that includes the other specified modules")
+                .help("Create an assembly that includes the other specified modules"),
         )
         .arg(
             Arg::with_name("concept")
@@ -182,14 +182,19 @@ fn main() {
 
         // Gather all include statements for the other modules
         // TODO: Figure out if this can be done without calling .to_owned on all the Strings
-        let includes: Vec<String> = non_populated.iter().map(|module| module.include_statement.to_owned()).collect();
+        let includes: Vec<String> = non_populated
+            .iter()
+            .map(|module| module.include_statement.to_owned())
+            .collect();
 
         if includes.len() > 0 {
             // Join the includes into a block of text, with blank lines in between to prevent
             // the AsciiDoc syntax to blend between modules
             let includes_text = includes.join("\n\n");
 
-            populated.text = populated.text.replace("${include_statements}", &includes_text);
+            populated.text = populated
+                .text
+                .replace("${include_statements}", &includes_text);
         } else {
             eprintln!("You have provided no modules to include in the assembly.");
         }
@@ -319,10 +324,7 @@ impl Module {
         };
 
         // Define the strings that will be replaced in the template
-        let replacements = [
-            ("${module_title}", title),
-            ("${module_id}", module_id),
-        ];
+        let replacements = [("${module_title}", title), ("${module_id}", module_id)];
 
         // Perform substitutions in the template
         // TODO: Create a separate function to perform a replacement
@@ -334,8 +336,11 @@ impl Module {
 
         // Skip this particular replacement in PupulatedAssembly, which picks it up later
         match module_type {
-            ModuleType::PopulatedAssembly => { },
-            _ => { template_with_replacements = template_with_replacements.replace("${include_statements}", "Include modules here."); }
+            ModuleType::PopulatedAssembly => {}
+            _ => {
+                template_with_replacements = template_with_replacements
+                    .replace("${include_statements}", "Include modules here.");
+            }
         }
 
         // If comments are disabled via an option, delete comment lines from the content
