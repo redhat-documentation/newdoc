@@ -63,7 +63,7 @@ struct Options {
 fn main() {
     // Define command-line options
     let cmdline_args = App::new("newdoc")
-        .version("v2.1.1")
+        .version("v2.2.2")
         .author("Marek Suchánek")
         .about("Generate an AsciiDoc file using a modular template")
         // If no arguments are provided, print help
@@ -149,9 +149,6 @@ fn main() {
             String::from(".")
         },
     };
-
-    // TODO: This is only for debugging. Remove it when it's no longer needed.
-    println!("args: {:#?}", cmdline_args);
 
     // Store all modules except for PopulatedAssembly that will be created in this Vec
     let mut non_populated: Vec<Module> = Vec::new();
