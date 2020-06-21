@@ -33,7 +33,12 @@ struct Module {
 
 impl Module {
     /// The constructor for the Module struct
-    pub fn new(mod_type: ModuleType, title: &str, includes: &[String], options: &Options) -> Module {
+    pub fn new(
+        mod_type: ModuleType,
+        title: &str,
+        includes: &[String],
+        options: &Options,
+    ) -> Module {
         let title = String::from(title);
         let id = Module::convert_title_to_id(&title);
         let file_name = Module::compose_file_name(&id, &mod_type, &options);
@@ -173,7 +178,7 @@ fn main() {
     // * There can be only one populated assembly
     // * It must be generated after the other modules so that it can use their include statements
     if let Some(title) = cmdline_args.value_of("include-in") {
-                // Gather all include statements for the other modules
+        // Gather all include statements for the other modules
         // TODO: Figure out if this can be done without calling .to_owned on all the Strings
         let includes: Vec<String> = non_populated
             .iter()
@@ -327,14 +332,14 @@ impl Module {
 
         if includes.is_empty() {
             template_with_replacements = template_with_replacements
-                    .replace("${include_statements}", "Include modules here.");
+                .replace("${include_statements}", "Include modules here.");
         } else {
             // Join the includes into a block of text, with blank lines in between to prevent
             // the AsciiDoc syntax to blend between modules
             let includes_text = includes.join("\n\n");
 
-            template_with_replacements = template_with_replacements
-                    .replace("${include_statements}", &includes_text);
+            template_with_replacements =
+                template_with_replacements.replace("${include_statements}", &includes_text);
         }
 
         // If comments are disabled via an option, delete comment lines from the content
