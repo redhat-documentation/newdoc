@@ -33,7 +33,7 @@ struct Module {
 
 impl Module {
     /// The constructor for the Module struct
-    pub fn new(mod_type: ModuleType, title: &str, includes: &Vec<String>, options: &Options) -> Module {
+    pub fn new(mod_type: ModuleType, title: &str, includes: &[String], options: &Options) -> Module {
         let title = String::from(title);
         let id = Module::convert_title_to_id(&title);
         let file_name = Module::compose_file_name(&id, &mod_type, &options);
@@ -301,7 +301,7 @@ impl Module {
         title: &str,
         module_id: &str,
         module_type: &ModuleType,
-        includes: &Vec<String>,
+        includes: &[String],
         options: &Options,
     ) -> String {
         // TODO: Add a comment in the generated file with a pre-filled include statement
