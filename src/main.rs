@@ -5,6 +5,9 @@ use std::path::PathBuf;
 extern crate clap;
 use clap::{App, AppSettings, Arg, Values};
 
+extern crate colored;
+use colored::*;
+
 // Load the AsciiDoc templates at build time
 const ASSEMBLY_TEMPLATE: &str = include_str!("../templates/assembly.adoc");
 const CONCEPT_TEMPLATE: &str = include_str!("../templates/concept.adoc");
@@ -67,7 +70,7 @@ struct Options {
 fn main() {
     // Define command-line options
     let cmdline_args = App::new("newdoc")
-        .version("v2.3.0")
+        .version("v2.3.1")
         .author("Marek Suchánek")
         .about("Generate an AsciiDoc file using a modular template")
         // If no arguments are provided, print help
@@ -187,7 +190,7 @@ fn main() {
 
         // Warn if you used a populated assembly but provided no other modules
         if includes.is_empty() {
-            eprintln!("❗ You have provided no modules to include in the assembly.");
+            eprintln!("{}", "W: You have provided no modules to include in the assembly.".yellow());
         }
 
         // Generate the populated assembly module
@@ -396,7 +399,7 @@ fn write_module(module: &Module, options: &Options) {
     // If the target file already exists, just print out an error
     if full_path.exists() {
         // A prompt enabling the user to overwrite the existing file
-        eprintln!("❗ File already exists: {}", full_path.display());
+        eprintln!("{}", format!("W: File already exists: {}", full_path.display()).yellow());
         eprint!("   Do you want to overwrite it? [y/N] ");
         // We must manually flush the buffer or else the printed string doesn't appear.
         // The buffer otherwise waits for a newline.
@@ -431,7 +434,7 @@ fn write_module(module: &Module, options: &Options) {
         }
         // If the write fails, print why it failed
         Err(e) => {
-            eprintln!("❗ Failed to write the file: {}", e);
+            eprintln!("{}", format!("E: Failed to write the file: {}", e).red());
         }
     }
 }
