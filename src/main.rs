@@ -15,7 +15,6 @@ const REFERENCE_TEMPLATE: &str = include_str!("../templates/reference.adoc");
 #[derive(Debug)]
 enum ModuleType {
     Assembly,
-    PopulatedAssembly,
     Concept,
     Procedure,
     Reference,
@@ -34,12 +33,12 @@ struct Module {
 
 impl Module {
     /// The constructor for the Module struct
-    pub fn new(mod_type: ModuleType, title: &str, options: &Options) -> Module {
+    pub fn new(mod_type: ModuleType, title: &str, includes: &Vec<String>, options: &Options) -> Module {
         let title = String::from(title);
         let id = Module::convert_title_to_id(&title);
         let file_name = Module::compose_file_name(&id, &mod_type, &options);
         let include_statement = Module::compose_include_statement(&file_name);
-        let text = Module::compose_text(&title, &id, &mod_type, &options);
+        let text = Module::compose_text(&title, &id, &mod_type, &includes, &options);
 
         Module {
             mod_type,
@@ -150,7 +149,7 @@ fn main() {
         },
     };
 
-    // Store all modules except for PopulatedAssembly that will be created in this Vec
+    // Store all modules except for the populated assembly that will be created in this Vec
     let mut non_populated: Vec<Module> = Vec::new();
 
     // TODO: Maybe attach these strings to the ModuleType enum somehow
@@ -170,19 +169,19 @@ fn main() {
         write_module(&module, &options);
     }
 
-    // Treat the PopulatedAssembly module as a special case:
-    // * There can be only one PopulatedAssembly
+    // Treat the populated assembly module as a special case:
+    // * There can be only one populated assembly
     // * It must be generated after the other modules so that it can use their include statements
     if let Some(title) = cmdline_args.value_of("include-in") {
-        // Generate the Populated Assembly module
-        let mut populated = Module::new(ModuleType::PopulatedAssembly, title, &options);
-
-        // Gather all include statements for the other modules
+                // Gather all include statements for the other modules
         // TODO: Figure out if this can be done without calling .to_owned on all the Strings
         let includes: Vec<String> = non_populated
             .iter()
             .map(|module| module.include_statement.to_owned())
             .collect();
+
+        // Generate the populated assembly module
+        let mut populated = Module::new(ModuleType::Assembly, title, &includes, &options);
 
         if includes.is_empty() {
             eprintln!("You have provided no modules to include in the assembly.");
@@ -210,14 +209,14 @@ fn process_module_type(titles: Values, module_type_str: &str, options: &Options)
         // This must be done for each title separately so that the title can own the ModuleType.
         let module_type = match module_type_str {
             "assembly" => ModuleType::Assembly,
-            "include-in" => ModuleType::PopulatedAssembly,
+            "include-in" => ModuleType::Assembly,
             "concept" => ModuleType::Concept,
             "procedure" => ModuleType::Procedure,
             "reference" => ModuleType::Reference,
             _ => unimplemented!(),
         };
 
-        let module = Module::new(module_type, title, &options);
+        let module = Module::new(module_type, title, &Vec::new(), &options);
 
         modules_from_type.push(module);
     }
@@ -309,13 +308,14 @@ impl Module {
         title: &str,
         module_id: &str,
         module_type: &ModuleType,
+        includes: &Vec<String>,
         options: &Options,
     ) -> String {
         // TODO: Add a comment in the generated file with a pre-filled include statement
 
         // Pick the right template
         let current_template = match module_type {
-            ModuleType::Assembly | ModuleType::PopulatedAssembly => ASSEMBLY_TEMPLATE,
+            ModuleType::Assembly => ASSEMBLY_TEMPLATE,
             ModuleType::Concept => CONCEPT_TEMPLATE,
             ModuleType::Procedure => PROCEDURE_TEMPLATE,
             ModuleType::Reference => REFERENCE_TEMPLATE,
@@ -332,13 +332,12 @@ impl Module {
             template_with_replacements = template_with_replacements.replace(old, new);
         }
 
-        // Skip this particular replacement in PupulatedAssembly, which picks it up later
-        match module_type {
-            ModuleType::PopulatedAssembly => {}
-            _ => {
-                template_with_replacements = template_with_replacements
+        if includes.is_empty() {
+            template_with_replacements = template_with_replacements
                     .replace("${include_statements}", "Include modules here.");
-            }
+        } else {
+            template_with_replacements = template_with_replacements
+                    .replace("${include_statements}", "TODO");
         }
 
         // If comments are disabled via an option, delete comment lines from the content
@@ -364,7 +363,7 @@ impl Module {
         let prefix = if options.prefixes {
             // If prefixes are enabled, pick the right file prefix
             match module_type {
-                ModuleType::Assembly | ModuleType::PopulatedAssembly => "assembly_",
+                ModuleType::Assembly => "assembly_",
                 ModuleType::Concept => "con_",
                 ModuleType::Procedure => "proc_",
                 ModuleType::Reference => "ref_",
