@@ -180,20 +180,13 @@ fn main() {
             .map(|module| module.include_statement.to_owned())
             .collect();
 
-        // Generate the populated assembly module
-        let mut populated = Module::new(ModuleType::Assembly, title, &includes, &options);
-
+        // Warn if you used a populated assembly but provided no other modules
         if includes.is_empty() {
             eprintln!("You have provided no modules to include in the assembly.");
-        } else {
-            // Join the includes into a block of text, with blank lines in between to prevent
-            // the AsciiDoc syntax to blend between modules
-            let includes_text = includes.join("\n\n");
-
-            populated.text = populated
-                .text
-                .replace("${include_statements}", &includes_text);
         }
+
+        // Generate the populated assembly module
+        let populated = Module::new(ModuleType::Assembly, title, &includes, &options);
 
         write_module(&populated, &options);
     }
@@ -336,8 +329,12 @@ impl Module {
             template_with_replacements = template_with_replacements
                     .replace("${include_statements}", "Include modules here.");
         } else {
+            // Join the includes into a block of text, with blank lines in between to prevent
+            // the AsciiDoc syntax to blend between modules
+            let includes_text = includes.join("\n\n");
+
             template_with_replacements = template_with_replacements
-                    .replace("${include_statements}", "TODO");
+                    .replace("${include_statements}", &includes_text);
         }
 
         // If comments are disabled via an option, delete comment lines from the content
