@@ -29,7 +29,7 @@ This paragraph is the procedure module introduction: a short description of the 
 
 .Verification steps
 
-. (Optional) Provide the user with verification method(s) for the procedure, such as expected output or commands that can be used to check for success or failure.
+. Optional: Provide the user with verification method(s) for the procedure, such as expected output or commands that can be used to check for success or failure.
 . Use an unnumbered bullet (*) if the procedure includes only one step.
 
 .Additional resources

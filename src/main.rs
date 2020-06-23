@@ -70,7 +70,7 @@ struct Options {
 fn main() {
     // Define command-line options
     let cmdline_args = App::new("newdoc")
-        .version("v2.3.1")
+        .version("v2.3.2")
         .author("Marek Suchánek")
         .about("Generate an AsciiDoc file using a modular template")
         // If no arguments are provided, print help
