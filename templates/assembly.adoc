@@ -13,8 +13,13 @@ ifdef::context[:parent-context-of-${module_id}: {context}]
 // * Title: = My assembly A
 
 // The ID is used as an anchor for linking to the module. Avoid changing it after the module has been published to ensure existing links are not broken.
-// If the assembly is reused in other assemblies in a guide, include {context} in the ID: [id="a-collection-of-modules-{context}"].
+// If the assembly is reused in other assemblies in a guide, include {context} in the ID: [id="a-collection-of-modules_{context}"].
+ifndef::context[]
+[id="${module_id}"]
+endif::[]
+ifdef::context[]
 [id="${module_id}_{context}"]
+endif::[]
 = ${module_title}
 // If the assembly covers a task, start the title with a verb in the gerund form, such as Creating or Configuring.
 
