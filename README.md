@@ -39,6 +39,26 @@ The tool is written in the Rust programming language.
 
     For installing `cargo`, see <https://rustup.rs/>.
 
+## Updating newdoc
+
+* To update `newdoc` that is installed from RPM, use the DNF package manager:
+
+    ```
+    # dnf upgrade newdoc
+    ```
+
+* To update `newdoc` from Docker, use the `docker` or `podman` tool:
+
+    ```
+    $ docker pull mrksu/newdoc
+    ```
+
+* To update `newdoc` from source, use the `cargo` package manager:
+
+    ```
+    $ cargo install newdoc
+    ```
+
 
 ## Creating a new module
 
