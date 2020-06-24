@@ -1,5 +1,7 @@
 # README: The newdoc tool
 
+![Crates.io](https://img.shields.io/crates/v/newdoc)
+
 The `newdoc` tool generates pre-populated module and assembly files formatted with AsciiDoc, which are used in Red Hat and Fedora documentation. The generated files follow the template guidelines maintained by the Modular Documentation initiative: <https://redhat-documentation.github.io/modular-docs/>.
 
 The tool is written in the Rust programming language.
