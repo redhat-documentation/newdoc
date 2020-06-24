@@ -11,77 +11,76 @@ sudo: required
 
 env:
   global:
-    # TODO Update this to match the name of your project.
-    - CRATE_NAME=trust
+    - CRATE_NAME=newdoc
 
 matrix:
   # TODO These are all the build jobs. Adjust as necessary. Comment out what you
   # don't need
-  include:
-    # Android
-    - env: TARGET=aarch64-linux-android DISABLE_TESTS=1
-    - env: TARGET=arm-linux-androideabi DISABLE_TESTS=1
-    - env: TARGET=armv7-linux-androideabi DISABLE_TESTS=1
-    - env: TARGET=i686-linux-android DISABLE_TESTS=1
-    - env: TARGET=x86_64-linux-android DISABLE_TESTS=1
+        include:
+                # # Android
+                # - env: TARGET=aarch64-linux-android DISABLE_TESTS=1
+                # - env: TARGET=arm-linux-androideabi DISABLE_TESTS=1
+                # - env: TARGET=armv7-linux-androideabi DISABLE_TESTS=1
+                # - env: TARGET=i686-linux-android DISABLE_TESTS=1
+                # - env: TARGET=x86_64-linux-android DISABLE_TESTS=1
 
-    # iOS
-    - env: TARGET=aarch64-apple-ios DISABLE_TESTS=1
-      os: osx
-    - env: TARGET=armv7-apple-ios DISABLE_TESTS=1
-      os: osx
-    - env: TARGET=armv7s-apple-ios DISABLE_TESTS=1
-      os: osx
-    - env: TARGET=i386-apple-ios DISABLE_TESTS=1
-      os: osx
-    - env: TARGET=x86_64-apple-ios DISABLE_TESTS=1
-      os: osx
+                # # iOS
+                # - env: TARGET=aarch64-apple-ios DISABLE_TESTS=1
+                #   os: osx
+                # - env: TARGET=armv7-apple-ios DISABLE_TESTS=1
+                #   os: osx
+                # - env: TARGET=armv7s-apple-ios DISABLE_TESTS=1
+                #   os: osx
+                # - env: TARGET=i386-apple-ios DISABLE_TESTS=1
+                #   os: osx
+                # - env: TARGET=x86_64-apple-ios DISABLE_TESTS=1
+                #   os: osx
 
-    # Linux
-    - env: TARGET=aarch64-unknown-linux-gnu
-    - env: TARGET=arm-unknown-linux-gnueabi
-    - env: TARGET=armv7-unknown-linux-gnueabihf
-    - env: TARGET=i686-unknown-linux-gnu
-    - env: TARGET=i686-unknown-linux-musl
-    - env: TARGET=mips-unknown-linux-gnu
-    - env: TARGET=mips64-unknown-linux-gnuabi64
-    - env: TARGET=mips64el-unknown-linux-gnuabi64
-    - env: TARGET=mipsel-unknown-linux-gnu
-    - env: TARGET=powerpc-unknown-linux-gnu
-    - env: TARGET=powerpc64-unknown-linux-gnu
-    - env: TARGET=powerpc64le-unknown-linux-gnu
-    - env: TARGET=s390x-unknown-linux-gnu DISABLE_TESTS=1
-    - env: TARGET=x86_64-unknown-linux-gnu
-    - env: TARGET=x86_64-unknown-linux-musl
+                # Linux
+                - env: TARGET=aarch64-unknown-linux-gnu
+                - env: TARGET=arm-unknown-linux-gnueabi
+                - env: TARGET=armv7-unknown-linux-gnueabihf
+                - env: TARGET=i686-unknown-linux-gnu
+                - env: TARGET=i686-unknown-linux-musl
+                - env: TARGET=mips-unknown-linux-gnu
+                - env: TARGET=mips64-unknown-linux-gnuabi64
+                - env: TARGET=mips64el-unknown-linux-gnuabi64
+                - env: TARGET=mipsel-unknown-linux-gnu
+                - env: TARGET=powerpc-unknown-linux-gnu
+                - env: TARGET=powerpc64-unknown-linux-gnu
+                - env: TARGET=powerpc64le-unknown-linux-gnu
+                - env: TARGET=s390x-unknown-linux-gnu DISABLE_TESTS=1
+                - env: TARGET=x86_64-unknown-linux-gnu
+                - env: TARGET=x86_64-unknown-linux-musl
 
-    # OSX
-    - env: TARGET=i686-apple-darwin
-      os: osx
-    - env: TARGET=x86_64-apple-darwin
-      os: osx
+                # OSX
+                # - env: TARGET=i686-apple-darwin
+                #   os: osx
+                - env: TARGET=x86_64-apple-darwin
+                  os: osx
 
-    # *BSD
-    - env: TARGET=i686-unknown-freebsd DISABLE_TESTS=1
-    - env: TARGET=x86_64-unknown-freebsd DISABLE_TESTS=1
-    - env: TARGET=x86_64-unknown-netbsd DISABLE_TESTS=1
+                # *BSD
+                - env: TARGET=i686-unknown-freebsd DISABLE_TESTS=1
+                - env: TARGET=x86_64-unknown-freebsd DISABLE_TESTS=1
+                - env: TARGET=x86_64-unknown-netbsd DISABLE_TESTS=1
 
-    # Windows
-    - env: TARGET=x86_64-pc-windows-gnu
+                # Windows
+                - env: TARGET=x86_64-pc-windows-gnu
 
-    # Bare metal
-    # These targets don't support std and as such are likely not suitable for
-    # most crates.
-    # - env: TARGET=thumbv6m-none-eabi
-    # - env: TARGET=thumbv7em-none-eabi
-    # - env: TARGET=thumbv7em-none-eabihf
-    # - env: TARGET=thumbv7m-none-eabi
+                # Bare metal
+                # These targets don't support std and as such are likely not suitable for
+                # most crates.
+                # - env: TARGET=thumbv6m-none-eabi
+                # - env: TARGET=thumbv7em-none-eabi
+                # - env: TARGET=thumbv7em-none-eabihf
+                # - env: TARGET=thumbv7m-none-eabi
 
-    # Testing other channels
-    - env: TARGET=x86_64-unknown-linux-gnu
-      rust: nightly
-    - env: TARGET=x86_64-apple-darwin
-      os: osx
-      rust: nightly
+                # # Testing other channels
+                # - env: TARGET=x86_64-unknown-linux-gnu
+                #   rust: nightly
+                # - env: TARGET=x86_64-apple-darwin
+                #   os: osx
+                #   rust: nightly
 
 before_install:
   - set -e
@@ -100,12 +99,8 @@ before_deploy:
   - sh ci/before_deploy.sh
 
 deploy:
-  # TODO update `api_key.secure`
-  # - Create a `public_repo` GitHub token. Go to: https://github.com/settings/tokens/new
-  # - Encrypt it: `travis encrypt 0123456789012345678901234567890123456789
-  # - Paste the output down here
   api_key:
-    secure: A9v3PIzQQ4U08OHFmDPQzNXbNHEb7YHyLXCvMF+dXFuNSvhUNlmQYykxqUf3dvikhJL2/bsZ14umm7ni7fQh0tGwJ4+lPpNzYAcweGgNXnWvjTpY6ovuRbr3gs4/srkyxp/GBDmSW5L8wFN3hKCB+Lm0YnIPB9IA2afP8a30+8VTXT9nv7pNqGny4ilN41ycr4DZi3sQoXdbruy7ClN7gsWW/GUiudBccHVIjmTapOFKLwZHODaUl/1/RDWQzh+i+17e1ivXuJPktDSrqmHPTZ15OjklnHKd6t179ry6VkGRg4R/R/YukVIqGzeaXGWAwdAQ5gE8cjGZghJLVi2jkDBJ85z8MvT+zLZLyliiuhLc/X8y7mkE1n0FKFtXXzFVt0l7V1LaEKbIbiV6XX3jsir4qgkqWjPHBZqO5mkGNFS16Dmt30/ZtEPAzXiINFXbWuWrpQ/LZ4NSto8IMrRTcoyDbAga/KYxJiNIeVuCe1E9dbytDM7K0GLtxJTul/WnnSeI6r//EFyC4bxYjyHhCXaag4q14KM+ak4rB0QgxsYzyGuh2MqyCoVj8YJLjLdKnL/SV7W7LPD40xlxvI6VCYTVi2ILHwL6vCxpukXYteX0c5IAIWkISDKu6nNBEgmCHXXPSqYSrgE5g7/QoCQHI8++nR8iKe0s7TWxZRydby8=
+    secure: mtCvNJGAukCq1lm2hTTurvV0ockz7OZC61OY9mcx3vpIsAPIefebSq81J8T0hTbyqF7olbKp3ohqmNXmRlzHJfVSFaocnQuxVK7KSvdobjh+wJlp4GlReuXI6gsvlTCdb8IR6VHy1l20v/ONhuzRYFg+pfH53dAeTbXWVXgnDctsoBDwd1uJrI2LYDWwzk1amRSdfIZwHA0iQqqjDbWzpTnpaVyaN2PInYssobVPyWOyMRsnxn0biouKGWF5Y8rd5Q5PhD8uFVSMhBFQWwcviVBsoSgzQimox0crYdCnP/HR5ROElyVNpwnW8M9nFDXuOyXvSAFLWuxQ7dB0QE8chHLKT7m3KJk2YxqxaqrB0VbgzXvJHU8o3Gg2/Qpo5ww1d42AlAbSZurAFMt2IUZQQPvwVmnDjG3pTAlFPb0mCv/vmhfRYgx8n+CbFK9kxsMOgY857X2KwgDfygq7YAp9IYwcOi8zFiNyQnBVhhFiKHcD2ZpBLwJJ/vqLHzh2ZM32xma/oEnpixBgUr8is1JCk2GXHEo4eEOYAYTFx4zNZTaPoyn4yZD6i8BL7zBm3bKS55JfF/LtVMspFLLUJAhoJHzymSCQP1BuBEWjtOmPL00MdSbrFxlFH42xrgaZCWVaK624Or4GocGB3t0DENdQisq6W07p4OBoo8QIAwm49Cs=
   file_glob: true
   file: $CRATE_NAME-$TRAVIS_TAG-$TARGET.*
   on:
@@ -127,7 +122,7 @@ branches:
   only:
     # release tags
     - /^v\d+\.\d+\.\d+.*$/
-    - master
+    - main
 
 notifications:
   email:
