@@ -8,8 +8,6 @@ The `newdoc` tool generates pre-populated module and assembly files formatted wi
 
 The tool is written in the Rust programming language.
 
-It has not been tested on Microsoft Windows.
-
 
 ## Installing newdoc
 
@@ -18,17 +16,29 @@ It has not been tested on Microsoft Windows.
     ```
     # dnf copr enable mareksu/newdoc-rs
     # dnf install newdoc
+    
+    $ newdoc
     ```
 
-* On a different Linux distribution, on macOS, or on Microsoft Windows, use the `cargo` package manager:
+* To install `newdoc` as a Docker image, use the `docker` or `podman` tool. If you use `podman`, replace `docker` with `podman` in the following commands:
+
+    ```
+    $ docker pull mrksu/newdoc
+    
+    $ docker run mrksu/newdoc
+    ```
+
+
+* To install `newdoc` from source on a Linux distribution, on macOS, or on Microsoft Windows, use the `cargo` package manager:
 
     ```
     $ cargo install newdoc
+    
+    $ newdoc
     ```
 
     For installing `cargo`, see <https://rustup.rs/>.
 
-    Note that `newdoc` has not been tested on Microsoft Windows.
 
 ## Creating a new module
 
@@ -105,6 +115,44 @@ It has not been tested on Microsoft Windows.
 
 8. Click **Build**.
 
+
+## Packaging and distributing newdoc as a Docker image
+
+Note: The following steps might be sub-optimal. Feel free to suggest improvements.
+
+1. Install the `docker` or `podman` tool.
+
+    If you use `podman`, replace `docker` with `podman` in the following commands.
+
+2. Log into the Docker Hub account:
+
+    ```
+    $ docker login --username mrksu docker.io
+    ```
+
+3. Build a new image. For example:
+
+    ```
+    $ docker build -t mrksu/newdoc:v2.3.3 .
+    ```
+
+4. Find the Image ID of the built image:
+
+    ```
+    $ docker images
+    ```
+
+5. Tag the new version. For example:
+
+    ```
+    $ docker tag 390e73cb470d mrksu/newdoc:v2.3.3
+    ```
+
+6. Upload the new image:
+
+    ```
+    $ docker push mrksu/newdoc:v2.3.3
+    ```
 
 ## Additional resources
 
