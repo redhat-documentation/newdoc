@@ -3,7 +3,9 @@ use std::io::{self, Write};
 use std::path::PathBuf;
 
 extern crate clap;
-use clap::{App, AppSettings, Arg, crate_authors, crate_description, crate_name, crate_version, Values};
+use clap::{
+    crate_authors, crate_description, crate_name, crate_version, App, AppSettings, Arg, Values,
+};
 
 extern crate colored;
 use colored::*;
@@ -190,7 +192,10 @@ fn main() {
 
         // Warn if you used a populated assembly but provided no other modules
         if includes.is_empty() {
-            eprintln!("{}", "W: You have provided no modules to include in the assembly.".yellow());
+            eprintln!(
+                "{}",
+                "W: You have provided no modules to include in the assembly.".yellow()
+            );
         }
 
         // Generate the populated assembly module
@@ -399,7 +404,10 @@ fn write_module(module: &Module, options: &Options) {
     // If the target file already exists, just print out an error
     if full_path.exists() {
         // A prompt enabling the user to overwrite the existing file
-        eprintln!("{}", format!("W: File already exists: {}", full_path.display()).yellow());
+        eprintln!(
+            "{}",
+            format!("W: File already exists: {}", full_path.display()).yellow()
+        );
         eprint!("   Do you want to overwrite it? [y/N] ");
         // We must manually flush the buffer or else the printed string doesn't appear.
         // The buffer otherwise waits for a newline.
