@@ -198,13 +198,8 @@ fn main() {
             .map(|module| module.include_statement.to_owned())
             .collect();
 
-        // Warn if you used a populated assembly but provided no other modules
-        if includes.is_empty() {
-            eprintln!(
-                "{}",
-                "W: You have provided no modules to include in the assembly.".yellow()
-            );
-        }
+        // The includes should never be empty thanks to the required group in clap
+        assert!(!includes.is_empty());
 
         // Generate the populated assembly module
         let populated = Module::new(ModuleType::Assembly, title, Some(&includes), &options);
