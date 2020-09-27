@@ -4,7 +4,8 @@ use std::path::PathBuf;
 
 extern crate clap;
 use clap::{
-    crate_authors, crate_description, crate_name, crate_version, App, AppSettings, Arg, Values,
+    crate_authors, crate_description, crate_name, crate_version, App, AppSettings, Arg, ArgGroup,
+    Values,
 };
 
 extern crate colored;
@@ -121,6 +122,13 @@ fn main() {
                 .value_name("title")
                 .multiple(true)
                 .help("Create a reference module"),
+        )
+        // This group ensures that at least one of the assembly or module inputs is present
+        .group(
+            ArgGroup::with_name("modules")
+                .args(&["assembly", "concept", "procedure", "reference"])
+                .required(true)
+                .multiple(true),
         )
         .arg(
             Arg::with_name("no-comments")
@@ -339,6 +347,7 @@ impl Module {
         }
 
         if let Some(includes) = includes {
+            // The includes should never be empty thanks to the required group in clap
             assert!(!includes.is_empty());
             // Join the includes into a block of text, with blank lines in between to prevent
             // the AsciiDoc syntax to blend between modules
