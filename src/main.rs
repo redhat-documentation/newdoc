@@ -3,7 +3,7 @@ use std::io::{self, Write};
 use std::path::PathBuf;
 
 extern crate clap;
-use clap::{App, AppSettings, Arg, Values};
+use clap::{App, AppSettings, Arg, crate_authors, crate_description, crate_name, crate_version, Values};
 
 extern crate colored;
 use colored::*;
@@ -69,10 +69,10 @@ struct Options {
 
 fn main() {
     // Define command-line options
-    let cmdline_args = App::new("newdoc")
-        .version("v2.3.4")
-        .author("Marek Suchánek")
-        .about("Generate an AsciiDoc file using a modular template")
+    let cmdline_args = App::new(crate_name!())
+        .version(crate_version!())
+        .author(crate_authors!())
+        .about(crate_description!())
         // If no arguments are provided, print help
         .setting(AppSettings::ArgRequiredElseHelp)
         .arg(
