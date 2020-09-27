@@ -41,14 +41,14 @@ impl Module {
     pub fn new(
         mod_type: ModuleType,
         title: &str,
-        includes: &[String],
+        includes: Option<&[String]>,
         options: &Options,
     ) -> Module {
         let title = String::from(title);
         let id = Module::convert_title_to_id(&title);
         let file_name = Module::compose_file_name(&id, &mod_type, &options);
         let include_statement = Module::compose_include_statement(&file_name);
-        let text = Module::compose_text(&title, &id, &mod_type, &includes, &options);
+        let text = Module::compose_text(&title, &id, &mod_type, includes, &options);
 
         Module {
             mod_type,
@@ -199,7 +199,7 @@ fn main() {
         }
 
         // Generate the populated assembly module
-        let populated = Module::new(ModuleType::Assembly, title, &includes, &options);
+        let populated = Module::new(ModuleType::Assembly, title, Some(&includes), &options);
 
         write_module(&populated, &options);
     }
@@ -222,7 +222,7 @@ fn process_module_type(titles: Values, module_type_str: &str, options: &Options)
             _ => unimplemented!(),
         };
 
-        let module = Module::new(module_type, title, &Vec::new(), &options);
+        let module = Module::new(module_type, title, None, &options);
 
         modules_from_type.push(module);
     }
@@ -314,7 +314,7 @@ impl Module {
         title: &str,
         module_id: &str,
         module_type: &ModuleType,
-        includes: &[String],
+        includes: Option<&[String]>,
         options: &Options,
     ) -> String {
         // TODO: Add a comment in the generated file with a pre-filled include statement
@@ -338,16 +338,17 @@ impl Module {
             template_with_replacements = template_with_replacements.replace(old, new);
         }
 
-        if includes.is_empty() {
-            template_with_replacements = template_with_replacements
-                .replace("${include_statements}", "Include modules here.");
-        } else {
+        if let Some(includes) = includes {
+            assert!(!includes.is_empty());
             // Join the includes into a block of text, with blank lines in between to prevent
             // the AsciiDoc syntax to blend between modules
             let includes_text = includes.join("\n\n");
 
             template_with_replacements =
                 template_with_replacements.replace("${include_statements}", &includes_text);
+        } else {
+            template_with_replacements = template_with_replacements
+                .replace("${include_statements}", "Include modules here.");
         }
 
         // If comments are disabled via an option, delete comment lines from the content
