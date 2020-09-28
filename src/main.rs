@@ -2,10 +2,11 @@ mod cmd_line;
 mod module;
 mod write;
 
-use module::{Module, ModuleType};
+use module::{Input, Module, ModuleType};
 
 /// This struct stores options based on the command-line arguments,
 /// and is passed to various functions across the program.
+#[derive(Debug, Clone)]
 pub struct Options {
     comments: bool,
     prefixes: bool,
@@ -65,8 +66,8 @@ fn main() {
         assert!(!include_statements.is_empty());
 
         // Generate the populated assembly module
-        let populated =
-            Module::new(ModuleType::Assembly, title, &options).includes(include_statements);
+        let populated: Module =
+            Input::new(ModuleType::Assembly, title, &options).include(include_statements).into();
 
         populated.write_file(&options);
     }
@@ -77,7 +78,7 @@ fn main() {
 fn process_module_type(
     titles: clap::Values,
     module_type_str: &str,
-    options: &Options,
+    options: &'static Options,
 ) -> Vec<Module> {
     let mut modules_from_type = Vec::new();
 

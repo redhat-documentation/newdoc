@@ -1,12 +1,21 @@
 use crate::Options;
 
 /// All possible types of the AsciiDoc module
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ModuleType {
     Assembly,
     Concept,
     Procedure,
     Reference,
+}
+
+/// An initial representation of the module with input data, used to construct the `Module` struct
+#[derive(Debug)]
+pub struct Input {
+    mod_type: ModuleType,
+    title: String,
+    options: &'static Options,
+    includes: Option<Vec<String>>,
 }
 
 /// A representation of the module with all its metadata and the generated AsciiDoc content
@@ -17,7 +26,8 @@ pub struct Module {
     id: String,
     pub file_name: String,
     pub include_statement: String,
-    included: Option<Vec<String>>,
+    includes: Option<Vec<String>>,
+    pub text: String,
 }
 
 // Load the AsciiDoc templates at build time
@@ -26,27 +36,22 @@ const CONCEPT_TEMPLATE: &str = include_str!("../templates/concept.adoc");
 const PROCEDURE_TEMPLATE: &str = include_str!("../templates/procedure.adoc");
 const REFERENCE_TEMPLATE: &str = include_str!("../templates/reference.adoc");
 
-impl Module {
-    /// The constructor for the Module struct
-    pub fn new(mod_type: ModuleType, title: &str, options: &Options) -> Module {
-        let title = String::from(title);
-        let id = Module::convert_title_to_id(&title);
-        let file_name = Module::compose_file_name(&id, &mod_type, &options);
-        let include_statement = Module::compose_include_statement(&file_name);
 
-        Module {
+impl Input {
+    pub fn new(mod_type: ModuleType, title: &str, options: &'static Options) -> Input {
+        let title = String::from(title);
+
+        Input {
             mod_type,
             title,
-            id,
-            file_name,
-            include_statement,
-            included: None,
+            options,
+            includes: None,
         }
     }
 
     /// Set the optional include statements for files that this assembly includes
-    pub fn includes(mut self, include_statements: Vec<String>) -> Self {
-        self.included = Some(include_statements);
+    pub fn include(mut self, include_statements: Vec<String>) -> Self {
+        self.includes = Some(include_statements);
         self
     }
 
@@ -55,14 +60,8 @@ impl Module {
     /// * An AsciiDoc section ID
     /// * A DocBook section ID
     /// * A file name
-    ///
-    /// ## Examples
-    ///
-    /// ```
-    /// let title = "Testing newdoc";
-    /// assert_eq!(String::from("testing-newdoc"), Module::convert_title_to_id(title));
-    /// ```
-    fn convert_title_to_id(title: &str) -> String {
+    pub fn id(&self) -> String {
+        let title = &self.title;
         // The ID is all lower-case
         let mut title_with_replacements = String::from(title).to_lowercase();
 
@@ -127,9 +126,36 @@ impl Module {
         title_with_replacements
     }
 
+    /// Prepare the file name for the generated file.
+    ///
+    /// The file name is based on the module ID, with the `.adoc` extension and an optional prefix.
+    pub fn file_name(&self) -> String {
+        let prefix = if self.options.prefixes {
+            // If prefixes are enabled, pick the right file prefix
+            match self.mod_type {
+                ModuleType::Assembly => "assembly_",
+                ModuleType::Concept => "con_",
+                ModuleType::Procedure => "proc_",
+                ModuleType::Reference => "ref_",
+            }
+        } else {
+            // If prefixes are disabled, use an empty string for the prefix
+            ""
+        };
+
+        let suffix = ".adoc";
+
+        [prefix, &self.id(), suffix].join("")
+    }
+
+    /// Prepare an include statement that can be used to include the generated file from elsewhere.
+    fn include_statement(&self) -> String {
+        format!("include::<path>/{}[leveloffset=+1]", &self.file_name())
+    }
+
     /// Perform string replacements in the modular template that matches the `ModuleType`.
     /// Return the template text with all replacements.
-    pub fn compose_text(&self, options: &Options) -> String {
+    pub fn text(&self) -> String {
         // TODO: Add a comment in the generated file with a pre-filled include statement
 
         // Pick the right template
@@ -141,7 +167,7 @@ impl Module {
         };
 
         // Define the strings that will be replaced in the template
-        let replacements = [("${module_title}", &self.title), ("${module_id}", &self.id)];
+        let replacements = [("${module_title}", &self.title), ("${module_id}", &self.id())];
 
         // Perform substitutions in the template
         // TODO: Create a separate function to perform a replacement
@@ -151,7 +177,7 @@ impl Module {
             template_with_replacements = template_with_replacements.replace(old, new);
         }
 
-        if let Some(include_statements) = &self.included {
+        if let Some(include_statements) = &self.includes {
             // The includes should never be empty thanks to the required group in clap
             assert!(!include_statements.is_empty());
             // Join the includes into a block of text, with blank lines in between to prevent
@@ -167,7 +193,7 @@ impl Module {
 
         // If comments are disabled via an option, delete comment lines from the content
         // TODO: This doesn't handle AsciiDoc comment blocks at all
-        if !options.comments {
+        if !self.options.comments {
             // Filter out comment lines in an iterator
             let lines = template_with_replacements
                 .lines()
@@ -180,31 +206,38 @@ impl Module {
 
         template_with_replacements
     }
+}
 
-    /// Prepare the file name for the generated file.
-    ///
-    /// The file name is based on the module ID, with the `.adoc` extension and an optional prefix.
-    fn compose_file_name(module_id: &str, module_type: &ModuleType, options: &Options) -> String {
-        let prefix = if options.prefixes {
-            // If prefixes are enabled, pick the right file prefix
-            match module_type {
-                ModuleType::Assembly => "assembly_",
-                ModuleType::Concept => "con_",
-                ModuleType::Procedure => "proc_",
-                ModuleType::Reference => "ref_",
-            }
-        } else {
-            // If prefixes are disabled, use an empty string for the prefix
-            ""
-        };
 
-        let suffix = ".adoc";
+impl From<Input> for Module {
+    fn from(input: Input) -> Self {
+        // TODO: I suspect that these `clone` calls aren't really necessary, but I don't know Rust
+        // well enough to figure out the proper solution now.
+        let mod_type = input.mod_type.clone();
+        let title = input.title.clone();
+        let id = input.id().clone();
+        let file_name = input.file_name().clone();
+        let include_statement = input.include_statement();
+        let includes = input.includes.clone();
+        let text = input.text().clone();
 
-        [prefix, module_id, suffix].join("")
+        Module {
+            mod_type,
+            title,
+            id,
+            file_name,
+            include_statement,
+            includes,
+            text,
+        }
     }
+}
 
-    /// Prepare an include statement that can be used to include the generated file from elsewhere.
-    fn compose_include_statement(file_name: &str) -> String {
-        format!("include::<path>/{}[leveloffset=+1]", file_name)
+
+impl Module {
+    /// The constructor for the Module struct
+    pub fn new(mod_type: ModuleType, title: &str, options: &'static Options) -> Module {
+        let input = Input::new(mod_type, title, options);
+        input.into()
     }
 }
