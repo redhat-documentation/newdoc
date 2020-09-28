@@ -143,7 +143,7 @@ fn write_module(module: &Module, options: &Options) {
     }
 
     // If the target file doesn't exist, try to write to it
-    let result = fs::write(full_path, &module.text);
+    let result = fs::write(full_path, &module.compose_text(&options));
     match result {
         // If the write succeeds, print the include statement
         Ok(()) => {

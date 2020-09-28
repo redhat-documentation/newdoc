@@ -12,12 +12,11 @@ pub enum ModuleType {
 /// A representation of the module with all its metadata and the generated AsciiDoc content
 #[derive(Debug)]
 pub struct Module {
-    pub mod_type: ModuleType,
-    pub title: String,
-    pub id: String,
+    mod_type: ModuleType,
+    title: String,
+    id: String,
     pub file_name: String,
     pub include_statement: String,
-    pub text: String,
     included: Option<Vec<String>>,
 }
 
@@ -38,7 +37,6 @@ impl Module {
         let id = Module::convert_title_to_id(&title);
         let file_name = Module::compose_file_name(&id, &mod_type, &options);
         let include_statement = Module::compose_include_statement(&file_name);
-        let text = Module::compose_text(&title, &id, &mod_type, None, &options);
 
         Module {
             mod_type,
@@ -46,11 +44,11 @@ impl Module {
             id,
             file_name,
             include_statement,
-            text,
             included: None,
         }
     }
 
+    /// Set the optional include statements for files that this assembly includes
     pub fn includes(mut self, include_statements: Vec<String>) -> Self {
         self.included = Some(include_statements);
         self
@@ -135,17 +133,14 @@ impl Module {
 
     /// Perform string replacements in the modular template that matches the `ModuleType`.
     /// Return the template text with all replacements.
-    fn compose_text(
-        title: &str,
-        module_id: &str,
-        module_type: &ModuleType,
-        includes: Option<&[String]>,
+    pub fn compose_text(
+        &self,
         options: &Options,
     ) -> String {
         // TODO: Add a comment in the generated file with a pre-filled include statement
 
         // Pick the right template
-        let current_template = match module_type {
+        let current_template = match self.mod_type {
             ModuleType::Assembly => ASSEMBLY_TEMPLATE,
             ModuleType::Concept => CONCEPT_TEMPLATE,
             ModuleType::Procedure => PROCEDURE_TEMPLATE,
@@ -153,7 +148,7 @@ impl Module {
         };
 
         // Define the strings that will be replaced in the template
-        let replacements = [("${module_title}", title), ("${module_id}", module_id)];
+        let replacements = [("${module_title}", &self.title), ("${module_id}", &self.id)];
 
         // Perform substitutions in the template
         // TODO: Create a separate function to perform a replacement
@@ -163,12 +158,12 @@ impl Module {
             template_with_replacements = template_with_replacements.replace(old, new);
         }
 
-        if let Some(includes) = includes {
+        if let Some(include_statements) = &self.included {
             // The includes should never be empty thanks to the required group in clap
-            assert!(!includes.is_empty());
+            assert!(!include_statements.is_empty());
             // Join the includes into a block of text, with blank lines in between to prevent
             // the AsciiDoc syntax to blend between modules
-            let includes_text = includes.join("\n\n");
+            let includes_text = include_statements.join("\n\n");
 
             template_with_replacements =
                 template_with_replacements.replace("${include_statements}", &includes_text);
