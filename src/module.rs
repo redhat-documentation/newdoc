@@ -18,6 +18,7 @@ pub struct Module {
     pub file_name: String,
     pub include_statement: String,
     pub text: String,
+    included: Option<Vec<String>>,
 }
 
 // Load the AsciiDoc templates at build time
@@ -31,14 +32,13 @@ impl Module {
     pub fn new(
         mod_type: ModuleType,
         title: &str,
-        includes: Option<&[String]>,
         options: &Options,
     ) -> Module {
         let title = String::from(title);
         let id = Module::convert_title_to_id(&title);
         let file_name = Module::compose_file_name(&id, &mod_type, &options);
         let include_statement = Module::compose_include_statement(&file_name);
-        let text = Module::compose_text(&title, &id, &mod_type, includes, &options);
+        let text = Module::compose_text(&title, &id, &mod_type, None, &options);
 
         Module {
             mod_type,
@@ -47,7 +47,13 @@ impl Module {
             file_name,
             include_statement,
             text,
+            included: None,
         }
+    }
+
+    pub fn includes(mut self, include_statements: Vec<String>) -> Self {
+        self.included = Some(include_statements);
+        self
     }
 
     /// Create an ID string that is derived from the human-readable title. The ID is usable as:

@@ -62,16 +62,17 @@ fn main() {
     if let Some(title) = cmdline_args.value_of("include-in") {
         // Gather all include statements for the other modules
         // TODO: Figure out if this can be done without calling .to_owned on all the Strings
-        let includes: Vec<String> = non_populated
+        let include_statements: Vec<String> = non_populated
             .iter()
             .map(|module| module.include_statement.to_owned())
             .collect();
 
-        // The includes should never be empty thanks to the required group in clap
-        assert!(!includes.is_empty());
+        // The include_statements should never be empty thanks to the required group in clap
+        assert!(!include_statements.is_empty());
 
         // Generate the populated assembly module
-        let populated = Module::new(ModuleType::Assembly, title, Some(&includes), &options);
+        let populated = Module::new(ModuleType::Assembly, title, &options)
+            .includes(include_statements);
 
         write_module(&populated, &options);
     }
@@ -94,7 +95,7 @@ fn process_module_type(titles: clap::Values, module_type_str: &str, options: &Op
             _ => unimplemented!(),
         };
 
-        let module = Module::new(module_type, title, None, &options);
+        let module = Module::new(module_type, title, &options);
 
         modules_from_type.push(module);
     }
