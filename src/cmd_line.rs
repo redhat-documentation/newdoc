@@ -1,8 +1,12 @@
+/// This module defines the command-line arguments and behavior of `newdoc`.
+/// It relies on the `clap` crate.
+
 use clap::{
     crate_authors, crate_description, crate_name, crate_version, App, AppSettings, Arg, ArgGroup,
     ArgMatches,
 };
 
+/// Define the command-line arguments and return them as the `clap::ArgMatches` struct.
 pub fn get_args() -> ArgMatches<'static> {
     // Define command-line options
     App::new(crate_name!())

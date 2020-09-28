@@ -1,3 +1,5 @@
+/// This module defines the `Module` struct, its builder struct, and methods on both structs.
+
 use crate::Options;
 
 /// All possible types of the AsciiDoc module
@@ -36,6 +38,7 @@ const CONCEPT_TEMPLATE: &str = include_str!("../templates/concept.adoc");
 const PROCEDURE_TEMPLATE: &str = include_str!("../templates/procedure.adoc");
 const REFERENCE_TEMPLATE: &str = include_str!("../templates/reference.adoc");
 
+/// Construct a basic builder for `Module`, storing information from the user input.
 impl Input {
     pub fn new(mod_type: ModuleType, title: &str, options: &Options) -> Input {
         let title = String::from(title);
@@ -212,6 +215,7 @@ impl Input {
 }
 
 impl From<Input> for Module {
+    /// Convert the `Input` builder struct into the finished `Module` struct.
     fn from(input: Input) -> Self {
         // TODO: I suspect that these `clone` calls aren't really necessary, but I don't know Rust
         // well enough to figure out the proper solution now.
@@ -236,7 +240,8 @@ impl From<Input> for Module {
 }
 
 impl Module {
-    /// The constructor for the Module struct
+    /// The constructor for the Module struct. Creates a basic version of Module
+    /// without any optional features.
     pub fn new(mod_type: ModuleType, title: &str, options: &Options) -> Module {
         let input = Input::new(mod_type, title, options);
         input.into()
