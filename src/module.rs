@@ -28,11 +28,7 @@ const REFERENCE_TEMPLATE: &str = include_str!("../templates/reference.adoc");
 
 impl Module {
     /// The constructor for the Module struct
-    pub fn new(
-        mod_type: ModuleType,
-        title: &str,
-        options: &Options,
-    ) -> Module {
+    pub fn new(mod_type: ModuleType, title: &str, options: &Options) -> Module {
         let title = String::from(title);
         let id = Module::convert_title_to_id(&title);
         let file_name = Module::compose_file_name(&id, &mod_type, &options);
@@ -133,10 +129,7 @@ impl Module {
 
     /// Perform string replacements in the modular template that matches the `ModuleType`.
     /// Return the template text with all replacements.
-    pub fn compose_text(
-        &self,
-        options: &Options,
-    ) -> String {
+    pub fn compose_text(&self, options: &Options) -> String {
         // TODO: Add a comment in the generated file with a pre-filled include statement
 
         // Pick the right template

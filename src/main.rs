@@ -9,7 +9,6 @@ mod module;
 
 use module::{Module, ModuleType};
 
-
 /// This struct stores options based on the command-line arguments,
 /// and is passed to various functions across the program.
 pub struct Options {
@@ -71,8 +70,8 @@ fn main() {
         assert!(!include_statements.is_empty());
 
         // Generate the populated assembly module
-        let populated = Module::new(ModuleType::Assembly, title, &options)
-            .includes(include_statements);
+        let populated =
+            Module::new(ModuleType::Assembly, title, &options).includes(include_statements);
 
         write_module(&populated, &options);
     }
@@ -80,7 +79,11 @@ fn main() {
 
 /// Process all titles that have been specified on the command line and that belong to a single
 /// module type.
-fn process_module_type(titles: clap::Values, module_type_str: &str, options: &Options) -> Vec<Module> {
+fn process_module_type(
+    titles: clap::Values,
+    module_type_str: &str,
+    options: &Options,
+) -> Vec<Module> {
     let mut modules_from_type = Vec::new();
 
     for title in titles {
@@ -102,7 +105,6 @@ fn process_module_type(titles: clap::Values, module_type_str: &str, options: &Op
 
     modules_from_type
 }
-
 
 /// Write the generated module content to the path specified in `options` with the set file name.
 // fn write_module(file_name: &str, content: &str, options: &Options) {
@@ -156,4 +158,3 @@ fn write_module(module: &Module, options: &Options) {
         }
     }
 }
-
