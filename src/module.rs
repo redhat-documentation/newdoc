@@ -1,5 +1,7 @@
 /// This module defines the `Module` struct, its builder struct, and methods on both structs.
 
+use std::path::{Path, PathBuf};
+
 use crate::Options;
 
 /// All possible types of the AsciiDoc module
@@ -153,7 +155,41 @@ impl Input {
 
     /// Prepare an include statement that can be used to include the generated file from elsewhere.
     fn include_statement(&self) -> String {
-        format!("include::<path>/{}[leveloffset=+1]", &self.file_name())
+        // Determine the start of the include statement from the target path.
+        // The first directory in the include path is either `assemblies/` or `modules/`,
+        // based on the module type.
+        let include_root = match &self.mod_type {
+            ModuleType::Assembly => "assemblies",
+            _ => "modules",
+        };
+
+        // TODO: Maybe convert the path earlier in the module building.
+        let target_path = Path::new(&self.options.target_dir).canonicalize().unwrap();
+
+        // Split the target path into components
+        let mut component_vec: Vec<_> = target_path
+            .as_path()
+            .components()
+            .map(|c| c.as_os_str())
+            .collect();
+
+        // Find the position of the component that matches the root element,
+        // searching from the end of the path forward.
+        let root_position = component_vec.iter().rposition(|&c| c == include_root);
+
+        // If there is such a root element in the path, construct the include path.
+        // TODO: To be safe, check that the root path element still exists in a Git repository.
+        let include_path = if let Some(position) = root_position {
+            component_vec
+                .split_off(position)
+                .iter()
+                .collect::<PathBuf>()
+        // If no appropriate root element was found, use a generic placeholder.
+        } else {
+            Path::new("<path>").to_path_buf()
+        };
+
+        format!("include::{}/{}[leveloffset=+1]", include_path.display(), &self.file_name())
     }
 
     /// Perform string replacements in the modular template that matches the `ModuleType`.
