@@ -14,7 +14,7 @@ pub enum ModuleType {
 pub struct Input {
     mod_type: ModuleType,
     title: String,
-    options: &'static Options,
+    options: Options,
     includes: Option<Vec<String>>,
 }
 
@@ -38,8 +38,9 @@ const REFERENCE_TEMPLATE: &str = include_str!("../templates/reference.adoc");
 
 
 impl Input {
-    pub fn new(mod_type: ModuleType, title: &str, options: &'static Options) -> Input {
+    pub fn new(mod_type: ModuleType, title: &str, options: &Options) -> Input {
         let title = String::from(title);
+        let options = options.clone();
 
         Input {
             mod_type,
@@ -236,7 +237,7 @@ impl From<Input> for Module {
 
 impl Module {
     /// The constructor for the Module struct
-    pub fn new(mod_type: ModuleType, title: &str, options: &'static Options) -> Module {
+    pub fn new(mod_type: ModuleType, title: &str, options: &Options) -> Module {
         let input = Input::new(mod_type, title, options);
         input.into()
     }

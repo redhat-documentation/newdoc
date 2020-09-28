@@ -78,7 +78,7 @@ fn main() {
 fn process_module_type(
     titles: clap::Values,
     module_type_str: &str,
-    options: &'static Options,
+    options: &Options,
 ) -> Vec<Module> {
     let mut modules_from_type = Vec::new();
 

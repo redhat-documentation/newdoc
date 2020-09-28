@@ -9,9 +9,9 @@ use crate::module::Module;
 
 impl Module {
     /// Write the generated module content to the path specified in `options` with the set file name.
-    pub fn write_file(&self) {
+    pub fn write_file(&self, options: &Options) {
         // Compose the full (but still relative) file path from the target directory and the file name
-        let full_path_buf: PathBuf = [&self.options.target_dir, &self.file_name].iter().collect();
+        let full_path_buf: PathBuf = [&options.target_dir, &self.file_name].iter().collect();
         let full_path = full_path_buf.as_path();
 
         // If the target file already exists, just print out an error
