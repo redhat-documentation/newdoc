@@ -217,24 +217,14 @@ impl Input {
 impl From<Input> for Module {
     /// Convert the `Input` builder struct into the finished `Module` struct.
     fn from(input: Input) -> Self {
-        // TODO: I suspect that these `clone` calls aren't really necessary, but I don't know Rust
-        // well enough to figure out the proper solution now.
-        let mod_type = input.mod_type.clone();
-        let title = input.title.clone();
-        let id = input.id().clone();
-        let file_name = input.file_name().clone();
-        let include_statement = input.include_statement();
-        let includes = input.includes.clone();
-        let text = input.text().clone();
-
         Module {
-            mod_type,
-            title,
-            id,
-            file_name,
-            include_statement,
-            includes,
-            text,
+            mod_type: input.mod_type.clone(),
+            title: input.title.clone(),
+            id: input.id(),
+            file_name: input.file_name(),
+            include_statement: input.include_statement(),
+            includes: input.includes.clone(),
+            text: input.text(),
         }
     }
 }
