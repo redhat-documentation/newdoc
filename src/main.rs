@@ -66,8 +66,9 @@ fn main() {
         assert!(!include_statements.is_empty());
 
         // Generate the populated assembly module
-        let populated: Module =
-            Input::new(ModuleType::Assembly, title, &options).include(include_statements).into();
+        let populated: Module = Input::new(ModuleType::Assembly, title, &options)
+            .include(include_statements)
+            .into();
 
         populated.write_file(&options);
     }

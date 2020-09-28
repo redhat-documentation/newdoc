@@ -4,8 +4,8 @@ use std::path::PathBuf;
 
 use colored::*;
 
-use crate::Options;
 use crate::module::Module;
+use crate::Options;
 
 impl Module {
     /// Write the generated module content to the path specified in `options` with the set file name.

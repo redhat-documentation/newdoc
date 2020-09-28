@@ -36,7 +36,6 @@ const CONCEPT_TEMPLATE: &str = include_str!("../templates/concept.adoc");
 const PROCEDURE_TEMPLATE: &str = include_str!("../templates/procedure.adoc");
 const REFERENCE_TEMPLATE: &str = include_str!("../templates/reference.adoc");
 
-
 impl Input {
     pub fn new(mod_type: ModuleType, title: &str, options: &Options) -> Input {
         let title = String::from(title);
@@ -168,7 +167,10 @@ impl Input {
         };
 
         // Define the strings that will be replaced in the template
-        let replacements = [("${module_title}", &self.title), ("${module_id}", &self.id())];
+        let replacements = [
+            ("${module_title}", &self.title),
+            ("${module_id}", &self.id()),
+        ];
 
         // Perform substitutions in the template
         // TODO: Create a separate function to perform a replacement
@@ -209,7 +211,6 @@ impl Input {
     }
 }
 
-
 impl From<Input> for Module {
     fn from(input: Input) -> Self {
         // TODO: I suspect that these `clone` calls aren't really necessary, but I don't know Rust
@@ -233,7 +234,6 @@ impl From<Input> for Module {
         }
     }
 }
-
 
 impl Module {
     /// The constructor for the Module struct
