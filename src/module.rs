@@ -1,5 +1,4 @@
 /// This module defines the `Module` struct, its builder struct, and methods on both structs.
-
 use std::path::{Path, PathBuf};
 
 use crate::Options;
@@ -166,7 +165,11 @@ impl Input {
             path_placeholder
         };
 
-        format!("include::{}/{}[leveloffset=+1]", include_path.display(), &self.file_name())
+        format!(
+            "include::{}/{}[leveloffset=+1]",
+            include_path.display(),
+            &self.file_name()
+        )
     }
 
     /// Determine the start of the include statement from the target path.
@@ -207,7 +210,6 @@ impl Input {
             None
         }
     }
-
 
     /// Perform string replacements in the modular template that matches the `ModuleType`.
     /// Return the template text with all replacements.

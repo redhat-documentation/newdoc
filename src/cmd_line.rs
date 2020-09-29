@@ -1,6 +1,5 @@
 /// This module defines the command-line arguments and behavior of `newdoc`.
 /// It relies on the `clap` crate.
-
 use clap::{
     crate_authors, crate_description, crate_name, crate_version, App, AppSettings, Arg, ArgGroup,
     ArgMatches,
@@ -75,9 +74,9 @@ pub fn get_args() -> ArgMatches<'static> {
         )
         .arg(
             Arg::with_name("detect-directory")
-            .short("D")
-            .long("detect-directory")
-            .help("Detect the include path, rather than using the <path> placeholder")
+                .short("D")
+                .long("detect-directory")
+                .help("Detect the include path, rather than using the <path> placeholder"),
         )
         .arg(
             Arg::with_name("no-prefixes")
