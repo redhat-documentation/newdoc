@@ -74,10 +74,16 @@ pub fn get_args() -> ArgMatches<'static> {
                 .help("Generate the file without any comments"),
         )
         .arg(
+            Arg::with_name("detect-directory")
+            .short("D")
+            .long("detect-directory")
+            .help("Detect the include path, rather than using the <path> placeholder")
+        )
+        .arg(
             Arg::with_name("no-prefixes")
                 .short("P")
                 .long("no-prefixes")
-                .help("Do not use module type prefixes (e.g. `proc_`) in file names"),
+                .help("Do not use module type prefixes (such as `proc_`) in file names"),
         )
         .arg(
             Arg::with_name("target-dir")

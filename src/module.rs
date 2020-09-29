@@ -155,7 +155,24 @@ impl Input {
 
     /// Prepare an include statement that can be used to include the generated file from elsewhere.
     fn include_statement(&self) -> String {
-        // Determine the start of the include statement from the target path.
+        let path_placeholder = Path::new("<path>").to_path_buf();
+
+        let include_path = if self.options.detect_directory {
+            match self.infer_include_dir() {
+                Some(path) => path,
+                None => path_placeholder,
+            }
+        } else {
+            path_placeholder
+        };
+
+        format!("include::{}/{}[leveloffset=+1]", include_path.display(), &self.file_name())
+    }
+
+    /// Determine the start of the include statement from the target path.
+    /// Returns the relative path that can be used in the include statement, if it's possible
+    /// to determine it automatically.
+    fn infer_include_dir(&self) -> Option<PathBuf> {
         // The first directory in the include path is either `assemblies/` or `modules/`,
         // based on the module type.
         let include_root = match &self.mod_type {
@@ -179,18 +196,18 @@ impl Input {
 
         // If there is such a root element in the path, construct the include path.
         // TODO: To be safe, check that the root path element still exists in a Git repository.
-        let include_path = if let Some(position) = root_position {
-            component_vec
+        if let Some(position) = root_position {
+            let include_path = component_vec
                 .split_off(position)
                 .iter()
-                .collect::<PathBuf>()
+                .collect::<PathBuf>();
+            Some(include_path)
         // If no appropriate root element was found, use a generic placeholder.
         } else {
-            Path::new("<path>").to_path_buf()
-        };
-
-        format!("include::{}/{}[leveloffset=+1]", include_path.display(), &self.file_name())
+            None
+        }
     }
+
 
     /// Perform string replacements in the modular template that matches the `ModuleType`.
     /// Return the template text with all replacements.

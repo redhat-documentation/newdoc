@@ -11,6 +11,7 @@ pub struct Options {
     comments: bool,
     prefixes: bool,
     target_dir: String,
+    detect_directory: bool,
 }
 
 fn main() {
@@ -29,6 +30,7 @@ fn main() {
         } else {
             String::from(".")
         },
+        detect_directory: cmdline_args.is_present("detect-directory"),
     };
 
     // Store all modules except for the populated assembly that will be created in this Vec
