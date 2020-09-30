@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 use crate::Options;
 
 /// All possible types of the AsciiDoc module
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum ModuleType {
     Assembly,
     Concept,
@@ -315,8 +315,7 @@ mod tests {
         };
         let assembly = Module::new(ModuleType::Assembly, "A testing assembly with /special-characters*", &options);
 
-        // We can't test this until we implement a way to compare the enum values
-        // assert_eq!(module.mod_type, ModuleType::Assembly);
+        assert_eq!(assembly.mod_type, ModuleType::Assembly);
         assert_eq!(assembly.title, "A testing assembly with /special-characters*");
         assert_eq!(assembly.id, "a-testing-assembly-with-special-characters");
         assert_eq!(assembly.file_name, "assembly_a-testing-assembly-with-special-characters.adoc");
