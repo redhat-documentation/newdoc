@@ -268,7 +268,9 @@ impl Input {
                 .swap_greed(true)
                 .build()
                 .unwrap();
-            template_with_replacements = multi_comments.replace(&template_with_replacements, "").to_string();
+            template_with_replacements = multi_comments
+                .replace(&template_with_replacements, "")
+                .to_string();
 
             // Delete single-line comments
             let single_comments: Regex = RegexBuilder::new(r"^//.*\n")
@@ -276,14 +278,18 @@ impl Input {
                 .swap_greed(true)
                 .build()
                 .unwrap();
-            template_with_replacements = single_comments.replace_all(&template_with_replacements, "").to_string();
+            template_with_replacements = single_comments
+                .replace_all(&template_with_replacements, "")
+                .to_string();
 
             // Delete leading white space left over by the deleted comments
             let leading_whitespace: Regex = RegexBuilder::new(r"^[\s\n]*")
                 .multi_line(true)
                 .build()
                 .unwrap();
-            template_with_replacements = leading_whitespace.replace(&template_with_replacements, "").to_string();
+            template_with_replacements = leading_whitespace
+                .replace(&template_with_replacements, "")
+                .to_string();
         }
 
         template_with_replacements
@@ -316,9 +322,9 @@ impl Module {
 
 #[cfg(test)]
 mod tests {
+    use crate::module::Input;
     use crate::module::Module;
     use crate::module::ModuleType;
-    use crate::module::Input;
     use crate::Options;
 
     fn basic_options() -> Options {
@@ -333,12 +339,22 @@ mod tests {
     #[test]
     fn check_basic_assembly_fields() {
         let options = basic_options();
-        let assembly = Module::new(ModuleType::Assembly, "A testing assembly with /special-characters*", &options);
+        let assembly = Module::new(
+            ModuleType::Assembly,
+            "A testing assembly with /special-characters*",
+            &options,
+        );
 
         assert_eq!(assembly.mod_type, ModuleType::Assembly);
-        assert_eq!(assembly.title, "A testing assembly with /special-characters*");
+        assert_eq!(
+            assembly.title,
+            "A testing assembly with /special-characters*"
+        );
         assert_eq!(assembly.id, "a-testing-assembly-with-special-characters");
-        assert_eq!(assembly.file_name, "assembly_a-testing-assembly-with-special-characters.adoc");
+        assert_eq!(
+            assembly.file_name,
+            "assembly_a-testing-assembly-with-special-characters.adoc"
+        );
         assert_eq!(assembly.include_statement, "include::<path>/assembly_a-testing-assembly-with-special-characters.adoc[leveloffset=+1]");
         assert_eq!(assembly.includes, None);
     }
@@ -346,8 +362,17 @@ mod tests {
     #[test]
     fn check_module_builder_and_new() {
         let options = basic_options();
-        let from_new: Module = Module::new(ModuleType::Assembly, "A testing assembly with /special-characters*", &options);
-        let from_builder: Module = Input::new(ModuleType::Assembly, "A testing assembly with /special-characters*", &options).into();
+        let from_new: Module = Module::new(
+            ModuleType::Assembly,
+            "A testing assembly with /special-characters*",
+            &options,
+        );
+        let from_builder: Module = Input::new(
+            ModuleType::Assembly,
+            "A testing assembly with /special-characters*",
+            &options,
+        )
+        .into();
         assert_eq!(from_new, from_builder);
     }
 }
