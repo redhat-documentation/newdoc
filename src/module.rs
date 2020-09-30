@@ -259,8 +259,8 @@ impl Input {
             template_with_replacements = template_with_replacements
                 .replace("${include_statements}", "Include modules here.");
         } else {
-            template_with_replacements = template_with_replacements
-                .replace("${include_statements}\n", "");
+            template_with_replacements =
+                template_with_replacements.replace("${include_statements}\n", "");
         }
 
         // If the `--no-examples` option is active, remove all lines between the <example> tags.
