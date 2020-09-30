@@ -255,9 +255,34 @@ impl Input {
 
             template_with_replacements =
                 template_with_replacements.replace("${include_statements}", &includes_text);
-        } else {
+        } else if self.options.examples {
             template_with_replacements = template_with_replacements
                 .replace("${include_statements}", "Include modules here.");
+        } else {
+            template_with_replacements = template_with_replacements
+                .replace("${include_statements}\n", "");
+        }
+
+        // If the `--no-examples` option is active, remove all lines between the <example> tags.
+        if !self.options.examples {
+            let examples: Regex = RegexBuilder::new(r"^// <example>\n[\s\S]*\n^// </example>\n")
+                .multi_line(true)
+                .swap_greed(true)
+                .build()
+                .unwrap();
+            template_with_replacements = examples
+                .replace_all(&template_with_replacements, "")
+                .to_string();
+        // If the `--no-examples` option isn't active, remove just the <example> tags.
+        } else {
+            let example_tags: Regex = RegexBuilder::new(r"^// </?example>\n")
+                .multi_line(true)
+                .swap_greed(true)
+                .build()
+                .unwrap();
+            template_with_replacements = example_tags
+                .replace_all(&template_with_replacements, "")
+                .to_string();
         }
 
         // If comments are disabled via an option, delete comment lines from the content

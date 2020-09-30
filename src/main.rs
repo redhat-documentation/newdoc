@@ -10,6 +10,7 @@ use module::{Input, Module, ModuleType};
 pub struct Options {
     comments: bool,
     prefixes: bool,
+    examples: bool,
     target_dir: String,
     detect_directory: bool,
 }
@@ -22,8 +23,9 @@ fn main() {
         // Comments and prefixes are enabled (true) by default unless you disable them
         // on the command line. If the no-comments or no-prefixes option is passed
         // (occurences > 0), the feature is disabled, so the option is set to false.
-        comments: cmdline_args.occurrences_of("no-comments") == 0,
-        prefixes: cmdline_args.occurrences_of("no-prefixes") == 0,
+        comments: !cmdline_args.is_present("no-comments"),
+        prefixes: !cmdline_args.is_present("no-prefixes"),
+        examples: !cmdline_args.is_present("no-examples"),
         // Set the target directory as specified or fall back on the current directory
         target_dir: if let Some(dir) = cmdline_args.value_of("target-dir") {
             String::from(dir)

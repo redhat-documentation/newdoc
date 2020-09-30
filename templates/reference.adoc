@@ -13,6 +13,7 @@
 = ${module_title}
 // In the title of a reference module, include nouns that are used in the body text. For example, "Keyboard shortcuts for ___" or "Command options for ___." This helps readers and search engines find the information quickly.
 
+// <example>
 A short introductory paragraph is required for the reference module.
 It will provide an overview of the module.
 
@@ -37,4 +38,5 @@ Term 2:: Definition
 |Row 1, column 1|Row 1, column 2|Row 1, column 3
 |Row 2, column 1|Row 2, column 2|Row 2, column 3
 |====
+// </example>
 

@@ -73,6 +73,13 @@ pub fn get_args() -> ArgMatches<'static> {
                 .help("Generate the file without any comments"),
         )
         .arg(
+            Arg::with_name("no-examples")
+                .short("E")
+                .long("no-examples")
+                .alias("expert-mode")
+                .help("Generate the file without any example, placeholder content"),
+        )
+        .arg(
             Arg::with_name("detect-directory")
                 .short("D")
                 .long("detect-directory")
