@@ -6,6 +6,7 @@
 
 [![Travis (.org)](https://img.shields.io/travis/redhat-documentation/newdoc)](https://travis-ci.org/github/redhat-documentation/newdoc)
 [![AppVeyor](https://img.shields.io/appveyor/build/mrksu/newdoc)](https://ci.appveyor.com/project/mrksu/newdoc)
+[![Copr build](https://copr.fedorainfracloud.org/coprs/mareksu/newdoc-rs/package/newdoc/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/mareksu/newdoc-rs/package/newdoc/)
 
 The `newdoc` tool generates pre-populated module and assembly files formatted with AsciiDoc, which are used in Red Hat and Fedora documentation. The generated files follow the Modular Documentation guidelines: <https://redhat-documentation.github.io/modular-docs/>.
 
