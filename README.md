@@ -1,4 +1,4 @@
-# README: The newdoc tool
+# The newdoc tool
 
 [![Crates.io](https://img.shields.io/crates/v/newdoc)](https://crates.io/crates/newdoc)
 [![Crates.io](https://img.shields.io/crates/d/newdoc)](https://crates.io/crates/newdoc)
@@ -7,10 +7,7 @@
 [![Travis (.org)](https://img.shields.io/travis/redhat-documentation/newdoc)](https://travis-ci.org/github/redhat-documentation/newdoc)
 [![AppVeyor](https://img.shields.io/appveyor/build/mrksu/newdoc)](https://ci.appveyor.com/project/mrksu/newdoc)
 
-The `newdoc` tool generates pre-populated module and assembly files formatted with AsciiDoc, which are used in Red Hat and Fedora documentation. The generated files follow the template guidelines maintained by the Modular Documentation initiative: <https://redhat-documentation.github.io/modular-docs/>.
-
-The tool is written in the Rust programming language.
-
+The `newdoc` tool generates pre-populated module and assembly files formatted with AsciiDoc, which are used in Red Hat and Fedora documentation. The generated files follow the Modular Documentation guidelines: <https://redhat-documentation.github.io/modular-docs/>.
 
 ## Installing newdoc
 
