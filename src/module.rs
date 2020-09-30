@@ -22,7 +22,7 @@ pub struct Input {
 }
 
 /// A representation of the module with all its metadata and the generated AsciiDoc content
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Module {
     mod_type: ModuleType,
     title: String,
@@ -303,16 +303,21 @@ impl Module {
 mod tests {
     use crate::module::Module;
     use crate::module::ModuleType;
+    use crate::module::Input;
     use crate::Options;
 
-    #[test]
-    fn check_basic_assembly_fields() {
-        let options = Options {
+    fn basic_options() -> Options {
+        Options {
             comments: false,
             prefixes: true,
             target_dir: ".".to_string(),
             detect_directory: false,
-        };
+        }
+    }
+
+    #[test]
+    fn check_basic_assembly_fields() {
+        let options = basic_options();
         let assembly = Module::new(ModuleType::Assembly, "A testing assembly with /special-characters*", &options);
 
         assert_eq!(assembly.mod_type, ModuleType::Assembly);
@@ -321,5 +326,13 @@ mod tests {
         assert_eq!(assembly.file_name, "assembly_a-testing-assembly-with-special-characters.adoc");
         assert_eq!(assembly.include_statement, "include::<path>/assembly_a-testing-assembly-with-special-characters.adoc[leveloffset=+1]");
         assert_eq!(assembly.includes, None);
+    }
+
+    #[test]
+    fn check_module_builder_and_new() {
+        let options = basic_options();
+        let from_new: Module = Module::new(ModuleType::Assembly, "A testing assembly with /special-characters*", &options);
+        let from_builder: Module = Input::new(ModuleType::Assembly, "A testing assembly with /special-characters*", &options).into();
+        assert_eq!(from_new, from_builder);
     }
 }
