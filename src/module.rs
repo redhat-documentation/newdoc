@@ -184,7 +184,13 @@ impl Input {
         };
 
         // TODO: Maybe convert the path earlier in the module building.
-        let target_path = Path::new(&self.options.target_dir).canonicalize().unwrap();
+        let relative_path = Path::new(&self.options.target_dir);
+        // Try to find the root element in an absolute path.
+        // If the absolute path cannot be constructed due to an error, search the relative path instead.
+        let target_path = match relative_path.canonicalize() {
+            Ok(path) => path,
+            Err(_) => relative_path.to_path_buf(),
+        };
 
         // Split the target path into components
         let mut component_vec: Vec<_> = target_path
