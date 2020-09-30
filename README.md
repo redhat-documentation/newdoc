@@ -95,6 +95,8 @@ The `newdoc` tool generates pre-populated module and assembly files formatted wi
 
 * To generate the file without the explanatory comments, add the `--no-comments` or `-C` option when creating documents.
 
+* To generate the file without the example, placeholder content, add the `--no-examples` or `-E` option when creating documents.
+
 * To create the file without the file-name prefix, add the `--no-prefixes` or `-P` option.
 
 * To specify the directory where `newdoc` saves the generated file, add the `--target-dir=<directory>` or `-T <directory>` option.
