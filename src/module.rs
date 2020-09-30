@@ -292,3 +292,26 @@ impl Module {
         input.into()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::module::Module;
+    use crate::module::ModuleType;
+    use crate::Options;
+
+    #[test]
+    fn check_module_fields() {
+        let options = Options {
+            comments: false,
+            prefixes: true,
+            target_dir: ".".to_string(),
+            detect_directory: true,
+        };
+        let module = Module::new(ModuleType::Assembly, "A testing assembly with /special-characters*", &options);
+
+        // We can't test this until we implement a way to compare the enum values
+        // assert_eq!(module.mod_type, ModuleType::Assembly);
+        assert_eq!(module.title, "A testing assembly with /special-characters*".to_string());
+        assert_eq!(module.id, "a-testing-assembly-with-special-characters".to_string());
+    }
+}
