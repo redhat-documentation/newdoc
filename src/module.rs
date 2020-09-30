@@ -356,6 +356,7 @@ mod tests {
         Options {
             comments: false,
             prefixes: true,
+            examples: true,
             target_dir: ".".to_string(),
             detect_directory: false,
         }
