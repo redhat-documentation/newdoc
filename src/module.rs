@@ -1,6 +1,8 @@
 /// This module defines the `Module` struct, its builder struct, and methods on both structs.
 use std::path::{Path, PathBuf};
 
+use regex::{Regex, RegexBuilder};
+
 use crate::Options;
 
 /// All possible types of the AsciiDoc module
@@ -259,16 +261,29 @@ impl Input {
         }
 
         // If comments are disabled via an option, delete comment lines from the content
-        // TODO: This doesn't handle AsciiDoc comment blocks at all
         if !self.options.comments {
-            // Filter out comment lines in an iterator
-            let lines = template_with_replacements
-                .lines()
-                .filter(|line| !line.starts_with("//"));
-            // Connect the iterator back into a String, connecting with newlines
-            template_with_replacements = lines.collect::<Vec<&str>>().join("\n");
-            // Add a final newline at the end of the file
-            template_with_replacements.push('\n');
+            // Delete multi-line (block) comments
+            let multi_comments: Regex = RegexBuilder::new(r"^////[\s\S\n]*^////[\s]*\n")
+                .multi_line(true)
+                .swap_greed(true)
+                .build()
+                .unwrap();
+            template_with_replacements = multi_comments.replace(&template_with_replacements, "").to_string();
+
+            // Delete single-line comments
+            let single_comments: Regex = RegexBuilder::new(r"^//.*\n")
+                .multi_line(true)
+                .swap_greed(true)
+                .build()
+                .unwrap();
+            template_with_replacements = single_comments.replace_all(&template_with_replacements, "").to_string();
+
+            // Delete leading white space left over by the deleted comments
+            let leading_whitespace: Regex = RegexBuilder::new(r"^[\s\n]*")
+                .multi_line(true)
+                .build()
+                .unwrap();
+            template_with_replacements = leading_whitespace.replace(&template_with_replacements, "").to_string();
         }
 
         template_with_replacements
