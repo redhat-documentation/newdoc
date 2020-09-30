@@ -300,18 +300,21 @@ mod tests {
     use crate::Options;
 
     #[test]
-    fn check_module_fields() {
+    fn check_basic_assembly_fields() {
         let options = Options {
             comments: false,
             prefixes: true,
             target_dir: ".".to_string(),
-            detect_directory: true,
+            detect_directory: false,
         };
-        let module = Module::new(ModuleType::Assembly, "A testing assembly with /special-characters*", &options);
+        let assembly = Module::new(ModuleType::Assembly, "A testing assembly with /special-characters*", &options);
 
         // We can't test this until we implement a way to compare the enum values
         // assert_eq!(module.mod_type, ModuleType::Assembly);
-        assert_eq!(module.title, "A testing assembly with /special-characters*".to_string());
-        assert_eq!(module.id, "a-testing-assembly-with-special-characters".to_string());
+        assert_eq!(assembly.title, "A testing assembly with /special-characters*");
+        assert_eq!(assembly.id, "a-testing-assembly-with-special-characters");
+        assert_eq!(assembly.file_name, "assembly_a-testing-assembly-with-special-characters.adoc");
+        assert_eq!(assembly.include_statement, "include::<path>/assembly_a-testing-assembly-with-special-characters.adoc[leveloffset=+1]");
+        assert_eq!(assembly.includes, None);
     }
 }
