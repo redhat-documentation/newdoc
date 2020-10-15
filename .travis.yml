@@ -23,7 +23,7 @@ before_install:
 script:
   - cargo build --verbose
   - cargo test --verbose
-  - cargo clippy--verbose
+  - cargo clippy --verbose
 
 after_script: set +e
 
