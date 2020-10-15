@@ -89,7 +89,7 @@ pub fn get_args() -> ArgMatches<'static> {
             Arg::with_name("no-prefixes")
                 .short("P")
                 .long("no-prefixes")
-                .help("Do not use module type prefixes (such as `proc_`) in file names"),
+                .help("Do not use module type prefixes (such as `proc_`) in IDs and file names"),
         )
         .arg(
             Arg::with_name("target-dir")
