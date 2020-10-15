@@ -1,6 +1,6 @@
 [package]
 name = "newdoc"
-version = "2.5.0"
+version = "2.6.0"
 description = "Generate pre-populated module files formatted with AsciiDoc that are used in Red Hat and Fedora documentation."
 authors = ["Marek Suchánek <marek.suchanek@protonmail.com>"]
 license = "GPL-3.0-or-later"
