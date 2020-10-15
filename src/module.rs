@@ -129,14 +129,22 @@ impl Input {
             title_with_replacements = title_with_replacements.replace("--", "-");
         }
 
-        title_with_replacements
+        let prefix = self.prefix();
+
+        [prefix, title_with_replacements].join("")
     }
 
     /// Prepare the file name for the generated file.
     ///
-    /// The file name is based on the module ID, with the `.adoc` extension and an optional prefix.
+    /// The file name is based on the module ID, with the `.adoc` extension.
     pub fn file_name(&self) -> String {
-        let prefix = if self.options.prefixes {
+        let suffix = ".adoc";
+
+        [&self.id(), suffix].join("")
+    }
+
+    fn prefix(&self) -> String {
+        if self.options.prefixes {
             // If prefixes are enabled, pick the right file prefix
             match self.mod_type {
                 ModuleType::Assembly => "assembly_",
@@ -147,11 +155,7 @@ impl Input {
         } else {
             // If prefixes are disabled, use an empty string for the prefix
             ""
-        };
-
-        let suffix = ".adoc";
-
-        [prefix, &self.id(), suffix].join("")
+        }.to_string()
     }
 
     /// Prepare an include statement that can be used to include the generated file from elsewhere.
@@ -376,7 +380,7 @@ mod tests {
             assembly.title,
             "A testing assembly with /special-characters*"
         );
-        assert_eq!(assembly.id, "a-testing-assembly-with-special-characters");
+        assert_eq!(assembly.id, "assembly_a-testing-assembly-with-special-characters");
         assert_eq!(
             assembly.file_name,
             "assembly_a-testing-assembly-with-special-characters.adoc"
