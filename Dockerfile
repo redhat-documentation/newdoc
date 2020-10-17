@@ -12,7 +12,7 @@
 # ENTRYPOINT ["newdoc"]
 
 ## This configuration results in a small image based on Debian Buster without Rust tooling
-FROM rust:1.44 as builder
+FROM rust:1.47 as builder
 WORKDIR /usr/src/newdoc
 COPY . .
 RUN cargo install --path .
