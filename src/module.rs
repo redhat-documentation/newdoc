@@ -131,7 +131,7 @@ impl Input {
 
         let prefix = self.prefix();
 
-        [prefix, title_with_replacements].join("")
+        prefix + &title_with_replacements
     }
 
     /// Prepare the file name for the generated file.
@@ -140,7 +140,7 @@ impl Input {
     pub fn file_name(&self) -> String {
         let suffix = ".adoc";
 
-        [&self.id(), suffix].join("")
+        self.id() + suffix
     }
 
     fn prefix(&self) -> String {
