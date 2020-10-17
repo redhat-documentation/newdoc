@@ -155,7 +155,8 @@ impl Input {
         } else {
             // If prefixes are disabled, use an empty string for the prefix
             ""
-        }.to_string()
+        }
+        .to_string()
     }
 
     /// Prepare an include statement that can be used to include the generated file from elsewhere.
@@ -390,7 +391,10 @@ mod tests {
             assembly.title,
             "A testing assembly with /special-characters*"
         );
-        assert_eq!(assembly.id, "assembly_a-testing-assembly-with-special-characters");
+        assert_eq!(
+            assembly.id,
+            "assembly_a-testing-assembly-with-special-characters"
+        );
         assert_eq!(
             assembly.file_name,
             "assembly_a-testing-assembly-with-special-characters.adoc"
@@ -420,11 +424,7 @@ mod tests {
     fn check_detected_path() {
         let options = path_options();
 
-        let module = Module::new(
-            ModuleType::Procedure,
-            "Testing the detected path",
-            &options,
-        );
+        let module = Module::new(ModuleType::Procedure, "Testing the detected path", &options);
 
         assert_eq!(
             module.include_statement,
