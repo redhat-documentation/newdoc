@@ -366,6 +366,16 @@ mod tests {
         }
     }
 
+    fn path_options() -> Options {
+        Options {
+            comments: false,
+            prefixes: true,
+            examples: true,
+            target_dir: "repo/modules/topic/".to_string(),
+            detect_directory: true,
+        }
+    }
+
     #[test]
     fn check_basic_assembly_fields() {
         let options = basic_options();
@@ -404,5 +414,21 @@ mod tests {
         )
         .into();
         assert_eq!(from_new, from_builder);
+    }
+
+    #[test]
+    fn check_detected_path() {
+        let options = path_options();
+
+        let module = Module::new(
+            ModuleType::Procedure,
+            "Testing the detected path",
+            &options,
+        );
+
+        assert_eq!(
+            module.include_statement,
+            "include::modules/topic/proc_testing-the-detected-path.adoc[leveloffset=+1]"
+        );
     }
 }
