@@ -200,7 +200,7 @@ impl Input {
         };
 
         // Split the target path into components
-        let mut component_vec: Vec<_> = target_path
+        let component_vec: Vec<_> = target_path
             .as_path()
             .components()
             .map(|c| c.as_os_str())
@@ -213,10 +213,7 @@ impl Input {
         // If there is such a root element in the path, construct the include path.
         // TODO: To be safe, check that the root path element still exists in a Git repository.
         if let Some(position) = root_position {
-            let include_path = component_vec
-                .split_off(position)
-                .iter()
-                .collect::<PathBuf>();
+            let include_path = component_vec[position..].iter().collect::<PathBuf>();
             Some(include_path)
         // If no appropriate root element was found, use a generic placeholder.
         } else {
