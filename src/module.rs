@@ -296,7 +296,7 @@ impl Input {
                 .build()
                 .unwrap();
             template_with_replacements = multi_comments
-                .replace(&template_with_replacements, "")
+                .replace_all(&template_with_replacements, "")
                 .to_string();
 
             // Delete single-line comments
