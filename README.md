@@ -90,6 +90,8 @@ The `newdoc` tool generates pre-populated module and assembly files formatted wi
 
     Add AsciiDoc include statements to include modules. See [Include Files](https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#include-files) in the AsciiDoc Syntax Quick Reference.
 
+    Alternatively, you can use the `--include-in` option when creating the assembly to generate modules and include them automatically, in a single step. See the description in the *Options* section.
+
 
 
 ## Options
