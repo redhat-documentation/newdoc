@@ -21,6 +21,8 @@ The `newdoc` tool generates pre-populated module and assembly files formatted wi
     $ newdoc
     ```
 
+    Note that the Copr repository distributes packages only for *supported* releases of Fedora. If you have enabled the repository but the package fails to install, check if your Fedora is still supported.
+
 * To install `newdoc` as a Docker image, use the `docker` or `podman` tool. If you use `podman`, replace `docker` with `podman` in the following commands:
 
     ```
