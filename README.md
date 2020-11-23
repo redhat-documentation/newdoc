@@ -23,15 +23,6 @@ The `newdoc` tool generates pre-populated module and assembly files formatted wi
 
     Note that the Copr repository distributes packages only for *supported* releases of Fedora. If you have enabled the repository but the package fails to install, check if your Fedora is still supported.
 
-* To install `newdoc` as a Docker image, use the `docker` or `podman` tool. If you use `podman`, replace `docker` with `podman` in the following commands:
-
-    ```
-    $ docker pull mrksu/newdoc
-    
-    $ docker run mrksu/newdoc
-    ```
-
-
 * To install `newdoc` from source on a Linux distribution, on macOS, or on Microsoft Windows, use the `cargo` package manager:
 
     ```
@@ -41,6 +32,17 @@ The `newdoc` tool generates pre-populated module and assembly files formatted wi
     ```
 
     For installing `cargo`, see <https://rustup.rs/>.
+    
+* To install `newdoc` as a Docker image, use the `docker` or `podman` tool. If you use `podman`, replace `docker` with `podman` in the following commands:
+
+    ```
+    $ docker pull mrksu/newdoc
+    
+    $ docker run mrksu/newdoc
+    ```
+    
+    **Warning:** The container currently does not generate files properly. For details and a workaround, see [Issue #17](https://github.com/redhat-documentation/newdoc/issues/17).
+
 
 ## Updating newdoc
 
@@ -50,16 +52,16 @@ The `newdoc` tool generates pre-populated module and assembly files formatted wi
     # dnf upgrade newdoc
     ```
 
-* To update `newdoc` from Docker, use the `docker` or `podman` tool:
-
-    ```
-    $ docker pull mrksu/newdoc
-    ```
-
 * To update `newdoc` from source, use the `cargo` package manager:
 
     ```
     $ cargo install newdoc
+    ```
+
+* To update `newdoc` from Docker, use the `docker` or `podman` tool:
+
+    ```
+    $ docker pull mrksu/newdoc
     ```
 
 
