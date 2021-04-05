@@ -106,3 +106,76 @@ fn process_module_type(
 
     modules_from_type
 }
+
+
+// These tests act as pseudo-integration tests. They let the top-level functions generate
+// each module type and then they compare the generated content with a pre-generated specimen
+// to check that we introduce no changes unknowingly.
+#[cfg(test)]
+mod tests {
+    use crate::module::Module;
+    use crate::module::ModuleType;
+    use crate::Options;
+
+    fn basic_options() -> Options {
+        Options {
+            comments: true,
+            prefixes: true,
+            examples: true,
+            target_dir: ".".to_string(),
+            detect_directory: false,
+        }
+    }
+
+    /// Test that we generate the assembly that we expect.
+    #[test]
+    fn test_assembly() {
+        let mod_type = ModuleType::Assembly;
+        let mod_title = "Testing that an assembly forms properly";
+        let options = basic_options();
+        let assembly = Module::new(mod_type, mod_title, &options);
+
+        let pre_generated = include_str!("../data/generated/assembly_testing-that-an-assembly-forms-properly.adoc");
+
+        assert_eq!(assembly.text, pre_generated);
+    }
+
+    /// Test that we generate the concept module that we expect.
+    #[test]
+    fn test_concept_module() {
+        let mod_type = ModuleType::Concept;
+        let mod_title = "A title that tests a concept";
+        let options = basic_options();
+        let concept = Module::new(mod_type, mod_title, &options);
+
+        let pre_generated = include_str!("../data/generated/con_a-title-that-tests-a-concept.adoc");
+
+        assert_eq!(concept.text, pre_generated);
+    }
+
+    /// Test that we generate the procedure module that we expect.
+    #[test]
+    fn test_procedure_module() {
+        let mod_type = ModuleType::Procedure;
+        let mod_title = "Testing a procedure";
+        let options = basic_options();
+        let procedure = Module::new(mod_type, mod_title, &options);
+
+        let pre_generated = include_str!("../data/generated/proc_testing-a-procedure.adoc");
+
+        assert_eq!(procedure.text, pre_generated);
+    }
+
+    /// Test that we generate the reference module that we expect.
+    #[test]
+    fn test_reference_module() {
+        let mod_type = ModuleType::Reference;
+        let mod_title = "The lines in a reference module";
+        let options = basic_options();
+        let reference = Module::new(mod_type, mod_title, &options);
+
+        let pre_generated = include_str!("../data/generated/ref_the-lines-in-a-reference-module.adoc");
+
+        assert_eq!(reference.text, pre_generated);
+    }
+}
