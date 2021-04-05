@@ -115,8 +115,6 @@ The `newdoc` tool generates pre-populated module and assembly files formatted wi
 
     This creates the two modules and an assembly that features the include statements for the modules.
 
-* To let `newdoc` automatically fill out the include path, add the `--detect-directory` or `-D` option. Otherwise, `newdoc` uses the `<path>` placeholder in generated include statements.
-
 
 ## Packaging and distributing newdoc as an RPM
 

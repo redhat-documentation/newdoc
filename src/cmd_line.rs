@@ -83,7 +83,10 @@ pub fn get_args() -> ArgMatches<'static> {
             Arg::with_name("detect-directory")
                 .short("D")
                 .long("detect-directory")
-                .help("Detect the include path, rather than using the <path> placeholder"),
+                .help("Detect the include path, rather than using the <path> placeholder. This is now the default behavior")
+                // I'm enabling this option by default, without a way to disable it.
+                // Let the users test the new behavior and evaluate.
+                .hidden(true),
         )
         .arg(
             Arg::with_name("no-prefixes")

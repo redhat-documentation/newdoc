@@ -18,6 +18,10 @@ pub struct Options {
 fn main() {
     let cmdline_args = cmd_line::get_args();
 
+    if cmdline_args.is_present("detect-directory") {
+        eprintln!("I: The `--detect-directory` (`-D`) option is now enabled by default.");
+    }
+
     // Set current options based on the command-line options
     let options = Options {
         // Comments and prefixes are enabled (true) by default unless you disable them
@@ -32,7 +36,12 @@ fn main() {
         } else {
             String::from(".")
         },
-        detect_directory: cmdline_args.is_present("detect-directory"),
+        // I'm turning this into the default behavior.
+        // For now, I'm goin to keep the switch as is, just always true,
+        // So that I can easily revert the changes later if needed.
+        // After this change has had proper user testing, let's remove the switch
+        // and the dead code.
+        detect_directory: true,
     };
 
     // Store all modules except for the populated assembly that will be created in this Vec
