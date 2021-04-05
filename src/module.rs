@@ -36,10 +36,10 @@ pub struct Module {
 }
 
 // Load the AsciiDoc templates at build time
-const ASSEMBLY_TEMPLATE: &str = include_str!("../templates/assembly.adoc");
-const CONCEPT_TEMPLATE: &str = include_str!("../templates/concept.adoc");
-const PROCEDURE_TEMPLATE: &str = include_str!("../templates/procedure.adoc");
-const REFERENCE_TEMPLATE: &str = include_str!("../templates/reference.adoc");
+const ASSEMBLY_TEMPLATE: &str = include_str!("../data/templates/assembly.adoc");
+const CONCEPT_TEMPLATE: &str = include_str!("../data/templates/concept.adoc");
+const PROCEDURE_TEMPLATE: &str = include_str!("../data/templates/procedure.adoc");
+const REFERENCE_TEMPLATE: &str = include_str!("../data/templates/reference.adoc");
 
 /// Construct a basic builder for `Module`, storing information from the user input.
 impl Input {
