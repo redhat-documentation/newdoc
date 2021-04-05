@@ -116,7 +116,6 @@ fn process_module_type(
     modules_from_type
 }
 
-
 // These tests act as pseudo-integration tests. They let the top-level functions generate
 // each module type and then they compare the generated content with a pre-generated specimen
 // to check that we introduce no changes unknowingly.
@@ -144,7 +143,8 @@ mod tests {
         let options = basic_options();
         let assembly = Module::new(mod_type, mod_title, &options);
 
-        let pre_generated = include_str!("../data/generated/assembly_testing-that-an-assembly-forms-properly.adoc");
+        let pre_generated =
+            include_str!("../data/generated/assembly_testing-that-an-assembly-forms-properly.adoc");
 
         assert_eq!(assembly.text, pre_generated);
     }
@@ -183,7 +183,8 @@ mod tests {
         let options = basic_options();
         let reference = Module::new(mod_type, mod_title, &options);
 
-        let pre_generated = include_str!("../data/generated/ref_the-lines-in-a-reference-module.adoc");
+        let pre_generated =
+            include_str!("../data/generated/ref_the-lines-in-a-reference-module.adoc");
 
         assert_eq!(reference.text, pre_generated);
     }
