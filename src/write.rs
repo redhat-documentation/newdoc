@@ -1,5 +1,5 @@
 use std::fs;
-use std::io::{self, Write};
+use std::io;
 use std::path::PathBuf;
 
 use log::{error, info, warn};
@@ -19,9 +19,6 @@ impl Module {
             // A prompt enabling the user to overwrite the existing file
             warn!("File already exists: {}", full_path.display());
             warn!("Do you want to overwrite it? [y/N] ");
-            // We must manually flush the buffer or else the printed string doesn't appear.
-            // The buffer otherwise waits for a newline.
-            io::stdout().flush().unwrap();
 
             let mut answer = String::new();
 
