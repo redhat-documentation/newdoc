@@ -1,15 +1,24 @@
 use regex::{Regex, RegexBuilder};
-use askama::Template; // bring trait in scope
+use askama::Template;
 
 use crate::module::{Input, ModuleType};
 
+// A note on the structure of this file:
+// This file repeats a lot of code when it configures the Askama templates.
+// Either we could fix it by using a generics trick, which I haven't learned yet,
+// or the repetition is inherent to the way the templates share some properties, but only
+// by accident, not as a rule.
+// For now, the code works as intended, and the file is short enough that I'm not bothered
+// to see the questionable esthetics.
 
-#[derive(Template)] // this will generate the code...
-#[template(path = "assembly.adoc", escape = "none")] // using the template in this path, relative
-                                 // to the `templates` dir in the crate root
-struct AssemblyTemplate<'a> { // the name of the struct can be anything
-    module_id: &'a str, // the field name should match the variable name
-                   // in your template
+// Specify a template in terms of the Askama engine
+#[derive(Template)]
+// Askama loads the template files from the `data/templates` directory,
+// which is configured in the `askama.toml` file.
+#[template(path = "assembly.adoc", escape = "none")]
+struct AssemblyTemplate<'a> {
+    // The field name must match the variable name in the template
+    module_id: &'a str,
     module_title: &'a str,
     include_statements: &'a str,
     examples: bool,
@@ -40,6 +49,9 @@ struct ReferenceTemplate<'a> {
 }
 
 
+// We're implementing the template functions on the Input struct, not on Module,
+// because the templating happens at the point when newdoc composes the text of the module,
+// which is part of the module creation. The module then stores the rendered template.
 impl Input {
     /// Render the include statements that appear inside an assembly
     /// into the final format. If the assembly includes nothing, use
