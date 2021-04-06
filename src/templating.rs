@@ -12,6 +12,7 @@ struct AssemblyTemplate<'a> { // the name of the struct can be anything
                    // in your template
     module_title: &'a str,
     include_statements: &'a str,
+    examples: bool,
 }
 
 #[derive(Template)]
@@ -19,6 +20,7 @@ struct AssemblyTemplate<'a> { // the name of the struct can be anything
 struct ConceptTemplate<'a> {
     module_id: &'a str,
     module_title: &'a str,
+    examples: bool,
 }
 
 #[derive(Template)]
@@ -26,6 +28,7 @@ struct ConceptTemplate<'a> {
 struct ProcedureTemplate<'a> {
     module_id: &'a str,
     module_title: &'a str,
+    examples: bool,
 }
 
 #[derive(Template)]
@@ -33,71 +36,54 @@ struct ProcedureTemplate<'a> {
 struct ReferenceTemplate<'a> {
     module_id: &'a str,
     module_title: &'a str,
+    examples: bool,
 }
 
 
 impl Input {
-    /// Perform string replacements in the modular template that matches the `ModuleType`.
-    /// Return the template text with all replacements.
-    pub fn text(&self) -> String {
-        // TODO: Add a comment in the generated file with a pre-filled include statement
-
-        let mut template = match self.mod_type {
-            ModuleType::Assembly => AssemblyTemplate {
-                module_id: &self.id(),
-                module_title: &self.title,
-                include_statements: if let Some(include_statements) = &self.includes {
-                    /* include_statements.join("\n\n") */
-                    "Include this.\n\nInclude that."
-                } else {
-                    "Include modules here."
-                }
-            }.render(),
-            ModuleType::Concept => ConceptTemplate { module_id: &self.id(), module_title: &self.title }.render(),
-            ModuleType::Procedure => ProcedureTemplate { module_id: &self.id(), module_title: &self.title }.render(),
-            ModuleType::Reference => ReferenceTemplate { module_id: &self.id(), module_title: &self.title }.render(),
-        }.expect("Failed to cintruct the template");
-
-        /*
+    /// Render the include statements that appear inside an assembly
+    /// into the final format. If the assembly includes nothing, use
+    /// a placeholder, or an empty string if examples are disabled.
+    fn includes_block(&self) -> String {
         if let Some(include_statements) = &self.includes {
             // The includes should never be empty thanks to the required group in clap
             assert!(!include_statements.is_empty());
             // Join the includes into a block of text, with blank lines in between to prevent
             // the AsciiDoc syntax to blend between modules
-            let includes_text = include_statements.join("\n\n");
-
-            template_with_replacements =
-                template_with_replacements.replace("${include_statements}", &includes_text);
+            include_statements.join("\n\n")
         } else if self.options.examples {
-            template_with_replacements = template_with_replacements
-                .replace("${include_statements}", "Include modules here.");
+            "Include modules here.".to_string()
         } else {
-            template_with_replacements =
-                template_with_replacements.replace("${include_statements}\n", "");
+            String::new()
         }
-        */
+    }
 
-        // If the `--no-examples` option is active, remove all lines between the <example> tags.
-        if !self.options.examples {
-            let examples: Regex = RegexBuilder::new(r"^// <example>\n[\s\S]*\n^// </example>\n")
-                .multi_line(true)
-                .swap_greed(true)
-                .build()
-                .unwrap();
-            template = examples
-                .replace_all(&template, "")
-                .to_string();
-        // If the `--no-examples` option isn't active, remove just the <example> tags.
-        } else {
-            let example_tags: Regex = RegexBuilder::new(r"^// </?example>\n")
-                .multi_line(true)
-                .swap_greed(true)
-                .build()
-                .unwrap();
-            template = example_tags
-                .replace_all(&template, "")
-                .to_string();
-        }
+    /// Perform string replacements in the modular template that matches the `ModuleType`.
+    /// Return the template text with all replacements.
+    pub fn text(&self) -> String {
+        let mut document = match self.mod_type {
+            ModuleType::Assembly => AssemblyTemplate {
+                module_id: &self.id(),
+                module_title: &self.title,
+                include_statements: &self.includes_block(),
+                examples: self.options.examples,
+            }.render(),
+            ModuleType::Concept => ConceptTemplate {
+                module_id: &self.id(),
+                module_title: &self.title,
+                examples: self.options.examples,
+            }.render(),
+            ModuleType::Procedure => ProcedureTemplate {
+                module_id: &self.id(),
+                module_title: &self.title,
+                examples: self.options.examples,
+            }.render(),
+            ModuleType::Reference => ReferenceTemplate {
+                module_id: &self.id(),
+                module_title: &self.title,
+                examples: self.options.examples,
+            }.render(),
+        }.expect("Failed to construct the document from the template");
 
         // If comments are disabled via an option, delete comment lines from the content
         if !self.options.comments {
@@ -107,8 +93,8 @@ impl Input {
                 .swap_greed(true)
                 .build()
                 .unwrap();
-            template = multi_comments
-                .replace_all(&template, "")
+            document = multi_comments
+                .replace_all(&document, "")
                 .to_string();
 
             // Delete single-line comments
@@ -117,8 +103,8 @@ impl Input {
                 .swap_greed(true)
                 .build()
                 .unwrap();
-            template = single_comments
-                .replace_all(&template, "")
+            document = single_comments
+                .replace_all(&document, "")
                 .to_string();
 
             // Delete leading white space left over by the deleted comments
@@ -126,11 +112,13 @@ impl Input {
                 .multi_line(true)
                 .build()
                 .unwrap();
-            template = leading_whitespace
-                .replace(&template, "")
+            document = leading_whitespace
+                .replace(&document, "")
                 .to_string();
         }
 
-        template
+        // Add newlines at the end of the document to prevent potential issues
+        // when including two AsciiDoc files right next to each other.
+        document + "\n\n"
     }
 }

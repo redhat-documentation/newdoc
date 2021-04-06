@@ -18,7 +18,7 @@ In the title of concept modules, include nouns or noun phrases that are used in 
 ////
 
 [role="_abstract"]
-// <example>
+{% if examples -%}
 Write a short introductory paragraph that provides an overview of the module. The text that immediately follows the `[role="_abstract"]` tag is used for search metadata.
 
 The contents of a concept module give the user descriptions and explanations needed to understand and use a product.
@@ -26,17 +26,17 @@ The contents of a concept module give the user descriptions and explanations nee
 * Look at nouns and noun phrases in related procedure modules and assemblies to find the concepts to explain to users.
 * Explain only things that are visible to users. Even if a concept is interesting, it probably does not require explanation if it is not visible to users.
 * Do not include any instructions to perform an action, such as executing a command. Action items belong in procedure modules.
-// </example>
+{%- endif %}
 
 [role="_additional-resources"]
 .Additional resources
 ////
 Optional. Delete if not used.
 ////
-// <example>
+{% if examples -%}
 * A bulleted list of links to other material closely related to the contents of the concept module.
 * Currently, modules cannot include xrefs, so you cannot include links to other content in your collection. If you need to link to another assembly, add the xref to the assembly that includes this module.
 * For more details on writing concept modules, see the link:https://github.com/redhat-documentation/modular-docs#modular-documentation-reference-guide[Modular Documentation Reference Guide].
 * Use a consistent system for file names, IDs, and titles. For tips, see _Anchor Names and File Names_ in link:https://github.com/redhat-documentation/modular-docs#modular-documentation-reference-guide[Modular Documentation Reference Guide].
-// </example>
+{%- endif %}
 
