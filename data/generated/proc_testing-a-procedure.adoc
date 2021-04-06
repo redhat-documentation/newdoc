@@ -45,7 +45,6 @@ Delete this section if it does not apply to your module. Provide the user with v
 
 . Use an unnumbered bullet (*) if the procedure includes only one step.
 
-
 [role="_additional-resources"]
 .Additional resources
 ////

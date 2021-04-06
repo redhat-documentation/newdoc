@@ -129,8 +129,18 @@ impl Input {
                 .to_string();
         }
 
+        // Remove excess blank lines that might have been left by the verious
+        // replacement stages. Make sure that the result contains no more than one
+        // consecutive blank line.
+        let two_blanks = "\n\n\n";
+        let one_blank = "\n\n";
+
+        while document.contains(two_blanks) {
+            document = document.replace(two_blanks, one_blank);
+        }
+
         // Add newlines at the end of the document to prevent potential issues
         // when including two AsciiDoc files right next to each other.
-        document + "\n\n"
+        document + one_blank
     }
 }
