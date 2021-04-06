@@ -18,6 +18,9 @@ pub fn initialize_logger(verbose: bool, quiet: bool) {
     let config = ConfigBuilder::new()
         // Display a time stamp only for the most verbose level.
         .set_time_level(LevelFilter::Trace)
+        // Display the thread number only for the most verbose level.
+        // The information is hardly useful because newdoc is single-threaded.
+        .set_thread_level(LevelFilter::Trace)
         .build();
 
     TermLogger::init(
