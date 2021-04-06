@@ -1,6 +1,7 @@
 /// This module defines the `Module` struct, its builder struct, and methods on both structs.
 use std::path::{Path, PathBuf};
 
+use log::debug;
 use regex::{Regex, RegexBuilder};
 
 use crate::Options;
@@ -44,6 +45,8 @@ const REFERENCE_TEMPLATE: &str = include_str!("../data/templates/reference.adoc"
 /// Construct a basic builder for `Module`, storing information from the user input.
 impl Input {
     pub fn new(mod_type: ModuleType, title: &str, options: &Options) -> Input {
+        debug!("Processing title `{}` of type `{:?}`", title, mod_type);
+
         let title = String::from(title);
         let options = options.clone();
 
@@ -326,7 +329,7 @@ impl Input {
 impl From<Input> for Module {
     /// Convert the `Input` builder struct into the finished `Module` struct.
     fn from(input: Input) -> Self {
-        Module {
+        let module = Module {
             mod_type: input.mod_type.clone(),
             title: input.title.clone(),
             id: input.id(),
@@ -334,7 +337,16 @@ impl From<Input> for Module {
             include_statement: input.include_statement(),
             includes: input.includes.clone(),
             text: input.text(),
-        }
+        };
+
+        debug!("Generated module properties:");
+        debug!("Type: {:?}", &module.mod_type);
+        debug!("ID: {}", &module.id);
+        debug!("File name: {}", &module.file_name);
+        debug!("Include statement: {}", &module.include_statement);
+        debug!("Included modules: {}", if let Some(includes) = &module.includes {includes.join(", ")} else {"none".to_string()} );
+
+        module
     }
 }
 

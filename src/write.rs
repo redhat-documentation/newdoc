@@ -14,7 +14,7 @@ impl Module {
         let full_path_buf: PathBuf = [&options.target_dir, &self.file_name].iter().collect();
         let full_path = full_path_buf.as_path();
 
-        debug!("Writing file: {}", &full_path.display());
+        debug!("Writing file `{}`", &full_path.display());
 
         // If the target file already exists, just print out an error
         if full_path.exists() {
