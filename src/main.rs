@@ -1,3 +1,5 @@
+use log::info;
+
 mod cmd_line;
 mod logging;
 mod module;
@@ -17,9 +19,17 @@ pub struct Options {
 }
 
 fn main() {
-    logging::initialize_logger();
-
+    // Parse the command-line options
     let cmdline_args = cmd_line::get_args();
+    // Determine the configured verbosity level
+    let verbose = cmdline_args.is_present("verbose");
+    let quiet = cmdline_args.is_present("quiet");
+    // Initialize the logging system based on the set verbosity
+    logging::initialize_logger(verbose, quiet);
+
+    if cmdline_args.is_present("detect-directory") {
+        info!("The `--detect-directory` (`-D`) option is now enabled by default.");
+    }
 
     // Set current options based on the command-line options
     let options = Options {

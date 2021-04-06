@@ -5,8 +5,6 @@ use clap::{
     ArgMatches,
 };
 
-use log::info;
-
 /// Define the command-line arguments and return them as the `clap::ArgMatches` struct.
 pub fn get_args() -> ArgMatches<'static> {
     // Define command-line options
@@ -119,10 +117,6 @@ pub fn get_args() -> ArgMatches<'static> {
                 .conflicts_with("verbose"),
         )
         .get_matches();
-
-    if matches.is_present("detect-directory") {
-        info!("The `--detect-directory` (`-D`) option is now enabled by default.");
-    }
 
     matches
 }
