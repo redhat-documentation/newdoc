@@ -1,12 +1,39 @@
 use regex::{Regex, RegexBuilder};
+use askama::Template; // bring trait in scope
 
 use crate::module::{Input, ModuleType};
 
-// Load the AsciiDoc templates at build time
-const ASSEMBLY_TEMPLATE: &str = include_str!("../data/templates/assembly.adoc");
-const CONCEPT_TEMPLATE: &str = include_str!("../data/templates/concept.adoc");
-const PROCEDURE_TEMPLATE: &str = include_str!("../data/templates/procedure.adoc");
-const REFERENCE_TEMPLATE: &str = include_str!("../data/templates/reference.adoc");
+
+#[derive(Template)] // this will generate the code...
+#[template(path = "assembly.adoc", escape = "none")] // using the template in this path, relative
+                                 // to the `templates` dir in the crate root
+struct AssemblyTemplate<'a> { // the name of the struct can be anything
+    module_id: &'a str, // the field name should match the variable name
+                   // in your template
+    module_title: &'a str,
+    include_statements: &'a str,
+}
+
+#[derive(Template)]
+#[template(path = "concept.adoc", escape = "none")]
+struct ConceptTemplate<'a> {
+    module_id: &'a str,
+    module_title: &'a str,
+}
+
+#[derive(Template)]
+#[template(path = "procedure.adoc", escape = "none")]
+struct ProcedureTemplate<'a> {
+    module_id: &'a str,
+    module_title: &'a str,
+}
+
+#[derive(Template)]
+#[template(path = "reference.adoc", escape = "none")]
+struct ReferenceTemplate<'a> {
+    module_id: &'a str,
+    module_title: &'a str,
+}
 
 
 impl Input {
@@ -15,28 +42,23 @@ impl Input {
     pub fn text(&self) -> String {
         // TODO: Add a comment in the generated file with a pre-filled include statement
 
-        // Pick the right template
-        let current_template = match self.mod_type {
-            ModuleType::Assembly => ASSEMBLY_TEMPLATE,
-            ModuleType::Concept => CONCEPT_TEMPLATE,
-            ModuleType::Procedure => PROCEDURE_TEMPLATE,
-            ModuleType::Reference => REFERENCE_TEMPLATE,
-        };
+        let mut template = match self.mod_type {
+            ModuleType::Assembly => AssemblyTemplate {
+                module_id: &self.id(),
+                module_title: &self.title,
+                include_statements: if let Some(include_statements) = &self.includes {
+                    /* include_statements.join("\n\n") */
+                    "Include this.\n\nInclude that."
+                } else {
+                    "Include modules here."
+                }
+            }.render(),
+            ModuleType::Concept => ConceptTemplate { module_id: &self.id(), module_title: &self.title }.render(),
+            ModuleType::Procedure => ProcedureTemplate { module_id: &self.id(), module_title: &self.title }.render(),
+            ModuleType::Reference => ReferenceTemplate { module_id: &self.id(), module_title: &self.title }.render(),
+        }.expect("Failed to cintruct the template");
 
-        // Define the strings that will be replaced in the template
-        let replacements = [
-            ("${module_title}", &self.title),
-            ("${module_id}", &self.id()),
-        ];
-
-        // Perform substitutions in the template
-        // TODO: Create a separate function to perform a replacement
-        let mut template_with_replacements = String::from(current_template);
-
-        for (old, new) in replacements.iter() {
-            template_with_replacements = template_with_replacements.replace(old, new);
-        }
-
+        /*
         if let Some(include_statements) = &self.includes {
             // The includes should never be empty thanks to the required group in clap
             assert!(!include_statements.is_empty());
@@ -53,6 +75,7 @@ impl Input {
             template_with_replacements =
                 template_with_replacements.replace("${include_statements}\n", "");
         }
+        */
 
         // If the `--no-examples` option is active, remove all lines between the <example> tags.
         if !self.options.examples {
@@ -61,8 +84,8 @@ impl Input {
                 .swap_greed(true)
                 .build()
                 .unwrap();
-            template_with_replacements = examples
-                .replace_all(&template_with_replacements, "")
+            template = examples
+                .replace_all(&template, "")
                 .to_string();
         // If the `--no-examples` option isn't active, remove just the <example> tags.
         } else {
@@ -71,8 +94,8 @@ impl Input {
                 .swap_greed(true)
                 .build()
                 .unwrap();
-            template_with_replacements = example_tags
-                .replace_all(&template_with_replacements, "")
+            template = example_tags
+                .replace_all(&template, "")
                 .to_string();
         }
 
@@ -84,8 +107,8 @@ impl Input {
                 .swap_greed(true)
                 .build()
                 .unwrap();
-            template_with_replacements = multi_comments
-                .replace_all(&template_with_replacements, "")
+            template = multi_comments
+                .replace_all(&template, "")
                 .to_string();
 
             // Delete single-line comments
@@ -94,8 +117,8 @@ impl Input {
                 .swap_greed(true)
                 .build()
                 .unwrap();
-            template_with_replacements = single_comments
-                .replace_all(&template_with_replacements, "")
+            template = single_comments
+                .replace_all(&template, "")
                 .to_string();
 
             // Delete leading white space left over by the deleted comments
@@ -103,11 +126,11 @@ impl Input {
                 .multi_line(true)
                 .build()
                 .unwrap();
-            template_with_replacements = leading_whitespace
-                .replace(&template_with_replacements, "")
+            template = leading_whitespace
+                .replace(&template, "")
                 .to_string();
         }
 
-        template_with_replacements
+        template
     }
 }

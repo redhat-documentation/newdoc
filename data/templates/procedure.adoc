@@ -9,8 +9,8 @@ The ID is an anchor that links to the module. Avoid changing it after the module
 The `context` attribute enables module reuse. Every module ID includes {context}, which ensures that the module has a unique ID even if it is reused multiple times in a guide.
 ////
 
-[id="${module_id}_{context}"]
-= ${module_title}
+[id="{{module_id}}_{context}"]
+= {{module_title}}
 ////
 Start the title of a procedure module with a verb, such as Creating or Create. See also _Wording of headings_ in _The IBM Style Guide_.
 ////

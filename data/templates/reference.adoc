@@ -9,8 +9,8 @@ The ID is an anchor that links to the module. Avoid changing it after the module
 The `context` attribute enables module reuse. Every module ID includes {context}, which ensures that the module has a unique ID even if it is reused multiple times in a guide.
 ////
 
-[id="${module_id}_{context}"]
-= ${module_title}
+[id="{{module_id}}_{context}"]
+= {{module_title}}
 ////
 In the title of a reference module, include nouns that are used in the body text. For example, "Keyboard shortcuts for ___" or "Command options for ___." This helps readers and search engines find the information quickly.
 ////
