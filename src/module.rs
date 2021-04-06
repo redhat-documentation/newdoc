@@ -344,7 +344,14 @@ impl From<Input> for Module {
         debug!("ID: {}", &module.id);
         debug!("File name: {}", &module.file_name);
         debug!("Include statement: {}", &module.include_statement);
-        debug!("Included modules: {}", if let Some(includes) = &module.includes {includes.join(", ")} else {"none".to_string()} );
+        debug!(
+            "Included modules: {}",
+            if let Some(includes) = &module.includes {
+                includes.join(", ")
+            } else {
+                "none".to_string()
+            }
+        );
 
         module
     }

@@ -1,4 +1,4 @@
-use simplelog::{ColorChoice, ConfigBuilder, LevelFilter, TerminalMode, TermLogger};
+use simplelog::{ColorChoice, ConfigBuilder, LevelFilter, TermLogger, TerminalMode};
 
 /// This function initializes the `simplelog` logging system, which plugs into the `log`
 /// infrastructure. The function returns nothing. It only affects the global state when it runs.
@@ -26,6 +26,7 @@ pub fn initialize_logger(verbose: bool, quiet: bool) {
         // Mixed mode prints errors to stderr and info to stdout. Not sure about the other levels.
         TerminalMode::Mixed,
         // Try to use color if possible.
-        ColorChoice::Auto
-    ).expect("Failed to configure the terminal logging.");
+        ColorChoice::Auto,
+    )
+    .expect("Failed to configure the terminal logging.");
 }
