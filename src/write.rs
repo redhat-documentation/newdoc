@@ -46,6 +46,7 @@ impl Module {
         match result {
             // If the write succeeds, print the include statement
             Ok(()) => {
+                debug!("Successfully written file `{}`", &full_path.display());
                 info!("‣ File generated: {}", full_path.display());
                 info!("  {}", self.include_statement);
             }
