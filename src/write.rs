@@ -2,7 +2,7 @@ use std::fs;
 use std::io::{self, Write};
 use std::path::PathBuf;
 
-use colored::*;
+use log::{error, info, warn};
 
 use crate::module::Module;
 use crate::Options;
@@ -17,11 +17,8 @@ impl Module {
         // If the target file already exists, just print out an error
         if full_path.exists() {
             // A prompt enabling the user to overwrite the existing file
-            eprintln!(
-                "{}",
-                format!("W: File already exists: {}", full_path.display()).yellow()
-            );
-            eprint!("   Do you want to overwrite it? [y/N] ");
+            warn!("File already exists: {}", full_path.display());
+            warn!("Do you want to overwrite it? [y/N] ");
             // We must manually flush the buffer or else the printed string doesn't appear.
             // The buffer otherwise waits for a newline.
             io::stdout().flush().unwrap();
@@ -34,10 +31,10 @@ impl Module {
 
             match answer.trim().to_lowercase().as_str() {
                 "y" | "yes" => {
-                    eprintln!("   → Rewriting the file.");
+                    warn!("→ Rewriting the file.");
                 }
                 _ => {
-                    eprintln!("   → Preserving the existing file.");
+                    info!("→ Preserving the existing file.");
                     // Break from generating this particular module.
                     // Other modules that might be in the queue will be generated on next iteration.
                     return;
@@ -50,12 +47,12 @@ impl Module {
         match result {
             // If the write succeeds, print the include statement
             Ok(()) => {
-                eprintln!("‣  File generated: {}", full_path.display());
-                eprintln!("   {}", self.include_statement);
+                info!("‣ File generated: {}", full_path.display());
+                info!("  {}", self.include_statement);
             }
             // If the write fails, print why it failed
             Err(e) => {
-                eprintln!("{}", format!("E: Failed to write the file: {}", e).red());
+                error!("Failed to write the file: {}", e);
             }
         }
     }

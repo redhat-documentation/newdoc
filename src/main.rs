@@ -1,4 +1,5 @@
 mod cmd_line;
+mod logging;
 mod module;
 mod write;
 
@@ -16,11 +17,9 @@ pub struct Options {
 }
 
 fn main() {
-    let cmdline_args = cmd_line::get_args();
+    logging::initialize_logger();
 
-    if cmdline_args.is_present("detect-directory") {
-        eprintln!("I: The `--detect-directory` (`-D`) option is now enabled by default.");
-    }
+    let cmdline_args = cmd_line::get_args();
 
     // Set current options based on the command-line options
     let options = Options {

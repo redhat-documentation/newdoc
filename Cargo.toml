@@ -14,8 +14,9 @@ categories = ["command-line-utilities", "text-processing"]
 
 [dependencies]
 clap = "2"
-colored = "2"
 regex = "1"
+log = "0.4"
+simplelog = "0.10"
 
 
 [package.metadata.rpm.cargo]

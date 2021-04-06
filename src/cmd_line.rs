@@ -5,10 +5,12 @@ use clap::{
     ArgMatches,
 };
 
+use log::info;
+
 /// Define the command-line arguments and return them as the `clap::ArgMatches` struct.
 pub fn get_args() -> ArgMatches<'static> {
     // Define command-line options
-    App::new(crate_name!())
+    let matches = App::new(crate_name!())
         .version(crate_version!())
         .author(crate_authors!())
         .about(crate_description!())
@@ -102,5 +104,11 @@ pub fn get_args() -> ArgMatches<'static> {
                 .value_name("directory")
                 .help("Save the generated files in this directory"),
         )
-        .get_matches()
+        .get_matches();
+
+    if matches.is_present("detect-directory") {
+        info!("The `--detect-directory` (`-D`) option is now enabled by default.");
+    }
+
+    matches
 }
