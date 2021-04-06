@@ -115,6 +115,12 @@ The `newdoc` tool generates pre-populated module and assembly files formatted wi
 
     This creates the two modules and an assembly that features the include statements for the modules.
 
+For more options, see the output of the following command:
+
+```
+$ newdoc --help
+```
+
 
 ## Packaging and distributing newdoc as an RPM
 
@@ -185,6 +191,7 @@ Note: The following steps might be sub-optimal. Feel free to suggest improvement
 
 ## Additional resources
 
+* The `newdoc --help` command
 * [Modular Documentation Reference Guide](https://redhat-documentation.github.io/modular-docs/)
 * [AsciiDoc Mark-up Quick Reference for Red Hat Documentation](https://redhat-documentation.github.io/asciidoc-markup-conventions/)
 
