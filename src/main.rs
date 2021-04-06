@@ -46,7 +46,7 @@ fn main() {
             String::from(".")
         },
         // I'm turning this into the default behavior.
-        // For now, I'm goin to keep the switch as is, just always true,
+        // For now, I'm going to keep the switch as is, just always true,
         // So that I can easily revert the changes later if needed.
         // After this change has had proper user testing, let's remove the switch
         // and the dead code.
