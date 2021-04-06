@@ -104,6 +104,20 @@ pub fn get_args() -> ArgMatches<'static> {
                 .value_name("directory")
                 .help("Save the generated files in this directory"),
         )
+        .arg(
+            Arg::with_name("verbose")
+                .short("v")
+                .long("verbose")
+                .help("Display additional, debug messages")
+                .conflicts_with("quiet"),
+        )
+        .arg(
+            Arg::with_name("quiet")
+                .short("q")
+                .long("quiet")
+                .help("Hide info-level messages. Display only warnings and errors")
+                .conflicts_with("verbose"),
+        )
         .get_matches();
 
     if matches.is_present("detect-directory") {
