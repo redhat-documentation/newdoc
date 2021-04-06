@@ -1,4 +1,4 @@
-use log::info;
+use log::{debug, info};
 
 mod cmd_line;
 mod logging;
@@ -52,6 +52,8 @@ fn main() {
         // and the dead code.
         detect_directory: true,
     };
+
+    debug!("Active options:\n{:#?}", &options);
 
     // Store all modules except for the populated assembly that will be created in this Vec
     let mut non_populated: Vec<Module> = Vec::new();

@@ -2,7 +2,7 @@ use std::fs;
 use std::io;
 use std::path::PathBuf;
 
-use log::{error, info, warn};
+use log::{debug, error, info, warn};
 
 use crate::module::Module;
 use crate::Options;
@@ -14,6 +14,8 @@ impl Module {
         let full_path_buf: PathBuf = [&options.target_dir, &self.file_name].iter().collect();
         let full_path = full_path_buf.as_path();
 
+        debug!("Writing file: {}", &full_path.display());
+
         // If the target file already exists, just print out an error
         if full_path.exists() {
             // A prompt enabling the user to overwrite the existing file
@@ -24,7 +26,7 @@ impl Module {
 
             io::stdin()
                 .read_line(&mut answer)
-                .expect("Failed to read the response");
+                .expect("Failed to read your response");
 
             match answer.trim().to_lowercase().as_str() {
                 "y" | "yes" => {
@@ -49,7 +51,7 @@ impl Module {
             }
             // If the write fails, print why it failed
             Err(e) => {
-                error!("Failed to write the file: {}", e);
+                error!("Failed to write the `{}` file: {}", &full_path.display(), e);
             }
         }
     }

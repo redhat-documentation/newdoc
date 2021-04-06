@@ -16,8 +16,8 @@ pub fn initialize_logger(verbose: bool, quiet: bool) {
     };
 
     let config = ConfigBuilder::new()
-        // Display a time stamp only for the debug and more verbose levels.
-        .set_time_level(LevelFilter::Debug)
+        // Display a time stamp only for the most verbose level.
+        .set_time_level(LevelFilter::Trace)
         .build();
 
     TermLogger::init(
