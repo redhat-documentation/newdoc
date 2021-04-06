@@ -90,7 +90,7 @@ fn main() {
         assert!(!include_statements.is_empty());
 
         // Generate the populated assembly module
-        let populated: Module = Input::new(ModuleType::Assembly, title, &options)
+        let populated: Module = Input::new(&ModuleType::Assembly, title, &options)
             .include(include_statements)
             .into();
 
@@ -105,26 +105,18 @@ fn process_module_type(
     module_type_str: &str,
     options: &Options,
 ) -> Vec<Module> {
-    let mut modules_from_type = Vec::new();
+    let module_type = match module_type_str {
+        "assembly" => ModuleType::Assembly,
+        "include-in" => ModuleType::Assembly,
+        "concept" => ModuleType::Concept,
+        "procedure" => ModuleType::Procedure,
+        "reference" => ModuleType::Reference,
+        _ => unimplemented!(),
+    };
 
-    for title in titles {
-        // Convert the string module type to an enum.
-        // This must be done for each title separately so that the title can own the ModuleType.
-        let module_type = match module_type_str {
-            "assembly" => ModuleType::Assembly,
-            "include-in" => ModuleType::Assembly,
-            "concept" => ModuleType::Concept,
-            "procedure" => ModuleType::Procedure,
-            "reference" => ModuleType::Reference,
-            _ => unimplemented!(),
-        };
+    let modules_from_type = titles.map(|title| Module::new(&module_type, title, &options));
 
-        let module = Module::new(module_type, title, &options);
-
-        modules_from_type.push(module);
-    }
-
-    modules_from_type
+    modules_from_type.collect()
 }
 
 // These tests act as pseudo-integration tests. They let the top-level functions generate
@@ -149,7 +141,7 @@ mod tests {
     /// Test that we generate the assembly that we expect.
     #[test]
     fn test_assembly() {
-        let mod_type = ModuleType::Assembly;
+        let mod_type = &ModuleType::Assembly;
         let mod_title = "Testing that an assembly forms properly";
         let options = basic_options();
         let assembly = Module::new(mod_type, mod_title, &options);
@@ -163,7 +155,7 @@ mod tests {
     /// Test that we generate the concept module that we expect.
     #[test]
     fn test_concept_module() {
-        let mod_type = ModuleType::Concept;
+        let mod_type = &ModuleType::Concept;
         let mod_title = "A title that tests a concept";
         let options = basic_options();
         let concept = Module::new(mod_type, mod_title, &options);
@@ -176,7 +168,7 @@ mod tests {
     /// Test that we generate the procedure module that we expect.
     #[test]
     fn test_procedure_module() {
-        let mod_type = ModuleType::Procedure;
+        let mod_type = &ModuleType::Procedure;
         let mod_title = "Testing a procedure";
         let options = basic_options();
         let procedure = Module::new(mod_type, mod_title, &options);
@@ -189,7 +181,7 @@ mod tests {
     /// Test that we generate the reference module that we expect.
     #[test]
     fn test_reference_module() {
-        let mod_type = ModuleType::Reference;
+        let mod_type = &ModuleType::Reference;
         let mod_title = "The lines in a reference module";
         let options = basic_options();
         let reference = Module::new(mod_type, mod_title, &options);
