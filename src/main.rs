@@ -3,6 +3,7 @@ use log::{debug, info};
 mod cmd_line;
 mod logging;
 mod module;
+mod templating;
 mod write;
 
 use module::{Input, Module, ModuleType};
