@@ -121,6 +121,10 @@ For more options, see the output of the following command:
 $ newdoc --help
 ```
 
+## Release notes
+
+You can find a brief change log on the [Releases](https://github.com/redhat-documentation/newdoc/releases) page.
+
 
 ## Packaging and distributing newdoc as an RPM
 
