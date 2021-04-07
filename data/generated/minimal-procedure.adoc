@@ -1,0 +1,15 @@
+[id="minimal-procedure_{context}"]
+= Minimal procedure
+
+[role="_abstract"]
+
+.Prerequisites
+
+.Procedure
+
+.Verification
+
+[role="_additional-resources"]
+.Additional resources
+
+

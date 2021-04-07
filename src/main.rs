@@ -129,13 +129,14 @@ mod tests {
     use crate::module::ModuleType;
     use crate::Options;
 
+    // These values represent the default newdoc options.
     fn basic_options() -> Options {
         Options {
             comments: true,
             prefixes: true,
             examples: true,
             target_dir: ".".to_string(),
-            detect_directory: false,
+            detect_directory: true,
         }
     }
 
@@ -189,6 +190,71 @@ mod tests {
 
         let pre_generated =
             include_str!("../data/generated/ref_the-lines-in-a-reference-module.adoc");
+
+        assert_eq!(reference.text, pre_generated);
+    }
+
+    // These values strip down the modules to the bare minimum.
+    fn minimal_options() -> Options {
+        Options {
+            comments: false,
+            prefixes: false,
+            examples: false,
+            target_dir: ".".to_string(),
+            detect_directory: true,
+        }
+    }
+
+    /// Test that we generate the assembly that we expect.
+    #[test]
+    fn test_minimal_assembly() {
+        let mod_type = &ModuleType::Assembly;
+        let mod_title = "Minimal assembly";
+        let options = minimal_options();
+        let assembly = Module::new(mod_type, mod_title, &options);
+
+        let pre_generated =
+            include_str!("../data/generated/minimal-assembly.adoc");
+
+        assert_eq!(assembly.text, pre_generated);
+    }
+
+    /// Test that we generate the concept module that we expect.
+    #[test]
+    fn test_minimal_concept() {
+        let mod_type = &ModuleType::Concept;
+        let mod_title = "Minimal concept";
+        let options = minimal_options();
+        let concept = Module::new(mod_type, mod_title, &options);
+
+        let pre_generated = include_str!("../data/generated/minimal-concept.adoc");
+
+        assert_eq!(concept.text, pre_generated);
+    }
+
+    /// Test that we generate the procedure module that we expect.
+    #[test]
+    fn test_minimal_procedure() {
+        let mod_type = &ModuleType::Procedure;
+        let mod_title = "Minimal procedure";
+        let options = minimal_options();
+        let procedure = Module::new(mod_type, mod_title, &options);
+
+        let pre_generated = include_str!("../data/generated/minimal-procedure.adoc");
+
+        assert_eq!(procedure.text, pre_generated);
+    }
+
+    /// Test that we generate the reference module that we expect.
+    #[test]
+    fn test_minimal_reference() {
+        let mod_type = &ModuleType::Reference;
+        let mod_title = "Minimal reference";
+        let options = minimal_options();
+        let reference = Module::new(mod_type, mod_title, &options);
+
+        let pre_generated =
+            include_str!("../data/generated/minimal-reference.adoc");
 
         assert_eq!(reference.text, pre_generated);
     }

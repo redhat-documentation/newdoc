@@ -1,0 +1,22 @@
+ifdef::context[:parent-context-of-minimal-assembly: {context}]
+
+ifndef::context[]
+[id="minimal-assembly"]
+endif::[]
+ifdef::context[]
+[id="minimal-assembly_{context}"]
+endif::[]
+= Minimal assembly
+
+:context: minimal-assembly
+
+[role="_abstract"]
+
+== Prerequisites
+
+[role="_additional-resources"]
+== Additional resources (or Next steps)
+
+ifdef::parent-context-of-minimal-assembly[:context: {parent-context-of-minimal-assembly}]
+ifndef::parent-context-of-minimal-assembly[:!context:]
+
