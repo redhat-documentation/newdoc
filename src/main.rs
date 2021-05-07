@@ -213,8 +213,7 @@ mod tests {
         let options = minimal_options();
         let assembly = Module::new(mod_type, mod_title, &options);
 
-        let pre_generated =
-            include_str!("../data/generated/minimal-assembly.adoc");
+        let pre_generated = include_str!("../data/generated/minimal-assembly.adoc");
 
         assert_eq!(assembly.text, pre_generated);
     }
@@ -253,8 +252,7 @@ mod tests {
         let options = minimal_options();
         let reference = Module::new(mod_type, mod_title, &options);
 
-        let pre_generated =
-            include_str!("../data/generated/minimal-reference.adoc");
+        let pre_generated = include_str!("../data/generated/minimal-reference.adoc");
 
         assert_eq!(reference.text, pre_generated);
     }

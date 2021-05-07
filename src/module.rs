@@ -1,9 +1,8 @@
+use log::debug;
 /// This module defines the `Module` struct, its builder struct, and methods on both structs.
 use std::path::{Path, PathBuf};
-use log::debug;
 
 use crate::Options;
-
 
 /// All possible types of the AsciiDoc module
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -332,7 +331,11 @@ mod tests {
     fn check_detected_path() {
         let options = path_options();
 
-        let module = Module::new(&ModuleType::Procedure, "Testing the detected path", &options);
+        let module = Module::new(
+            &ModuleType::Procedure,
+            "Testing the detected path",
+            &options,
+        );
 
         assert_eq!(
             module.include_statement,

@@ -1,5 +1,5 @@
-use regex::{Regex, RegexBuilder};
 use askama::Template;
+use regex::{Regex, RegexBuilder};
 
 use crate::module::{Input, ModuleType};
 
@@ -48,7 +48,6 @@ struct ReferenceTemplate<'a> {
     examples: bool,
 }
 
-
 // We're implementing the template functions on the Input struct, not on Module,
 // because the templating happens at the point when newdoc composes the text of the module,
 // which is part of the module creation. The module then stores the rendered template.
@@ -79,23 +78,28 @@ impl Input {
                 module_title: &self.title,
                 include_statements: &self.includes_block(),
                 examples: self.options.examples,
-            }.render(),
+            }
+            .render(),
             ModuleType::Concept => ConceptTemplate {
                 module_id: &self.id(),
                 module_title: &self.title,
                 examples: self.options.examples,
-            }.render(),
+            }
+            .render(),
             ModuleType::Procedure => ProcedureTemplate {
                 module_id: &self.id(),
                 module_title: &self.title,
                 examples: self.options.examples,
-            }.render(),
+            }
+            .render(),
             ModuleType::Reference => ReferenceTemplate {
                 module_id: &self.id(),
                 module_title: &self.title,
                 examples: self.options.examples,
-            }.render(),
-        }.expect("Failed to construct the document from the template");
+            }
+            .render(),
+        }
+        .expect("Failed to construct the document from the template");
 
         // If comments are disabled via an option, delete comment lines from the content
         if !self.options.comments {
@@ -105,9 +109,7 @@ impl Input {
                 .swap_greed(true)
                 .build()
                 .unwrap();
-            document = multi_comments
-                .replace_all(&document, "")
-                .to_string();
+            document = multi_comments.replace_all(&document, "").to_string();
 
             // Delete single-line comments
             let single_comments: Regex = RegexBuilder::new(r"^//.*\n")
@@ -115,18 +117,14 @@ impl Input {
                 .swap_greed(true)
                 .build()
                 .unwrap();
-            document = single_comments
-                .replace_all(&document, "")
-                .to_string();
+            document = single_comments.replace_all(&document, "").to_string();
 
             // Delete leading white space left over by the deleted comments
             let leading_whitespace: Regex = RegexBuilder::new(r"^[\s\n]*")
                 .multi_line(true)
                 .build()
                 .unwrap();
-            document = leading_whitespace
-                .replace(&document, "")
-                .to_string();
+            document = leading_whitespace.replace(&document, "").to_string();
         }
 
         // Remove excess blank lines that might have been left by the verious
