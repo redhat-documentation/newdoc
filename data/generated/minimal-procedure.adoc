@@ -1,3 +1,5 @@
+:_module-type: PROCEDURE
+
 [id="minimal-procedure_{context}"]
 = Minimal procedure
 

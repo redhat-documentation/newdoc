@@ -1,3 +1,5 @@
+:_module-type: REFERENCE
+
 [id="minimal-reference_{context}"]
 = Minimal reference
 
