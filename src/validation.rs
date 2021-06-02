@@ -68,6 +68,7 @@ fn determine_mod_type(base_name: &str, content: &str) -> Option<ModuleType> {
 /// This function collects all tests that target only assembly files
 fn assembly_tests(base_name: &str, content: &str) {
     check_no_nesting(base_name, content);
+    check_supported_leveloffset(base_name, content);
 }
 
 /// Test that an assembly includes no other assemblies
@@ -88,5 +89,20 @@ fn check_no_nesting(base_name: &str, content: &str) {
         let position = assembly.start();
         let text = assembly.as_str();
         error!("`{}`: Includes another assembly at character {}: `{}`", base_name, position, text);
+    }
+}
+
+/// Test that files don't use the unsupported leveloffset configuration
+fn check_supported_leveloffset(base_name: &str, content: &str) {
+    let unsupported_pattern = r"^:leveloffset:\s*\+\d*";
+    let unsupported_regex = RegexBuilder::new(unsupported_pattern)
+        .multi_line(true)
+        .build()
+        .unwrap();
+    let leveloffsets = unsupported_regex.find_iter(content);
+    for leveloffset in leveloffsets {
+        let position = leveloffset.start();
+        let text = leveloffset.as_str();
+        error!("`{}`: Unsupported include configuration at character {}: `{}`", base_name, position, text);
     }
 }
