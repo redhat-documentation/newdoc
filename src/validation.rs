@@ -5,12 +5,13 @@ use std::fs;
 use std::path::Path;
 // use std::process::exit;
 use log::{debug, error, info, warn};
+use regex::{Regex, RegexBuilder};
 
 use crate::module::ModuleType;
 
 pub fn validate(file_name: &str) {
     debug!("Validating file `{}`", file_name);
-    
+
     let path = Path::new(file_name);
     let base_name = path.file_name().unwrap().to_str().unwrap();
 
@@ -24,6 +25,10 @@ pub fn validate(file_name: &str) {
     };
 
     let mod_type = determine_mod_type(base_name, &content);
+
+    if mod_type == Some(ModuleType::Assembly) {
+        assembly_tests(base_name, &content);
+    }
 }
 
 fn determine_mod_type(base_name: &str, content: &str) -> Option<ModuleType> {
@@ -58,4 +63,30 @@ fn determine_mod_type(base_name: &str, content: &str) -> Option<ModuleType> {
     }
 
     mod_type
+}
+
+/// This function collects all tests that target only assembly files
+fn assembly_tests(base_name: &str, content: &str) {
+    check_no_nesting(base_name, content);
+}
+
+/// Test that an assembly includes no other assemblies
+fn check_no_nesting(base_name: &str, content: &str) {
+    let include_pattern = r"^include::.*assembly[_-].*\.adoc";
+
+    // Currently, we're using a multi-line regex over the whole file.
+    // It would be better to use single-line regexes and interate over the lines
+    // in the file individually. The main benefit would be that we could report
+    // the exact line where this occurs, rather than the character.
+    let include_regex = RegexBuilder::new(include_pattern)
+        .multi_line(true)
+        .build()
+        .unwrap();
+    let included_assemblies = include_regex.find_iter(content);
+
+    for assembly in included_assemblies {
+        let position = assembly.start();
+        let text = assembly.as_str();
+        error!("`{}`: Includes another assembly at character {}: `{}`", base_name, position, text);
+    }
 }
