@@ -1,5 +1,7 @@
-use log::debug;
 /// This module defines the `Module` struct, its builder struct, and methods on both structs.
+
+use log::debug;
+use std::fmt;
 use std::path::{Path, PathBuf};
 
 use crate::Options;
@@ -11,6 +13,19 @@ pub enum ModuleType {
     Concept,
     Procedure,
     Reference,
+}
+
+// Implement human-readable string display for the module type
+impl fmt::Display for ModuleType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let name = match self {
+            Self::Assembly => "assembly",
+            Self::Concept => "concept",
+            Self::Procedure => "procedure",
+            Self::Reference => "reference",
+        };
+        write!(f, "{}", name)
+    }
 }
 
 /// An initial representation of the module with input data, used to construct the `Module` struct
