@@ -1,6 +1,7 @@
 /// This module provides functionality to validate (lint) existing module and assembly files,
 /// to check if the files meet the template structure and other requirements.
 
+use std::fmt;
 use std::fs;
 use std::path::Path;
 // use std::process::exit;
@@ -8,6 +9,48 @@ use log::{debug, error, info, warn};
 use regex::{Regex, RegexBuilder};
 
 use crate::module::ModuleType;
+
+const ASSEMBLY_TESTS: [IssueDefinition; 2] = [
+    // Test that an assembly includes no other assemblies
+    IssueDefinition {
+        pattern: r"^include::.*assembly[_-].*\.adoc",
+        description: "This assembly includes another assembly.",
+        severity: IssueSeverity::Error,
+    },
+    // Test that files don't use the unsupported leveloffset configuration
+    IssueDefinition {
+        pattern: r"^:leveloffset:\s*\+\d*",
+        description: "Unsupported level offset configuration.",
+        severity: IssueSeverity::Error,
+    },
+];
+
+#[derive(Clone, Copy, Debug)]
+struct IssueDefinition {
+    pattern: &'static str,
+    description: &'static str,
+    severity: IssueSeverity,
+}
+
+#[derive(Clone, Copy, Debug)]
+enum IssueSeverity {
+    Information,
+    Warning,
+    Error,
+}
+
+#[derive(Debug)]
+struct IssueReport {
+    line_number: i32,
+    description: &'static str,
+    severity: IssueSeverity,
+}
+
+impl fmt::Display for IssueReport {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Line {}: {}", self.line_number, self.description)
+    }
+}
 
 pub fn validate(file_name: &str) {
     debug!("Validating file `{}`", file_name);
@@ -67,42 +110,32 @@ fn determine_mod_type(base_name: &str, content: &str) -> Option<ModuleType> {
 
 /// This function collects all tests that target only assembly files
 fn assembly_tests(base_name: &str, content: &str) {
-    check_no_nesting(base_name, content);
-    check_supported_leveloffset(base_name, content);
-}
-
-/// Test that an assembly includes no other assemblies
-fn check_no_nesting(base_name: &str, content: &str) {
-    let include_pattern = r"^include::.*assembly[_-].*\.adoc";
-
-    // Currently, we're using a multi-line regex over the whole file.
-    // It would be better to use single-line regexes and interate over the lines
-    // in the file individually. The main benefit would be that we could report
-    // the exact line where this occurs, rather than the character.
-    let include_regex = RegexBuilder::new(include_pattern)
-        .multi_line(true)
-        .build()
-        .unwrap();
-    let included_assemblies = include_regex.find_iter(content);
-
-    for assembly in included_assemblies {
-        let position = assembly.start();
-        let text = assembly.as_str();
-        error!("`{}`: Includes another assembly at character {}: `{}`", base_name, position, text);
+    // check_no_nesting(base_name, content);
+    // check_supported_leveloffset(base_name, content);
+    let from_issues = ASSEMBLY_TESTS.iter()
+        .map(|&definition| check_for_issue(definition, content));
+    
+    for reports in from_issues {
+        for report in reports {
+            println!("{}", report);
+        }
     }
 }
 
-/// Test that files don't use the unsupported leveloffset configuration
-fn check_supported_leveloffset(base_name: &str, content: &str) {
-    let unsupported_pattern = r"^:leveloffset:\s*\+\d*";
-    let unsupported_regex = RegexBuilder::new(unsupported_pattern)
+/// This function checks a file content for the presence of an issue based on a regex.
+/// These issues are defined using the IssueDefinition struct.
+fn check_for_issue(issue: IssueDefinition, content: &str) -> Vec<IssueReport> {
+    let regex = RegexBuilder::new(issue.pattern)
         .multi_line(true)
         .build()
         .unwrap();
-    let leveloffsets = unsupported_regex.find_iter(content);
-    for leveloffset in leveloffsets {
-        let position = leveloffset.start();
-        let text = leveloffset.as_str();
-        error!("`{}`: Unsupported include configuration at character {}: `{}`", base_name, position, text);
-    }
+    let findings = regex.find_iter(content);
+
+    findings.map(|finding| {
+        IssueReport {
+            line_number: finding.start() as i32,
+            description: issue.description,
+            severity: issue.severity,
+        }
+    }).collect()
 }
