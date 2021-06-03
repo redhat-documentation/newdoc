@@ -10,7 +10,7 @@ use regex::{Regex, RegexBuilder};
 
 use crate::module::ModuleType;
 
-const ASSEMBLY_TESTS: [IssueDefinition; 2] = [
+const ASSEMBLY_TESTS: [IssueDefinition; 3] = [
     // Test that an assembly includes no other assemblies
     IssueDefinition {
         pattern: r"^include::.*assembly[_-].*\.adoc",
@@ -21,6 +21,28 @@ const ASSEMBLY_TESTS: [IssueDefinition; 2] = [
     IssueDefinition {
         pattern: r"^:leveloffset:\s*\+\d*",
         description: "Unsupported level offset configuration.",
+        severity: IssueSeverity::Error,
+    },
+    IssueDefinition {
+        pattern: r"^\.Additional resources",
+        description: "In assemblies, 'Additional resources' must use the == syntax.",
+        severity: IssueSeverity::Error,
+    },
+];
+
+const MODULE_TESTS: [IssueDefinition; 1] = [
+    // Test that modules include no other modules, except for snippets
+    // This one doesn't work because the regex crate doesn't support lookahead
+    /*
+    IssueDefinition {
+        pattern: r"^include::(?!(snip|.*\/snip)[_-]).*\.adoc",
+        description: "This module includes another file that is not a snippet.",
+        severity: IssueSeverity::Error,
+    },
+    */
+    IssueDefinition {
+        pattern: r"^==\s*Additional resources",
+        description: "In modules, 'Additional resources' must use the dot syntax.",
         severity: IssueSeverity::Error,
     },
 ];
@@ -71,6 +93,8 @@ pub fn validate(file_name: &str) {
 
     if mod_type == Some(ModuleType::Assembly) {
         assembly_tests(base_name, &content);
+    } else if mod_type.is_some() {
+        module_tests(base_name, &content);
     }
 }
 
@@ -113,6 +137,17 @@ fn assembly_tests(base_name: &str, content: &str) {
     // check_no_nesting(base_name, content);
     // check_supported_leveloffset(base_name, content);
     let from_issues = ASSEMBLY_TESTS.iter()
+        .map(|&definition| check_for_issue(definition, content));
+    
+    for reports in from_issues {
+        for report in reports {
+            println!("{}", report);
+        }
+    }
+}
+
+fn module_tests(base_name: &str, content: &str) {
+    let from_issues = MODULE_TESTS.iter()
         .map(|&definition| check_for_issue(definition, content));
     
     for reports in from_issues {
