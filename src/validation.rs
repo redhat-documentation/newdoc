@@ -68,14 +68,21 @@ enum IssueSeverity {
 
 #[derive(Debug)]
 struct IssueReport {
-    line_number: usize,
+    // Not all issues have a line number
+    line_number: Option<usize>,
     description: &'static str,
     severity: IssueSeverity,
 }
 
 impl fmt::Display for IssueReport {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Line {}: {}", self.line_number, self.description)
+        let stamp = if let Some(line_number) = self.line_number {
+            format!("Line {}: ", line_number)
+        } else {
+            String::new()
+        };
+        let display = stamp + self.description;
+        write!(f, "{}", display)
     }
 }
 
@@ -201,7 +208,7 @@ fn check_for_issue(issue: IssueDefinition, content: &str) -> Vec<IssueReport> {
         findings.map(|(index, _finding)| {
             IssueReport {
                 // Line numbers start from 1, but the enumeration starts from 0. Add 1 to the index
-                line_number: index + 1,
+                line_number: Some(index + 1),
                 description: issue.description,
                 severity: issue.severity,
             }
@@ -237,7 +244,7 @@ fn check_metadata_variable(content: &str) -> Vec<IssueReport> {
     // Report if any of the two elements is completely missing
     if mod_id_position.is_none() {
         let report = IssueReport {
-            line_number: 0,
+            line_number: None,
             description: "The module is missing an ID.",
             severity: IssueSeverity::Error,
         };
@@ -245,7 +252,7 @@ fn check_metadata_variable(content: &str) -> Vec<IssueReport> {
     }
     if metadata_var_position.is_none() {
         let report = IssueReport {
-            line_number: 0,
+            line_number: None,
             description: "The module is missing the module type variable.",
             severity: IssueSeverity::Error,
         };
@@ -256,7 +263,7 @@ fn check_metadata_variable(content: &str) -> Vec<IssueReport> {
     if let (Some(mod_id_position), Some(metadata_var_position)) = (mod_id_position, metadata_var_position) {
         if mod_id_position < metadata_var_position {
             let report = IssueReport {
-                line_number: metadata_var_position,
+                line_number: Some(metadata_var_position),
                 description: "The module type variable is located after the module ID.",
                 severity: IssueSeverity::Error,
             };
@@ -270,7 +277,7 @@ fn check_metadata_variable(content: &str) -> Vec<IssueReport> {
 /// The regex crate provides the byte number for matches in a multi-line search.
 /// This function converts the byte number to a line number, which is much more
 /// useful to a human. However, this is still WIP and inaccurate.
-fn line_from_byte_no(content: &str, byte_no: usize) -> usize {
+fn line_from_byte_no(content: &str, byte_no: usize) -> Option<usize> {
     // Debugging messages to help me pinpoint the byte offset
     debug!("Seeking byte: {}", byte_no);
     debug!("File size in bytes: {}", content.bytes().len());
@@ -289,12 +296,12 @@ fn line_from_byte_no(content: &str, byte_no: usize) -> usize {
             total_bytes += 1;
             if total_bytes == byte_no {
                 // Line numbers start from 1, but the enumeration starts from 0. Add 1 to the index
-                return line_index + 1;
+                return Some(line_index + 1);
             }
         }
     }
 
     // TODO: Convert this return value into returing a Result
     // panic!("Cannot locate the line where the issue occurs.");
-    0
+    None
 }
