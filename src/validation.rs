@@ -136,24 +136,26 @@ fn determine_mod_type(base_name: &str, content: &str) -> Option<ModuleType> {
 fn assembly_tests(base_name: &str, content: &str) {
     // check_no_nesting(base_name, content);
     // check_supported_leveloffset(base_name, content);
-    let from_issues = ASSEMBLY_TESTS.iter()
-        .map(|&definition| check_for_issue(definition, content));
+    let mut reports: Vec<IssueReport> = ASSEMBLY_TESTS.iter()
+        .map(|&definition| check_for_issue(definition, content))
+        .flatten()
+        .collect();
     
-    for reports in from_issues {
-        for report in reports {
-            println!("{}", report);
-        }
+    for report in reports {
+        println!("{}", report);
     }
 }
 
 fn module_tests(base_name: &str, content: &str) {
-    let from_issues = MODULE_TESTS.iter()
-        .map(|&definition| check_for_issue(definition, content));
+    let mut reports: Vec<IssueReport> = MODULE_TESTS.iter()
+        .map(|&definition| check_for_issue(definition, content))
+        .flatten()
+        .collect();
     
-    for reports in from_issues {
-        for report in reports {
-            println!("{}", report);
-        }
+    reports.append(check_metadata_variable(content).as_mut());
+    
+    for report in reports {
+        println!("{}", report);
     }
 }
 
@@ -173,6 +175,64 @@ fn check_for_issue(issue: IssueDefinition, content: &str) -> Vec<IssueReport> {
             severity: issue.severity,
         }
     }).collect()
+}
+
+/// Check that the module type variable is located before the module ID, as required.
+/// As a side effect, this function also checks that both the varible and the ID are present.
+/// TODO: Refactor the ID check separately so that it can also be used for assemblies.
+fn check_metadata_variable(content: &str) -> Vec<IssueReport> {
+    let metadata_var_pattern = r":_module-type:\s*(?:PROCEDURE|CONCEPT|REFERENCE)";
+    let metadata_var_regex = Regex::new(metadata_var_pattern).unwrap();
+    let mut metadata_var_position = None;
+
+    let mod_id_pattern = r"^\[id=";
+    let mod_id_regex = Regex::new(mod_id_pattern).unwrap();
+    let mut mod_id_position = None;
+
+    // Browse all lines in the module, and if we find any of the two elements, record the line number
+    for (index, line) in content.lines().enumerate() {
+        if let Some(_metadata_var) = metadata_var_regex.find(line) {
+            metadata_var_position = Some(index);
+        }
+        if let Some(_mod_id) = mod_id_regex.find(line) {
+            mod_id_position = Some(index);
+        }
+    }
+
+    // Prepare to store the reports about the module
+    let mut results: Vec<IssueReport> = Vec::new();
+
+    // Report if any of the two elements is completely missing
+    if mod_id_position.is_none() {
+        let report = IssueReport {
+            line_number: 0,
+            description: "The module is missing an ID.",
+            severity: IssueSeverity::Error,
+        };
+        results.push(report);
+    }
+    if metadata_var_position.is_none() {
+        let report = IssueReport {
+            line_number: 0,
+            description: "The module is missing the module type variable.",
+            severity: IssueSeverity::Error,
+        };
+        results.push(report);
+    }
+
+    // If both elements are present, ensure their proper position in relation to each other
+    if let (Some(mod_id_position), Some(metadata_var_position)) = (mod_id_position, metadata_var_position) {
+        if mod_id_position < metadata_var_position {
+            let report = IssueReport {
+                line_number: metadata_var_position,
+                description: "The module type variable is located after the module ID.",
+                severity: IssueSeverity::Error,
+            };
+            results.push(report);
+        }
+    }
+
+    results
 }
 
 /// The regex crate provides the byte number for matches in a multi-line search.
@@ -201,8 +261,7 @@ fn line_from_byte_no(content: &str, byte_no: usize) -> usize {
         }
     }
 
-    // TODO: Convert this into returing a Result
-    return 0;
-
+    // TODO: Convert this return value into returing a Result
     // panic!("Cannot locate the line where the issue occurs.");
+    0
 }
