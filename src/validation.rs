@@ -63,7 +63,7 @@ enum IssueSeverity {
 
 #[derive(Debug)]
 struct IssueReport {
-    line_number: i32,
+    line_number: usize,
     description: &'static str,
     severity: IssueSeverity,
 }
@@ -168,9 +168,41 @@ fn check_for_issue(issue: IssueDefinition, content: &str) -> Vec<IssueReport> {
 
     findings.map(|finding| {
         IssueReport {
-            line_number: finding.start() as i32,
+            line_number: line_from_byte_no(content, finding.start()),
             description: issue.description,
             severity: issue.severity,
         }
     }).collect()
+}
+
+/// The regex crate provides the byte number for matches in a multi-line search.
+/// This function converts the byte number to a line number, which is much more
+/// useful to a human. However, this is still WIP and inaccurate.
+fn line_from_byte_no(content: &str, byte_no: usize) -> usize {
+    // Debugging messages to help me pinpoint the byte offset
+    debug!("Seeking byte: {}", byte_no);
+    debug!("File size in bytes: {}", content.bytes().len());
+    let mut line_bytes = 0;
+    for line in content.lines() {
+        line_bytes += line.bytes().len();
+    }
+    debug!("Lines size in bytes: {}", line_bytes);
+    debug!("Number of lines: {}", content.lines().count());
+
+    let mut total_bytes: usize = 0;
+
+    for (line_index, line) in content.lines().enumerate() {
+        total_bytes += 1;
+        for _byte in line.bytes() {
+            total_bytes += 1;
+            if total_bytes == byte_no {
+                return line_index;
+            }
+        }
+    }
+
+    // TODO: Convert this into returing a Result
+    return 0;
+
+    // panic!("Cannot locate the line where the issue occurs.");
 }
