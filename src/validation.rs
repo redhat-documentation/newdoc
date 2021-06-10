@@ -16,17 +16,20 @@ const ASSEMBLY_TESTS: [IssueDefinition; 3] = [
         pattern: r"^include::.*assembly[_-].*\.adoc",
         description: "This assembly includes another assembly.",
         severity: IssueSeverity::Error,
+        multiline: false,
     },
     // Test that files don't use the unsupported leveloffset configuration
     IssueDefinition {
         pattern: r"^:leveloffset:\s*\+\d*",
         description: "Unsupported level offset configuration.",
         severity: IssueSeverity::Error,
+        multiline: false,
     },
     IssueDefinition {
         pattern: r"^\.Additional resources",
         description: "In assemblies, 'Additional resources' must use the == syntax.",
         severity: IssueSeverity::Error,
+        multiline: false,
     },
 ];
 
@@ -44,6 +47,7 @@ const MODULE_TESTS: [IssueDefinition; 1] = [
         pattern: r"^==\s*Additional resources",
         description: "In modules, 'Additional resources' must use the dot syntax.",
         severity: IssueSeverity::Error,
+        multiline: false,
     },
 ];
 
@@ -52,6 +56,7 @@ struct IssueDefinition {
     pattern: &'static str,
     description: &'static str,
     severity: IssueSeverity,
+    multiline: bool,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -173,19 +178,35 @@ fn module_tests(base_name: &str, content: &str) -> Vec<IssueReport> {
 /// This function checks a file content for the presence of an issue based on a regex.
 /// These issues are defined using the IssueDefinition struct.
 fn check_for_issue(issue: IssueDefinition, content: &str) -> Vec<IssueReport> {
-    let regex = RegexBuilder::new(issue.pattern)
-        .multi_line(true)
-        .build()
-        .unwrap();
-    let findings = regex.find_iter(content);
-
-    findings.map(|finding| {
-        IssueReport {
-            line_number: line_from_byte_no(content, finding.start()),
-            description: issue.description,
-            severity: issue.severity,
-        }
-    }).collect()
+    if issue.multiline {
+        let regex = RegexBuilder::new(issue.pattern)
+            .multi_line(true)
+            .build()
+            .unwrap();
+        let findings = regex.find_iter(content);
+        
+        findings.map(|finding| {
+            IssueReport {
+                line_number: line_from_byte_no(content, finding.start()),
+                description: issue.description,
+                severity: issue.severity,
+            }
+        }).collect()
+    } else {
+        let regex = Regex::new(issue.pattern).unwrap();
+        let findings = content.lines().enumerate()
+            .map(|(index, line)| (index, regex.find(line)))
+            .filter(|(_index, found)| found.is_some());
+        
+        findings.map(|(index, _finding)| {
+            IssueReport {
+                // Line numbers start from 1, but the enumeration starts from 0. Add 1 to the index
+                line_number: index + 1,
+                description: issue.description,
+                severity: issue.severity,
+            }
+        }).collect()
+    }
 }
 
 /// Check that the module type variable is located before the module ID, as required.
@@ -267,7 +288,8 @@ fn line_from_byte_no(content: &str, byte_no: usize) -> usize {
         for _byte in line.bytes() {
             total_bytes += 1;
             if total_bytes == byte_no {
-                return line_index;
+                // Line numbers start from 1, but the enumeration starts from 0. Add 1 to the index
+                return line_index + 1;
             }
         }
     }
