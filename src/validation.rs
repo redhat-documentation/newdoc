@@ -66,6 +66,17 @@ enum IssueSeverity {
     Error,
 }
 
+impl fmt::Display for IssueSeverity {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let display = match self {
+            Self::Information => "Information",
+            Self::Warning => "Warning",
+            Self::Error => "Error",
+        };
+        write!(f, "{}", display)
+    }
+}
+
 #[derive(Debug)]
 struct IssueReport {
     // Not all issues have a line number
@@ -77,9 +88,9 @@ struct IssueReport {
 impl fmt::Display for IssueReport {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let stamp = if let Some(line_number) = self.line_number {
-            format!("Line {}: ", line_number)
+            format!("{} at line {}: ", self.severity, line_number)
         } else {
-            String::new()
+            format!("{}: ", self.severity)
         };
         let display = stamp + self.description;
         write!(f, "{}", display)
