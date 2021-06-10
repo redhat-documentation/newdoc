@@ -91,10 +91,25 @@ pub fn validate(file_name: &str) {
 
     let mod_type = determine_mod_type(base_name, &content);
 
-    if mod_type == Some(ModuleType::Assembly) {
-        assembly_tests(base_name, &content);
+    let reports = if mod_type == Some(ModuleType::Assembly) {
+        assembly_tests(base_name, &content)
     } else if mod_type.is_some() {
-        module_tests(base_name, &content);
+        module_tests(base_name, &content)
+    } else {
+        warn!("Cannot determine module type for {}", file_name);
+        Vec::new()
+    };
+
+    report_issues(reports, file_name);
+}
+
+/// Print a human-readable report about the issues found in the file
+fn report_issues(issues: Vec<IssueReport>, file_path: &str) {
+    if !issues.is_empty() {
+        println!("File: {}", file_path);
+        for issue in issues {
+            println!("  * {}", issue);
+        }
     }
 }
 
@@ -126,14 +141,14 @@ fn determine_mod_type(base_name: &str, content: &str) -> Option<ModuleType> {
     // Report on the value received from the inner function
     match mod_type {
         None => { error!("`{}`: Cannot determine the module type.", base_name); },
-        Some(mod_type) => { info!("`{}`: Module type is {}.", base_name, mod_type); }
+        Some(mod_type) => { debug!("`{}`: Module type is {}.", base_name, mod_type); }
     }
 
     mod_type
 }
 
 /// This function collects all tests that target only assembly files
-fn assembly_tests(base_name: &str, content: &str) {
+fn assembly_tests(base_name: &str, content: &str) -> Vec<IssueReport> {
     // check_no_nesting(base_name, content);
     // check_supported_leveloffset(base_name, content);
     let mut reports: Vec<IssueReport> = ASSEMBLY_TESTS.iter()
@@ -141,12 +156,10 @@ fn assembly_tests(base_name: &str, content: &str) {
         .flatten()
         .collect();
     
-    for report in reports {
-        println!("{}", report);
-    }
+    reports
 }
 
-fn module_tests(base_name: &str, content: &str) {
+fn module_tests(base_name: &str, content: &str) -> Vec<IssueReport> {
     let mut reports: Vec<IssueReport> = MODULE_TESTS.iter()
         .map(|&definition| check_for_issue(definition, content))
         .flatten()
@@ -154,9 +167,7 @@ fn module_tests(base_name: &str, content: &str) {
     
     reports.append(check_metadata_variable(content).as_mut());
     
-    for report in reports {
-        println!("{}", report);
-    }
+    reports
 }
 
 /// This function checks a file content for the presence of an issue based on a regex.
