@@ -25,6 +25,7 @@ const ASSEMBLY_TESTS: [IssueDefinition; 3] = [
         severity: IssueSeverity::Error,
         multiline: false,
     },
+    // Ensure the correct syntax for Additional resources
     IssueDefinition {
         pattern: r"^\.Additional resources",
         description: "In assemblies, 'Additional resources' must use the == syntax.",
@@ -34,15 +35,7 @@ const ASSEMBLY_TESTS: [IssueDefinition; 3] = [
 ];
 
 const MODULE_TESTS: [IssueDefinition; 1] = [
-    // Test that modules include no other modules, except for snippets
-    // This one doesn't work because the regex crate doesn't support lookahead
-    /*
-    IssueDefinition {
-        pattern: r"^include::(?!(snip|.*\/snip)[_-]).*\.adoc",
-        description: "This module includes another file that is not a snippet.",
-        severity: IssueSeverity::Error,
-    },
-    */
+    // Ensure the correct syntax for Additional resources
     IssueDefinition {
         pattern: r"^==\s*Additional resources",
         description: "In modules, 'Additional resources' must use the dot syntax.",
@@ -189,6 +182,7 @@ fn module_tests(base_name: &str, content: &str) -> Vec<IssueReport> {
         .collect();
     
     reports.append(check_metadata_variable(content).as_mut());
+    reports.append(check_include_except_snip(content).as_mut());
     
     reports
 }
@@ -283,6 +277,40 @@ fn check_metadata_variable(content: &str) -> Vec<IssueReport> {
     }
 
     results
+}
+
+/// Test that modules include no other modules, except for snippets
+fn check_include_except_snip(content: &str) -> Vec<IssueReport> {
+    let any_include_pattern = r"^include::.*\.adoc";
+    let any_include_regex = Regex::new(any_include_pattern).unwrap();
+
+    let snip_include_pattern = r"^include::((snip|.*/snip)[_-]|common-content/).*\.adoc";
+    let snip_include_regex = Regex::new(snip_include_pattern).unwrap();
+
+    let mut reports: Vec<IssueReport> = Vec::new();
+
+    for (index, line) in content.lines().enumerate() {
+        if let Some(include) = any_include_regex.find(line) {
+            if let Some(_snippet) = snip_include_regex.find(include.as_str()) {
+                // In this case, the detected include is most likely a snippet. Report as Information
+                let report = IssueReport {
+                    line_number: Some(index + 1),
+                    description: "This module includes a file that appears to be a snippet. This is supported.",
+                    severity: IssueSeverity::Information,
+                };
+                reports.push(report);
+            } else {
+                let report = IssueReport {
+                    line_number: Some(index + 1),
+                    description: "This module includes a file that does not appear to be a snippet.",
+                    severity: IssueSeverity::Error,
+                };
+                reports.push(report);
+            }
+        }
+    }
+
+    reports
 }
 
 /// The regex crate provides the byte number for matches in a multi-line search.
