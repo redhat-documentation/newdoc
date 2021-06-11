@@ -350,31 +350,42 @@ fn check_include_except_snip(content: &str) -> Vec<IssueReport> {
     reports
 }
 
+/// Check that the first heading found in the file is a title: a level-1, numbered heading
 fn check_title_level(content: &str) -> Option<IssueReport> {
-    let any_heading_regex = Regex::new(r"^(\.|=+\s+)\S+.*").unwrap();
     let title_regex = Regex::new(r"^=\s+\S+.*").unwrap();
+
+    if let Some((line_no, heading)) = find_first_heading(content) {
+        if let Some(_title) = title_regex.find(heading) {
+            debug!("This is the title: {:?}", heading);
+            None
+        } else {
+            debug!("This is the first heading: {:?}", heading);
+            Some(IssueReport {
+                line_number: Some(line_no),
+                description: "The first heading in the file is not level 1.",
+                severity: IssueSeverity::Error,
+            })
+        }
+    } else {
+        Some(IssueReport {
+            line_number: None,
+            description: "The file has no title or headings.",
+            severity: IssueSeverity::Error,
+        })
+    }
+}
+
+/// Find the first occurence of any heading in the file.
+/// Returns the line number of the occurence and the line.
+fn find_first_heading(content: &str) -> Option<(usize, &str)> {
+    let any_heading_regex = Regex::new(r"^(\.|=+\s+)\S+.*").unwrap();
 
     for (index, line) in content.lines().enumerate() {
         if let Some(_heading) = any_heading_regex.find(line) {
-            if let Some(_title) = title_regex.find(line) {
-                debug!("This is the title: {:?}", line);
-                return None;
-            } else {
-                debug!("This is the first heading: {:?}", line);
-                return Some(IssueReport {
-                    line_number: Some(index + 1),
-                    description: "The first heading in the file is not level 1.",
-                    severity: IssueSeverity::Error,
-                });
-            }
+                return Some((index + 1, line));
         }
     }
-
-    Some(IssueReport {
-        line_number: None,
-        description: "The file has no title or headings.",
-        severity: IssueSeverity::Error,
-    })
+    None
 }
 
 /// The regex crate provides the byte number for matches in a multi-line search.
