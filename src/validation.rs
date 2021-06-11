@@ -198,6 +198,9 @@ fn assembly_tests(base_name: &str, content: &str) -> Vec<IssueReport> {
     if let Some(title_level_issue) = check_title_level(content) {
         reports.push(title_level_issue);
     }
+    if let Some(id_attribute) = check_id_for_attributes(content) {
+        reports.push(id_attribute);
+    }
     
     reports
 }
@@ -219,6 +222,9 @@ fn module_tests(base_name: &str, content: &str) -> Vec<IssueReport> {
 
     if let Some(title_level_issue) = check_title_level(content) {
         reports.push(title_level_issue);
+    }
+    if let Some(id_attribute) = check_id_for_attributes(content) {
+        reports.push(id_attribute);
     }
     
     reports
@@ -382,6 +388,43 @@ fn find_first_heading(content: &str) -> Option<(usize, &str)> {
 
     for (index, line) in content.lines().enumerate() {
         if let Some(_heading) = any_heading_regex.find(line) {
+                return Some((index + 1, line));
+        }
+    }
+    None
+}
+
+/// Detect attributes in module IDs. The only allowed attribute is {context}.
+fn check_id_for_attributes(content: &str) -> Option<IssueReport> {
+    let attribute_regex = Regex::new(r"\{((?:[[:alnum:]]|[-_])+)\}").unwrap();
+
+    if let Some((line_no, mod_id)) = find_mod_id(content) {
+        if let Some(attribute) = attribute_regex.captures(mod_id) {
+            if attribute.get(1).unwrap().as_str() == "context" {
+                // The context attribute is allowed
+                None
+            } else {
+                Some(IssueReport {
+                    line_number: Some(line_no),
+                    description: "The ID includes an attribute.",
+                    severity: IssueSeverity::Error,
+                })
+            }
+        } else {
+            None
+        }
+    } else {
+        None
+    }
+}
+
+/// Find the first occurence of an ID definition in the file.
+/// Returns the line number of the occurence and the line.
+fn find_mod_id(content: &str) -> Option<(usize, &str)> {
+    let id_regex = Regex::new(r"^\[id=\S+\]").unwrap();
+
+    for (index, line) in content.lines().enumerate() {
+        if let Some(_id) = id_regex.find(line) {
                 return Some((index + 1, line));
         }
     }
