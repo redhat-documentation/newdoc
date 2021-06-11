@@ -44,6 +44,22 @@ const MODULE_TESTS: [IssueDefinition; 1] = [
     },
 ];
 
+const TITLE_TESTS: [IssueDefinition; 2] =[
+    // Test that there are no inline anchors in the title
+    IssueDefinition {
+        pattern: r"^=\s+.*\[\[\S+\]\].*",
+        description: "The title contains an inline anchor.",
+        severity: IssueSeverity::Error,
+        multiline: false,
+    },
+    IssueDefinition {
+        pattern: r"^=\s+.*\{\S+\}.*",
+        description: "The title contains an attribute.",
+        severity: IssueSeverity::Error,
+        multiline: false,
+    },
+];
+
 #[derive(Clone, Copy, Debug)]
 struct IssueDefinition {
     pattern: &'static str,
@@ -171,6 +187,12 @@ fn assembly_tests(base_name: &str, content: &str) -> Vec<IssueReport> {
         .map(|&definition| check_for_issue(definition, content))
         .flatten()
         .collect();
+
+    reports.append(TITLE_TESTS.iter()
+        .map(|&definition| check_for_issue(definition, content))
+        .flatten()
+        .collect::<Vec<_>>()
+        .as_mut());
     
     reports
 }
@@ -180,6 +202,12 @@ fn module_tests(base_name: &str, content: &str) -> Vec<IssueReport> {
         .map(|&definition| check_for_issue(definition, content))
         .flatten()
         .collect();
+    
+    reports.append(TITLE_TESTS.iter()
+        .map(|&definition| check_for_issue(definition, content))
+        .flatten()
+        .collect::<Vec<_>>()
+        .as_mut());
     
     reports.append(check_metadata_variable(content).as_mut());
     reports.append(check_include_except_snip(content).as_mut());
