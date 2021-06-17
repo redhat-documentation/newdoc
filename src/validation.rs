@@ -61,7 +61,7 @@ const SIMPLE_TITLE_TESTS: [IssueDefinition; 2] = [
     },
 ];
 
-const SIMPLE_CONTENT_TESTS: [IssueDefinition; 2] = [
+const SIMPLE_CONTENT_TESTS: [IssueDefinition; 3] = [
     IssueDefinition {
         pattern: r"<[[:alpha:]]+>.*</[[:alpha:]]+>",
         description: "The file seems to contain HTML markup",
@@ -72,6 +72,12 @@ const SIMPLE_CONTENT_TESTS: [IssueDefinition; 2] = [
         pattern: r"(?:xref:\S+\[\]|<<\S+>>|<<\S+,.+>>)",
         description: "The file contains an unsupported cross-reference.",
         severity: IssueSeverity::Error,
+        multiline: false,
+    },
+    IssueDefinition {
+        pattern: r"^={2,}\s+\S+",
+        description: "This heading is level-2 or greater. Be conscious of the heading level.",
+        severity: IssueSeverity::Warning,
         multiline: false,
     },
 ];
