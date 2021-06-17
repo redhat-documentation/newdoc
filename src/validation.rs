@@ -75,6 +75,7 @@ const SIMPLE_CONTENT_TESTS: [IssueDefinition; 3] = [
         multiline: false,
     },
     IssueDefinition {
+        // TODO: This pattern also catches the `== Additional resources` heading in assemblies. Fix it.
         pattern: r"^={2,}\s+\S+",
         description: "This heading is level-2 or greater. Be conscious of the heading level.",
         severity: IssueSeverity::Warning,
