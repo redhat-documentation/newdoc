@@ -61,10 +61,16 @@ const SIMPLE_TITLE_TESTS: [IssueDefinition; 2] = [
     },
 ];
 
-const SIMPLE_CONTENT_TESTS: [IssueDefinition; 1] = [
+const SIMPLE_CONTENT_TESTS: [IssueDefinition; 2] = [
     IssueDefinition {
         pattern: r"<[[:alpha:]]+>.*</[[:alpha:]]+>",
         description: "The file seems to contain HTML markup",
+        severity: IssueSeverity::Error,
+        multiline: false,
+    },
+    IssueDefinition {
+        pattern: r"(?:xref:\S+\[\]|<<\S+>>|<<\S+,.+>>)",
+        description: "The file contains an unsupported cross-reference.",
         severity: IssueSeverity::Error,
         multiline: false,
     },
