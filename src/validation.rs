@@ -101,9 +101,9 @@ enum IssueSeverity {
 impl fmt::Display for IssueSeverity {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let display = match self {
-            Self::Information => "Information",
-            Self::Warning => "Warning",
-            Self::Error => "Error",
+            Self::Information => "🔷 Information",
+            Self::Warning => "🔶 Warning",
+            Self::Error => "🔴 Error",
         };
         write!(f, "{}", display)
     }
@@ -158,9 +158,9 @@ pub fn validate(file_name: &str) {
 /// Print a human-readable report about the issues found in the file
 fn report_issues(issues: Vec<IssueReport>, file_path: &str) {
     if !issues.is_empty() {
-        println!("File: {}", file_path);
+        println!("💾 File: {}", file_path);
         for issue in issues {
-            println!("  * {}", issue);
+            println!("    {}", issue);
         }
     }
 }
