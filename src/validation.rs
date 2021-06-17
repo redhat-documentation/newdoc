@@ -44,7 +44,7 @@ const SIMPLE_MODULE_TESTS: [IssueDefinition; 1] = [
     },
 ];
 
-const SIMPLE_TITLE_TESTS: [IssueDefinition; 2] =[
+const SIMPLE_TITLE_TESTS: [IssueDefinition; 2] = [
     // Test that there are no inline anchors in the title
     IssueDefinition {
         pattern: r"^=\s+.*\[\[\S+\]\].*",
@@ -56,6 +56,15 @@ const SIMPLE_TITLE_TESTS: [IssueDefinition; 2] =[
     IssueDefinition {
         pattern: r"^=\s+.*\{\S+\}.*",
         description: "The title contains an attribute.",
+        severity: IssueSeverity::Error,
+        multiline: false,
+    },
+];
+
+const SIMPLE_CONTENT_TESTS: [IssueDefinition; 1] = [
+    IssueDefinition {
+        pattern: r"<[[:alpha:]]+>.*</[[:alpha:]]+>",
+        description: "The file seems to contain HTML markup",
         severity: IssueSeverity::Error,
         multiline: false,
     },
@@ -188,6 +197,7 @@ fn test_assemblies(_base_name: &str, content: &str) -> Vec<IssueReport> {
     let mut reports = perform_simple_tests(content, &SIMPLE_ASSEMBLY_TESTS);
 
     reports.append(perform_simple_tests(content, &SIMPLE_TITLE_TESTS).as_mut());
+    reports.append(perform_simple_tests(content, &SIMPLE_CONTENT_TESTS).as_mut());
 
     if let Some(title_level_issue) = check_title_level(content) {
         reports.push(title_level_issue);
@@ -210,6 +220,7 @@ fn test_modules(_base_name: &str, content: &str) -> Vec<IssueReport> {
     let mut reports = perform_simple_tests(content, &SIMPLE_MODULE_TESTS);
     
     reports.append(perform_simple_tests(content, &SIMPLE_TITLE_TESTS).as_mut());
+    reports.append(perform_simple_tests(content, &SIMPLE_CONTENT_TESTS).as_mut());
     
     reports.append(check_metadata_variable(content).as_mut());
     reports.append(check_include_except_snip(content).as_mut());
@@ -430,7 +441,7 @@ fn check_abstract_flag(content: &str) -> Option<IssueReport> {
             severity: IssueSeverity::Error,
         };
 
-        // The next line number is the same as the lien number for the abstract flag,
+        // The next line number is the same as the line number for the abstract flag,
         // becase the number from the abstract flag report starts from 1
         // and this counting starts from 0.
         if let Some(next_line) = content.lines().nth(line_no) {
