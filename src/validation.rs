@@ -165,7 +165,7 @@ fn determine_mod_type(base_name: &str, content: &str) -> Option<ModuleType> {
             }
         }
         error!("`{}`: Cannot determine the module type.", base_name);
-        return None;
+        None
     };
 
     // Run the inner function
@@ -181,7 +181,7 @@ fn determine_mod_type(base_name: &str, content: &str) -> Option<ModuleType> {
 }
 
 /// This function collects all tests that target only assembly files
-fn assembly_tests(base_name: &str, content: &str) -> Vec<IssueReport> {
+fn assembly_tests(_base_name: &str, content: &str) -> Vec<IssueReport> {
     // check_no_nesting(base_name, content);
     // check_supported_leveloffset(base_name, content);
     let mut reports: Vec<IssueReport> = ASSEMBLY_TESTS.iter()
@@ -205,7 +205,7 @@ fn assembly_tests(base_name: &str, content: &str) -> Vec<IssueReport> {
     reports
 }
 
-fn module_tests(base_name: &str, content: &str) -> Vec<IssueReport> {
+fn module_tests(_base_name: &str, content: &str) -> Vec<IssueReport> {
     let mut reports: Vec<IssueReport> = MODULE_TESTS.iter()
         .map(|&definition| check_for_issue(definition, content))
         .flatten()
@@ -302,7 +302,7 @@ fn check_metadata_variable(content: &str) -> Vec<IssueReport> {
         let report = IssueReport {
             line_number: None,
             description: "The module is missing the module type variable.",
-            severity: IssueSeverity::Error,
+            severity: IssueSeverity::Warning,
         };
         results.push(report);
     }
