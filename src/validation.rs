@@ -10,7 +10,7 @@ use regex::{Regex, RegexBuilder};
 
 use crate::module::ModuleType;
 
-const ASSEMBLY_TESTS: [IssueDefinition; 3] = [
+const SIMPLE_ASSEMBLY_TESTS: [IssueDefinition; 3] = [
     // Test that an assembly includes no other assemblies
     IssueDefinition {
         pattern: r"^include::.*assembly[_-].*\.adoc",
@@ -34,7 +34,7 @@ const ASSEMBLY_TESTS: [IssueDefinition; 3] = [
     },
 ];
 
-const MODULE_TESTS: [IssueDefinition; 1] = [
+const SIMPLE_MODULE_TESTS: [IssueDefinition; 1] = [
     // Ensure the correct syntax for Additional resources
     IssueDefinition {
         pattern: r"^==\s*Additional resources",
@@ -44,7 +44,7 @@ const MODULE_TESTS: [IssueDefinition; 1] = [
     },
 ];
 
-const TITLE_TESTS: [IssueDefinition; 2] =[
+const SIMPLE_TITLE_TESTS: [IssueDefinition; 2] =[
     // Test that there are no inline anchors in the title
     IssueDefinition {
         pattern: r"^=\s+.*\[\[\S+\]\].*",
@@ -185,9 +185,9 @@ fn perform_simple_tests(content: &str, tests: &[IssueDefinition]) -> Vec<IssueRe
 fn test_assemblies(_base_name: &str, content: &str) -> Vec<IssueReport> {
     // check_no_nesting(base_name, content);
     // check_supported_leveloffset(base_name, content);
-    let mut reports = perform_simple_tests(content, &ASSEMBLY_TESTS);
+    let mut reports = perform_simple_tests(content, &SIMPLE_ASSEMBLY_TESTS);
 
-    reports.append(perform_simple_tests(content, &TITLE_TESTS).as_mut());
+    reports.append(perform_simple_tests(content, &SIMPLE_TITLE_TESTS).as_mut());
 
     if let Some(title_level_issue) = check_title_level(content) {
         reports.push(title_level_issue);
@@ -201,9 +201,9 @@ fn test_assemblies(_base_name: &str, content: &str) -> Vec<IssueReport> {
 
 /// This function collects all tests that target all module files
 fn test_modules(_base_name: &str, content: &str) -> Vec<IssueReport> {
-    let mut reports = perform_simple_tests(content, &MODULE_TESTS);
+    let mut reports = perform_simple_tests(content, &SIMPLE_MODULE_TESTS);
     
-    reports.append(perform_simple_tests(content, &TITLE_TESTS).as_mut());
+    reports.append(perform_simple_tests(content, &SIMPLE_TITLE_TESTS).as_mut());
     
     reports.append(check_metadata_variable(content).as_mut());
     reports.append(check_include_except_snip(content).as_mut());
@@ -254,7 +254,6 @@ fn check_for_simple_issue(issue: IssueDefinition, content: &str) -> Vec<IssueRep
 
 /// Check that the module type variable is located before the module ID, as required.
 /// As a side effect, this function also checks that both the varible and the ID are present.
-/// TODO: Refactor the ID check separately so that it can also be used for assemblies.
 fn check_metadata_variable(content: &str) -> Vec<IssueReport> {
     let metadata_var_pattern = r":_module-type:\s*(?:PROCEDURE|CONCEPT|REFERENCE)";
     let metadata_var_regex = Regex::new(metadata_var_pattern).unwrap();
@@ -265,15 +264,8 @@ fn check_metadata_variable(content: &str) -> Vec<IssueReport> {
     // Prepare to store the reports about the module
     let mut results: Vec<IssueReport> = Vec::new();
 
-    // Report if any of the two elements is completely missing
-    if mod_id.is_none() {
-        let report = IssueReport {
-            line_number: None,
-            description: "The module is missing an ID.",
-            severity: IssueSeverity::Error,
-        };
-        results.push(report);
-    }
+    // Report if the metadata variable is completely missing.
+    // A missing ID is already reported elsewhere.
     if metadata_var.is_none() {
         let report = IssueReport {
             line_number: None,
@@ -387,7 +379,18 @@ fn find_first_occurrence(content: &str, regex: Regex) -> Option<(usize, &str)> {
 fn check_id_for_attributes(content: &str) -> Option<IssueReport> {
     let attribute_regex = Regex::new(r"\{((?:[[:alnum:]]|[-_])+)\}").unwrap();
 
-    let (line_no, mod_id) = find_mod_id(content)?;
+    let (line_no, mod_id) = match find_mod_id(content) {
+        Some(mod_id) => mod_id,
+        // TODO: Refactor checking for teh presence of ID to a dedicated function;
+        // make other ID-related functions depend on it.
+        None => {
+            return Some(IssueReport {
+                line_number: None,
+                description: "The file is missing an ID.",
+                severity: IssueSeverity::Error,
+            });
+        }
+    };
     let attribute = attribute_regex.captures(mod_id)?;
 
     if attribute.get(1).unwrap().as_str() == "context" {
