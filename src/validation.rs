@@ -198,6 +198,9 @@ fn test_assemblies(_base_name: &str, content: &str) -> Vec<IssueReport> {
     if let Some(abstract_issue) = check_abstract_flag(content) {
         reports.push(abstract_issue);
     }
+    if let Some(experimental_issue) = check_experimental_flag(content) {
+        reports.push(experimental_issue);
+    }
     
     reports
 }
@@ -219,6 +222,9 @@ fn test_modules(_base_name: &str, content: &str) -> Vec<IssueReport> {
     }
     if let Some(abstract_issue) = check_abstract_flag(content) {
         reports.push(abstract_issue);
+    }
+    if let Some(experimental_issue) = check_experimental_flag(content) {
+        reports.push(experimental_issue);
     }
     
     reports
@@ -417,7 +423,7 @@ fn check_abstract_flag(content: &str) -> Option<IssueReport> {
     let abstract_flag = find_first_occurrence(content, abstract_regex);
 
     // If the file contains an abstract flag, test for the following paragraph
-    if let Some((line_no, line)) = abstract_flag {
+    if let Some((line_no, _line)) = abstract_flag {
         let no_paragraph_report = IssueReport {
             line_number: Some(line_no + 1),
             description: "The abstract flag is not followed by a paragraph.",
@@ -447,6 +453,28 @@ fn check_abstract_flag(content: &str) -> Option<IssueReport> {
             description: "The file is missing the abstract flag.",
             severity: IssueSeverity::Error,
         })
+    }
+}
+
+/// Check that if the file uses any UI macros, it also contains the :experimental: attribute
+fn check_experimental_flag(content: &str) -> Option<IssueReport> {
+    let ui_macros_regex = Regex::new(r"(?:btn:\[.+\]|menu:\S+\[.+\]|kbd:\[.+\])").unwrap();
+    let experimental_regex = Regex::new(r"^:experimental:").unwrap();
+
+    if let Some((line_no, _line)) = find_first_occurrence(content, ui_macros_regex) {
+        if let Some(_experimental) = experimental_regex.find(content) {
+            // This is fine. The file has both a UI macro and the experimental attribute.
+            None
+        } else {
+            Some(IssueReport {
+                line_number: Some(line_no),
+                description: "The file uses a UI macro but the `:experimental:` attribute is missing.",
+                severity: IssueSeverity::Error,
+            })
+        }
+    } else {
+        // No UI macro found, means no issue
+        None
     }
 }
 
