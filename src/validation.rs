@@ -258,27 +258,15 @@ fn check_for_simple_issue(issue: IssueDefinition, content: &str) -> Vec<IssueRep
 fn check_metadata_variable(content: &str) -> Vec<IssueReport> {
     let metadata_var_pattern = r":_module-type:\s*(?:PROCEDURE|CONCEPT|REFERENCE)";
     let metadata_var_regex = Regex::new(metadata_var_pattern).unwrap();
-    let mut metadata_var_position = None;
+    let metadata_var = find_first_occurrence(content, metadata_var_regex);
 
-    let mod_id_pattern = r"^\[id=";
-    let mod_id_regex = Regex::new(mod_id_pattern).unwrap();
-    let mut mod_id_position = None;
-
-    // Browse all lines in the module, and if we find any of the two elements, record the line number
-    for (index, line) in content.lines().enumerate() {
-        if let Some(_metadata_var) = metadata_var_regex.find(line) {
-            metadata_var_position = Some(index);
-        }
-        if let Some(_mod_id) = mod_id_regex.find(line) {
-            mod_id_position = Some(index);
-        }
-    }
+    let mod_id = find_mod_id(content);
 
     // Prepare to store the reports about the module
     let mut results: Vec<IssueReport> = Vec::new();
 
     // Report if any of the two elements is completely missing
-    if mod_id_position.is_none() {
+    if mod_id.is_none() {
         let report = IssueReport {
             line_number: None,
             description: "The module is missing an ID.",
@@ -286,7 +274,7 @@ fn check_metadata_variable(content: &str) -> Vec<IssueReport> {
         };
         results.push(report);
     }
-    if metadata_var_position.is_none() {
+    if metadata_var.is_none() {
         let report = IssueReport {
             line_number: None,
             description: "The module is missing the module type variable.",
@@ -296,10 +284,10 @@ fn check_metadata_variable(content: &str) -> Vec<IssueReport> {
     }
 
     // If both elements are present, ensure their proper position in relation to each other
-    if let (Some(mod_id_position), Some(metadata_var_position)) = (mod_id_position, metadata_var_position) {
-        if mod_id_position < metadata_var_position {
+    if let (Some(mod_id), Some(metadata_var)) = (mod_id, metadata_var) {
+        if mod_id.0 < metadata_var.0 {
             let report = IssueReport {
-                line_number: Some(metadata_var_position),
+                line_number: Some(metadata_var.0),
                 description: "The module type variable is located after the module ID.",
                 severity: IssueSeverity::Error,
             };
@@ -374,9 +362,22 @@ fn check_title_level(content: &str) -> Option<IssueReport> {
 fn find_first_heading(content: &str) -> Option<(usize, &str)> {
     let any_heading_regex = Regex::new(r"^(\.|=+\s+)\S+.*").unwrap();
 
+    find_first_occurrence(content, any_heading_regex)
+}
+
+/// Find the first occurence of an ID definition in the file.
+/// Returns the line number of the occurence and the line.
+fn find_mod_id(content: &str) -> Option<(usize, &str)> {
+    let id_regex = Regex::new(r"^\[id=\S+\]").unwrap();
+
+    find_first_occurrence(content, id_regex)
+}
+
+/// Search for a predefined regex in a file. If found, return the line number and the line text.
+fn find_first_occurrence(content: &str, regex: Regex) -> Option<(usize, &str)> {
     for (index, line) in content.lines().enumerate() {
-        if let Some(_heading) = any_heading_regex.find(line) {
-                return Some((index + 1, line));
+        if let Some(_occurrence) = regex.find(line) {
+            return Some((index + 1, line));
         }
     }
     None
@@ -399,19 +400,6 @@ fn check_id_for_attributes(content: &str) -> Option<IssueReport> {
             severity: IssueSeverity::Error,
         })
     }
-}
-
-/// Find the first occurence of an ID definition in the file.
-/// Returns the line number of the occurence and the line.
-fn find_mod_id(content: &str) -> Option<(usize, &str)> {
-    let id_regex = Regex::new(r"^\[id=\S+\]").unwrap();
-
-    for (index, line) in content.lines().enumerate() {
-        if let Some(_id) = id_regex.find(line) {
-            return Some((index + 1, line));
-        }
-    }
-    None
 }
 
 /// The regex crate provides the byte number for matches in a multi-line search.
