@@ -124,13 +124,10 @@ pub fn validate(file_name: &str) {
 
     let mod_type = determine_mod_type(base_name, &content);
 
-    let reports = if mod_type == Some(ModuleType::Assembly) {
-        assembly_tests(base_name, &content)
-    } else if mod_type.is_some() {
-        module_tests(base_name, &content)
-    } else {
-        warn!("Cannot determine module type for {}", file_name);
-        Vec::new()
+    let reports = match mod_type {
+        ModTypeOrReport::Type(ModuleType::Assembly) => assembly_tests(base_name, &content),
+        ModTypeOrReport::Report(r) => vec![r],
+        _ => module_tests(base_name, &content),
     };
 
     report_issues(reports, file_name);
@@ -146,38 +143,34 @@ fn report_issues(issues: Vec<IssueReport>, file_path: &str) {
     }
 }
 
-fn determine_mod_type(base_name: &str, content: &str) -> Option<ModuleType> {
-    // An inner function to encapsulate the logic.
-    // This can't be a simple expression block because the logic involves
-    // stuff like for loops.
-    let inner = || {
-        if base_name.starts_with("assembly_") || base_name.starts_with("assembly-") {
-            return Some(ModuleType::Assembly);
-        }
-        let mod_patterns = [
-            ("con", ":_module-type: CONCEPT", ModuleType::Concept),
-            ("proc", ":_module-type: PROCEDURE", ModuleType::Procedure),
-            ("ref", ":_module-type: REFERENCE", ModuleType::Reference),
-        ];
-        for pattern in mod_patterns.iter() {
-            if base_name.starts_with(pattern.0) || content.contains(pattern.1) {
-                return Some(pattern.2);
-            }
-        }
-        error!("`{}`: Cannot determine the module type.", base_name);
-        None
-    };
+/// This enum contains either the module type determined from a file, or an issue report saying
+/// that the module type could not be determined.
+enum ModTypeOrReport {
+    Type(ModuleType),
+    Report(IssueReport),
+}
 
-    // Run the inner function
-    let mod_type = inner();
-
-    // Report on the value received from the inner function
-    match mod_type {
-        None => { error!("`{}`: Cannot determine the module type.", base_name); },
-        Some(mod_type) => { debug!("`{}`: Module type is {}.", base_name, mod_type); }
+/// Try to determine the module type of a file, using the file name and the file content.
+fn determine_mod_type(base_name: &str, content: &str) -> ModTypeOrReport {
+    if base_name.starts_with("assembly_") || base_name.starts_with("assembly-") {
+        return ModTypeOrReport::Type(ModuleType::Assembly);
     }
-
-    mod_type
+    let mod_patterns = [
+        ("con", ":_module-type: CONCEPT", ModuleType::Concept),
+        ("proc", ":_module-type: PROCEDURE", ModuleType::Procedure),
+        ("ref", ":_module-type: REFERENCE", ModuleType::Reference),
+    ];
+    for pattern in mod_patterns.iter() {
+        if base_name.starts_with(pattern.0) || content.contains(pattern.1) {
+            return ModTypeOrReport::Type(pattern.2);
+        }
+    }
+    let report = IssueReport {
+        line_number: None,
+        description: "Cannot determine the module type.",
+        severity: IssueSeverity::Error,
+    };
+    ModTypeOrReport::Report(report)
 }
 
 /// This function collects all tests that target only assembly files
