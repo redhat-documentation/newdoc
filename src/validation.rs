@@ -195,6 +195,9 @@ fn test_assemblies(_base_name: &str, content: &str) -> Vec<IssueReport> {
     if let Some(id_attribute) = check_id_for_attributes(content) {
         reports.push(id_attribute);
     }
+    if let Some(abstract_issue) = check_abstract_flag(content) {
+        reports.push(abstract_issue);
+    }
     
     reports
 }
@@ -213,6 +216,9 @@ fn test_modules(_base_name: &str, content: &str) -> Vec<IssueReport> {
     }
     if let Some(id_attribute) = check_id_for_attributes(content) {
         reports.push(id_attribute);
+    }
+    if let Some(abstract_issue) = check_abstract_flag(content) {
+        reports.push(abstract_issue);
     }
     
     reports
@@ -377,8 +383,6 @@ fn find_first_occurrence(content: &str, regex: Regex) -> Option<(usize, &str)> {
 
 /// Detect attributes in module IDs. The only allowed attribute is {context}.
 fn check_id_for_attributes(content: &str) -> Option<IssueReport> {
-    let attribute_regex = Regex::new(r"\{((?:[[:alnum:]]|[-_])+)\}").unwrap();
-
     let (line_no, mod_id) = match find_mod_id(content) {
         Some(mod_id) => mod_id,
         // TODO: Refactor checking for teh presence of ID to a dedicated function;
@@ -391,6 +395,8 @@ fn check_id_for_attributes(content: &str) -> Option<IssueReport> {
             });
         }
     };
+
+    let attribute_regex = Regex::new(r"\{((?:[[:alnum:]]|[-_])+)\}").unwrap();
     let attribute = attribute_regex.captures(mod_id)?;
 
     if attribute.get(1).unwrap().as_str() == "context" {
@@ -400,6 +406,45 @@ fn check_id_for_attributes(content: &str) -> Option<IssueReport> {
         Some(IssueReport {
             line_number: Some(line_no),
             description: "The ID includes an attribute.",
+            severity: IssueSeverity::Error,
+        })
+    }
+}
+
+/// Check that the abstract flag exists in the file and that it's followed by a paragraph.
+fn check_abstract_flag(content: &str) -> Option<IssueReport> {
+    let abstract_regex = Regex::new(r#"^\[role="_abstract"\]"#).unwrap();
+    let abstract_flag = find_first_occurrence(content, abstract_regex);
+
+    // If the file contains an abstract flag, test for the following paragraph
+    if let Some((line_no, line)) = abstract_flag {
+        let no_paragraph_report = IssueReport {
+            line_number: Some(line_no + 1),
+            description: "The abstract flag is not followed by a paragraph.",
+            severity: IssueSeverity::Error,
+        };
+
+        // The next line number is the same as the lien number for the abstract flag,
+        // becase the number from the abstract flag report starts from 1
+        // and this counting starts from 0.
+        if let Some(next_line) = content.lines().nth(line_no) {
+            let paragraph_regex = Regex::new(r"^(?:[[:alnum:]]|\{).+").unwrap();
+            // If a line follows the flag but it doesn't appear as a paragraph, report the issue
+            if paragraph_regex.find(next_line).is_none() {
+                debug!("The non-paragraph-line: {:?}", next_line);
+                Some(no_paragraph_report)
+            } else {
+                None
+            }
+        // If no line follows the flag, also report the issue
+        } else {
+            debug!("No lines after the abstract.");
+            Some(no_paragraph_report)
+        }
+    } else {
+        Some(IssueReport {
+            line_number: None,
+            description: "The file is missing the abstract flag.",
             severity: IssueSeverity::Error,
         })
     }
