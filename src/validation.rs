@@ -449,7 +449,7 @@ fn check_abstract_flag(content: &str) -> Option<IssueReport> {
     if let Some((line_no, _line)) = abstract_flag {
         let no_paragraph_report = IssueReport {
             line_number: Some(line_no + 1),
-            description: "The abstract flag is not followed by a paragraph.",
+            description: "The abstract flag is not immediately followed by a paragraph.",
             severity: IssueSeverity::Error,
         };
 
