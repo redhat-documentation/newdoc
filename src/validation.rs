@@ -5,7 +5,7 @@ use std::fmt;
 use std::fs;
 use std::path::Path;
 // use std::process::exit;
-use log::{debug, error, info, warn};
+use log::{debug, error};
 use regex::{Regex, RegexBuilder};
 
 use crate::module::ModuleType;
@@ -125,9 +125,9 @@ pub fn validate(file_name: &str) {
     let mod_type = determine_mod_type(base_name, &content);
 
     let reports = match mod_type {
-        ModTypeOrReport::Type(ModuleType::Assembly) => assembly_tests(base_name, &content),
+        ModTypeOrReport::Type(ModuleType::Assembly) => test_assemblies(base_name, &content),
         ModTypeOrReport::Report(r) => vec![r],
-        _ => module_tests(base_name, &content),
+        _ => test_modules(base_name, &content),
     };
 
     report_issues(reports, file_name);
@@ -173,20 +173,21 @@ fn determine_mod_type(base_name: &str, content: &str) -> ModTypeOrReport {
     ModTypeOrReport::Report(report)
 }
 
+/// Run all tests defined in an array on a file content
+fn perform_simple_tests(content: &str, tests: &[IssueDefinition]) -> Vec<IssueReport> {
+    tests.iter()
+        .map(|&definition| check_for_simple_issue(definition, content))
+        .flatten()
+        .collect()
+}
+
 /// This function collects all tests that target only assembly files
-fn assembly_tests(_base_name: &str, content: &str) -> Vec<IssueReport> {
+fn test_assemblies(_base_name: &str, content: &str) -> Vec<IssueReport> {
     // check_no_nesting(base_name, content);
     // check_supported_leveloffset(base_name, content);
-    let mut reports: Vec<IssueReport> = ASSEMBLY_TESTS.iter()
-        .map(|&definition| check_for_issue(definition, content))
-        .flatten()
-        .collect();
+    let mut reports = perform_simple_tests(content, &ASSEMBLY_TESTS);
 
-    reports.append(TITLE_TESTS.iter()
-        .map(|&definition| check_for_issue(definition, content))
-        .flatten()
-        .collect::<Vec<_>>()
-        .as_mut());
+    reports.append(perform_simple_tests(content, &TITLE_TESTS).as_mut());
 
     if let Some(title_level_issue) = check_title_level(content) {
         reports.push(title_level_issue);
@@ -198,17 +199,11 @@ fn assembly_tests(_base_name: &str, content: &str) -> Vec<IssueReport> {
     reports
 }
 
-fn module_tests(_base_name: &str, content: &str) -> Vec<IssueReport> {
-    let mut reports: Vec<IssueReport> = MODULE_TESTS.iter()
-        .map(|&definition| check_for_issue(definition, content))
-        .flatten()
-        .collect();
+/// This function collects all tests that target all module files
+fn test_modules(_base_name: &str, content: &str) -> Vec<IssueReport> {
+    let mut reports = perform_simple_tests(content, &MODULE_TESTS);
     
-    reports.append(TITLE_TESTS.iter()
-        .map(|&definition| check_for_issue(definition, content))
-        .flatten()
-        .collect::<Vec<_>>()
-        .as_mut());
+    reports.append(perform_simple_tests(content, &TITLE_TESTS).as_mut());
     
     reports.append(check_metadata_variable(content).as_mut());
     reports.append(check_include_except_snip(content).as_mut());
@@ -225,7 +220,7 @@ fn module_tests(_base_name: &str, content: &str) -> Vec<IssueReport> {
 
 /// This function checks a file content for the presence of an issue based on a regex.
 /// These issues are defined using the IssueDefinition struct.
-fn check_for_issue(issue: IssueDefinition, content: &str) -> Vec<IssueReport> {
+fn check_for_simple_issue(issue: IssueDefinition, content: &str) -> Vec<IssueReport> {
     if issue.multiline {
         let regex = RegexBuilder::new(issue.pattern)
             .multi_line(true)
