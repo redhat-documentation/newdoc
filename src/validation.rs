@@ -83,13 +83,26 @@ const SIMPLE_CONTENT_TESTS: [IssueDefinition; 2] = [
     },
 ];
 
-const SIMPLE_ADDITIONAL_RESOURCES_TESTS: [IssueDefinition; 1] = [
+const SIMPLE_ADDITIONAL_RESOURCES_TESTS: [IssueDefinition; 2] = [
     IssueDefinition {
         pattern: r"^(?:==\s+|\.)(?:Additional resources|Related information|Additional information)\s*\n\s*\n",
         description: "The additional resources heading is followed by an empty line.",
         severity: IssueSeverity::Error,
         multiline: true,
-    }
+    },IssueDefinition {
+        // This regular expression tries to catch plain paragraphs after Additional resources.
+        // The challenge is that you can have a plain paragraph after the proper list items, but it's difficult
+        // to distinguish it from other elements that can officially follow, such as ifdefs and context setting.
+        // To simplify, this regex checks only for cases where a plain paragraph follows the additional resources heading
+        // as the first item.
+        // TODO: If the 'plain paragraph' is in fact an ifdef before the first list item, thsi regex reports it.
+        // However, what does Pv2 think about a case like that?
+        // TODO: Probably just rewrite this into a more rigorous, stand-alone function.
+        pattern: r"^(?:==\s+|\.)(?:Additional resources|Related information|Additional information)\s*\n+^(?:[[:alpha:]]|\{)",
+        description: "The additional resources section includes a plain paragraph.",
+        severity: IssueSeverity::Error,
+        multiline: true,
+    },
 ];
 
 #[derive(Clone, Copy, Debug)]
