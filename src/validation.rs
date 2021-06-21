@@ -34,12 +34,18 @@ const SIMPLE_ASSEMBLY_TESTS: [IssueDefinition; 3] = [
     },
 ];
 
-const SIMPLE_MODULE_TESTS: [IssueDefinition; 1] = [
+const SIMPLE_MODULE_TESTS: [IssueDefinition; 2] = [
     // Ensure the correct syntax for Additional resources
     IssueDefinition {
         pattern: r"^==\s*Additional resources",
         description: "In modules, 'Additional resources' must use the dot syntax.",
         severity: IssueSeverity::Error,
+        multiline: false,
+    },
+    IssueDefinition {
+        pattern: r"^={2,}\s+\S.*",
+        description: "This heading is level-2 or greater. Be conscious of the heading level.",
+        severity: IssueSeverity::Warning,
         multiline: false,
     },
 ];
@@ -61,7 +67,7 @@ const SIMPLE_TITLE_TESTS: [IssueDefinition; 2] = [
     },
 ];
 
-const SIMPLE_CONTENT_TESTS: [IssueDefinition; 3] = [
+const SIMPLE_CONTENT_TESTS: [IssueDefinition; 2] = [
     IssueDefinition {
         pattern: r"<[[:alpha:]]+>.*</[[:alpha:]]+>",
         description: "The file seems to contain HTML markup",
@@ -72,13 +78,6 @@ const SIMPLE_CONTENT_TESTS: [IssueDefinition; 3] = [
         pattern: r"(?:xref:\S+\[\]|<<\S+>>|<<\S+,.+>>)",
         description: "The file contains an unsupported cross-reference.",
         severity: IssueSeverity::Error,
-        multiline: false,
-    },
-    IssueDefinition {
-        // TODO: This pattern also catches the `== Additional resources` heading in assemblies. Fix it.
-        pattern: r"^={2,}\s+\S+",
-        description: "This heading is level-2 or greater. Be conscious of the heading level.",
-        severity: IssueSeverity::Warning,
         multiline: false,
     },
 ];
@@ -224,6 +223,8 @@ fn test_assemblies(_base_name: &str, content: &str) -> Vec<IssueReport> {
     if let Some(experimental_issue) = check_experimental_flag(content) {
         reports.push(experimental_issue);
     }
+
+    reports.append(check_headings_in_assembly(content).as_mut());
     
     reports
 }
@@ -500,6 +501,45 @@ fn check_experimental_flag(content: &str) -> Option<IssueReport> {
         // No UI macro found, means no issue
         None
     }
+}
+
+/// Check for numbered headings of level 2 or greater in assemblies.
+/// This is more complicated than the same check in modules because the assembly template
+/// includes two such headings, which should _not_ be reported:
+/// * == Prerequisites
+/// * == Additional resources
+/// In addition, let's also assume that the legacy 'Related information' heading is fine. (TODO: Make sure.)
+fn check_headings_in_assembly(content: &str) -> Vec<IssueReport> {
+    let heading_regex = Regex::new(r"^={2,}\s+\S.*").unwrap();
+    let standard_headings_pattern = r"^==\s+(?:Prerequisites|Additional resources|Related information)";
+    let standard_headings_regex = Regex::new(standard_headings_pattern).unwrap();
+
+    let mut lines_with_heading: Vec<usize> = Vec::new();
+
+    content.lines()
+        .enumerate()
+        .for_each(|(index, line)| {
+            if let Some(_heading) = heading_regex.find(line) {
+                if let Some(_standard_heading) = standard_headings_regex.find(line) {
+                    // This line is a standard heading. No report.
+                } else {
+                    // This is a non-standard heading. Record the line number for a report.
+                    lines_with_heading.push(index + 1);
+                }
+            }
+        });
+    
+    let reports = lines_with_heading.iter()
+        .map(|line_no| {
+            IssueReport {
+                line_number: Some(*line_no),
+                description: "This heading is level-2 or greater. Be conscious of the heading level.",
+                severity: IssueSeverity::Warning,
+            }
+        })
+        .collect();
+
+    reports
 }
 
 /// The regex crate provides the byte number for matches in a multi-line search.
