@@ -108,6 +108,42 @@ impl fmt::Display for IssueSeverity {
     }
 }
 
+impl IssueDefinition {
+    /// This function checks a file content for the presence of an issue based on a regex.
+    /// These issues are defined using the IssueDefinition struct.
+    fn check(self, content: &str) -> Vec<IssueReport> {
+        if self.multiline {
+            let regex = RegexBuilder::new(self.pattern)
+                .multi_line(true)
+                .build()
+                .unwrap();
+            let findings = regex.find_iter(content);
+        
+            findings.map(|finding| {
+                IssueReport {
+                    line_number: line_from_byte_no(content, finding.start()),
+                    description: self.description,
+                    severity: self.severity,
+                }
+            }).collect()
+        } else {
+            let regex = Regex::new(self.pattern).unwrap();
+            let findings = content.lines().enumerate()
+                .map(|(index, line)| (index, regex.find(line)))
+                .filter(|(_index, found)| found.is_some());
+        
+            findings.map(|(index, _finding)| {
+                IssueReport {
+                    // Line numbers start from 1, but the enumeration starts from 0. Add 1 to the index
+                    line_number: Some(index + 1),
+                    description: self.description,
+                    severity: self.severity,
+                }
+            }).collect()
+        }
+    }
+}
+
 #[derive(Debug)]
 struct IssueReport {
     // Not all issues have a line number
@@ -197,7 +233,7 @@ fn determine_mod_type(base_name: &str, content: &str) -> ModTypeOrReport {
 /// Run all tests defined in an array on a file content
 fn perform_simple_tests(content: &str, tests: &[IssueDefinition]) -> Vec<IssueReport> {
     tests.iter()
-        .map(|&definition| check_for_simple_issue(definition, content))
+        .map(|&definition| definition.check(content))
         .flatten()
         .collect()
 }
@@ -254,42 +290,8 @@ fn test_modules(base_name: &str, content: &str) -> Vec<IssueReport> {
     
     // Sort the reported issues by their line number
     reports.sort_by_key(|report| { report.line_number });
-    
-    reports
-}
 
-/// This function checks a file content for the presence of an issue based on a regex.
-/// These issues are defined using the IssueDefinition struct.
-fn check_for_simple_issue(issue: IssueDefinition, content: &str) -> Vec<IssueReport> {
-    if issue.multiline {
-        let regex = RegexBuilder::new(issue.pattern)
-            .multi_line(true)
-            .build()
-            .unwrap();
-        let findings = regex.find_iter(content);
-        
-        findings.map(|finding| {
-            IssueReport {
-                line_number: line_from_byte_no(content, finding.start()),
-                description: issue.description,
-                severity: issue.severity,
-            }
-        }).collect()
-    } else {
-        let regex = Regex::new(issue.pattern).unwrap();
-        let findings = content.lines().enumerate()
-            .map(|(index, line)| (index, regex.find(line)))
-            .filter(|(_index, found)| found.is_some());
-        
-        findings.map(|(index, _finding)| {
-            IssueReport {
-                // Line numbers start from 1, but the enumeration starts from 0. Add 1 to the index
-                line_number: Some(index + 1),
-                description: issue.description,
-                severity: issue.severity,
-            }
-        }).collect()
-    }
+    reports
 }
 
 /// Check that the module type variable is located before the module ID, as required.
