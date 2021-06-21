@@ -202,11 +202,9 @@ fn perform_simple_tests(content: &str, tests: &[IssueDefinition]) -> Vec<IssueRe
         .collect()
 }
 
-/// This function collects all tests that target only assembly files
-fn test_assemblies(_base_name: &str, content: &str) -> Vec<IssueReport> {
-    // check_no_nesting(base_name, content);
-    // check_supported_leveloffset(base_name, content);
-    let mut reports = perform_simple_tests(content, &SIMPLE_ASSEMBLY_TESTS);
+/// This function collects all tests that target both assembly and module files
+fn test_common(_base_name: &str, content: &str) -> Vec<IssueReport> {
+    let mut reports = Vec::new();
 
     reports.append(perform_simple_tests(content, &SIMPLE_TITLE_TESTS).as_mut());
     reports.append(perform_simple_tests(content, &SIMPLE_CONTENT_TESTS).as_mut());
@@ -224,33 +222,32 @@ fn test_assemblies(_base_name: &str, content: &str) -> Vec<IssueReport> {
         reports.push(experimental_issue);
     }
 
+    reports
+}
+
+/// This function collects all tests that target only assembly files
+fn test_assemblies(base_name: &str, content: &str) -> Vec<IssueReport> {
+    // check_no_nesting(base_name, content);
+    // check_supported_leveloffset(base_name, content);
+    let mut reports = Vec::new();
+
+    reports.append(test_common(base_name, content).as_mut());
+
+    reports.append(perform_simple_tests(content, &SIMPLE_ASSEMBLY_TESTS).as_mut());
     reports.append(check_headings_in_assembly(content).as_mut());
     
     reports
 }
 
-/// This function collects all tests that target all module files
-fn test_modules(_base_name: &str, content: &str) -> Vec<IssueReport> {
-    let mut reports = perform_simple_tests(content, &SIMPLE_MODULE_TESTS);
+/// This function collects all tests that target only module files
+fn test_modules(base_name: &str, content: &str) -> Vec<IssueReport> {
+    let mut reports = Vec::new();
+
+    reports.append(test_common(base_name, content).as_mut());
     
-    reports.append(perform_simple_tests(content, &SIMPLE_TITLE_TESTS).as_mut());
-    reports.append(perform_simple_tests(content, &SIMPLE_CONTENT_TESTS).as_mut());
-    
+    reports.append(perform_simple_tests(content, &SIMPLE_MODULE_TESTS).as_mut());
     reports.append(check_metadata_variable(content).as_mut());
     reports.append(check_include_except_snip(content).as_mut());
-
-    if let Some(title_level_issue) = check_title_level(content) {
-        reports.push(title_level_issue);
-    }
-    if let Some(id_attribute) = check_id_for_attributes(content) {
-        reports.push(id_attribute);
-    }
-    if let Some(abstract_issue) = check_abstract_flag(content) {
-        reports.push(abstract_issue);
-    }
-    if let Some(experimental_issue) = check_experimental_flag(content) {
-        reports.push(experimental_issue);
-    }
     
     reports
 }
