@@ -7,6 +7,7 @@ use std::path::Path;
 // use std::process::exit;
 use log::{debug, error};
 use regex::{Regex, RegexBuilder};
+use itertools::Itertools;
 
 use crate::module::ModuleType;
 
@@ -258,6 +259,8 @@ fn test_common(_base_name: &str, content: &str) -> Vec<IssueReport> {
         reports.push(experimental_issue);
     }
 
+    reports.append(check_additional_resources_flag(content).as_mut());
+
     reports
 }
 
@@ -456,7 +459,7 @@ fn check_abstract_flag(content: &str) -> Option<IssueReport> {
     if let Some((line_no, _line)) = abstract_flag {
         let no_paragraph_report = IssueReport {
             line_number: Some(line_no + 1),
-            description: "The abstract flag is not immediately followed by a paragraph.",
+            description: "The _abstract flag is not immediately followed by a paragraph.",
             severity: IssueSeverity::Error,
         };
 
@@ -480,7 +483,7 @@ fn check_abstract_flag(content: &str) -> Option<IssueReport> {
     } else {
         Some(IssueReport {
             line_number: None,
-            description: "The file is missing the abstract flag.",
+            description: "The file is missing the _abstract flag.",
             severity: IssueSeverity::Error,
         })
     }
@@ -545,6 +548,39 @@ fn check_headings_in_assembly(content: &str) -> Vec<IssueReport> {
         .collect();
 
     reports
+}
+
+/// Find all additional resources headings that are missing the additional resources flag,
+/// or the flag is further away than the one preceding line.
+fn check_additional_resources_flag(content: &str) -> Vec<IssueReport> {
+    // This regex matches additional resources in modules, assemblies, and legacy files
+    let add_res_pattern = r"^(?:==\s+|\.)(?:Additional resources|Related information|Additional information)\s*$";
+    let add_res_regex = Regex::new(add_res_pattern).unwrap();
+    // Let's not allow any white space around the flag
+    let add_res_flag = r#"[role="_additional-resources"]"#;
+
+    let add_res_without_flags = content.lines()
+        // The tuple_windows method comes from the itertools crate.
+        // It enables us to browse the lines of the file in pairs.
+        .tuple_windows()
+        // The positions method is essentially an enumeration on the pairs of tuple_windows
+        .positions(|(line, next_line)| {
+            // Record the line number where the first line is _not_ an additional resources flag,
+            // but the second line _is_ an additional resources heading.
+            add_res_regex.find(next_line).is_some() && !(line == add_res_flag)
+        });
+
+    add_res_without_flags
+        .map(|line_no| {
+            IssueReport {
+                // Adding 2 to the line index: 1 because the human-readable line number starts from 1,
+                // and 1 because the originally reported line is the one preceding the heading.
+                line_number: Some(line_no + 2),
+                description: "The additional resources heading is not immediately preceded by the _additional-resources flag.",
+                severity: IssueSeverity::Error,
+            }
+        })
+        .collect()
 }
 
 /// The regex crate provides the byte number for matches in a multi-line search.
