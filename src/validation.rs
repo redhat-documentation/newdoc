@@ -83,6 +83,15 @@ const SIMPLE_CONTENT_TESTS: [IssueDefinition; 2] = [
     },
 ];
 
+const SIMPLE_ADDITIONAL_RESOURCES_TESTS: [IssueDefinition; 1] = [
+    IssueDefinition {
+        pattern: r"^(?:==\s+|\.)(?:Additional resources|Related information|Additional information)\s*\n\s*\n",
+        description: "The additional resources heading is followed by an empty line.",
+        severity: IssueSeverity::Error,
+        multiline: true,
+    }
+];
+
 #[derive(Clone, Copy, Debug)]
 struct IssueDefinition {
     pattern: &'static str,
@@ -245,6 +254,7 @@ fn test_common(_base_name: &str, content: &str) -> Vec<IssueReport> {
 
     reports.append(perform_simple_tests(content, &SIMPLE_TITLE_TESTS).as_mut());
     reports.append(perform_simple_tests(content, &SIMPLE_CONTENT_TESTS).as_mut());
+    reports.append(perform_simple_tests(content, &SIMPLE_ADDITIONAL_RESOURCES_TESTS).as_mut());
 
     if let Some(title_level_issue) = check_title_level(content) {
         reports.push(title_level_issue);
