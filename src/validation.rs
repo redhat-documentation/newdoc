@@ -236,6 +236,9 @@ fn test_assemblies(base_name: &str, content: &str) -> Vec<IssueReport> {
     reports.append(perform_simple_tests(content, &SIMPLE_ASSEMBLY_TESTS).as_mut());
     reports.append(check_headings_in_assembly(content).as_mut());
     
+    // Sort the reported issues by their line number
+    reports.sort_by_key(|report| { report.line_number });
+
     reports
 }
 
@@ -248,6 +251,9 @@ fn test_modules(base_name: &str, content: &str) -> Vec<IssueReport> {
     reports.append(perform_simple_tests(content, &SIMPLE_MODULE_TESTS).as_mut());
     reports.append(check_metadata_variable(content).as_mut());
     reports.append(check_include_except_snip(content).as_mut());
+    
+    // Sort the reported issues by their line number
+    reports.sort_by_key(|report| { report.line_number });
     
     reports
 }
