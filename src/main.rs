@@ -4,8 +4,8 @@ mod cmd_line;
 mod logging;
 mod module;
 mod templating;
-mod write;
 mod validation;
+mod write;
 
 use module::{Input, Module, ModuleType};
 

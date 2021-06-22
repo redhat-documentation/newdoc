@@ -1,5 +1,4 @@
 /// This module defines the `Module` struct, its builder struct, and methods on both structs.
-
 use log::debug;
 use std::fmt;
 use std::path::{Path, PathBuf};

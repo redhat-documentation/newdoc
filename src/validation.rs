@@ -1,13 +1,12 @@
 /// This module provides functionality to validate (lint) existing module and assembly files,
 /// to check if the files meet the template structure and other requirements.
-
 use std::fmt;
 use std::fs;
 use std::path::Path;
 // use std::process::exit;
+use itertools::Itertools;
 use log::{debug, error};
 use regex::{Regex, RegexBuilder};
-use itertools::Itertools;
 
 use crate::module::ModuleType;
 
@@ -89,7 +88,8 @@ const SIMPLE_ADDITIONAL_RESOURCES_TESTS: [IssueDefinition; 2] = [
         description: "The additional resources heading is followed by an empty line.",
         severity: IssueSeverity::Error,
         multiline: true,
-    },IssueDefinition {
+    },
+    IssueDefinition {
         // This regular expression tries to catch plain paragraphs after Additional resources.
         // The challenge is that you can have a plain paragraph after the proper list items, but it's difficult
         // to distinguish it from other elements that can officially follow, such as ifdefs and context setting.
@@ -141,28 +141,32 @@ impl IssueDefinition {
                 .build()
                 .unwrap();
             let findings = regex.find_iter(content);
-        
-            findings.map(|finding| {
-                IssueReport {
+
+            findings
+                .map(|finding| IssueReport {
                     line_number: line_from_byte_no(content, finding.start()),
                     description: self.description,
                     severity: self.severity,
-                }
-            }).collect()
+                })
+                .collect()
         } else {
             let regex = Regex::new(self.pattern).unwrap();
-            let findings = content.lines().enumerate()
+            let findings = content
+                .lines()
+                .enumerate()
                 .map(|(index, line)| (index, regex.find(line)))
                 .filter(|(_index, found)| found.is_some());
-        
-            findings.map(|(index, _finding)| {
-                IssueReport {
-                    // Line numbers start from 1, but the enumeration starts from 0. Add 1 to the index
-                    line_number: Some(index + 1),
-                    description: self.description,
-                    severity: self.severity,
-                }
-            }).collect()
+
+            findings
+                .map(|(index, _finding)| {
+                    IssueReport {
+                        // Line numbers start from 1, but the enumeration starts from 0. Add 1 to the index
+                        line_number: Some(index + 1),
+                        description: self.description,
+                        severity: self.severity,
+                    }
+                })
+                .collect()
         }
     }
 }
@@ -255,7 +259,8 @@ fn determine_mod_type(base_name: &str, content: &str) -> ModTypeOrReport {
 
 /// Run all tests defined in an array on a file content
 fn perform_simple_tests(content: &str, tests: &[IssueDefinition]) -> Vec<IssueReport> {
-    tests.iter()
+    tests
+        .iter()
         .map(|&definition| definition.check(content))
         .flatten()
         .collect()
@@ -297,9 +302,9 @@ fn test_assemblies(base_name: &str, content: &str) -> Vec<IssueReport> {
 
     reports.append(perform_simple_tests(content, &SIMPLE_ASSEMBLY_TESTS).as_mut());
     reports.append(check_headings_in_assembly(content).as_mut());
-    
+
     // Sort the reported issues by their line number
-    reports.sort_by_key(|report| { report.line_number });
+    reports.sort_by_key(|report| report.line_number);
 
     reports
 }
@@ -309,13 +314,13 @@ fn test_modules(base_name: &str, content: &str) -> Vec<IssueReport> {
     let mut reports = Vec::new();
 
     reports.append(test_common(base_name, content).as_mut());
-    
+
     reports.append(perform_simple_tests(content, &SIMPLE_MODULE_TESTS).as_mut());
     reports.append(check_metadata_variable(content).as_mut());
     reports.append(check_include_except_snip(content).as_mut());
-    
+
     // Sort the reported issues by their line number
-    reports.sort_by_key(|report| { report.line_number });
+    reports.sort_by_key(|report| report.line_number);
 
     reports
 }
@@ -381,7 +386,8 @@ fn check_include_except_snip(content: &str) -> Vec<IssueReport> {
             } else {
                 let report = IssueReport {
                     line_number: Some(index + 1),
-                    description: "This module includes a file that does not appear to be a snippet.",
+                    description:
+                        "This module includes a file that does not appear to be a snippet.",
                     severity: IssueSeverity::Error,
                 };
                 reports.push(report);
@@ -524,7 +530,8 @@ fn check_experimental_flag(content: &str) -> Option<IssueReport> {
         } else {
             Some(IssueReport {
                 line_number: Some(line_no),
-                description: "The file uses a UI macro but the `:experimental:` attribute is missing.",
+                description:
+                    "The file uses a UI macro but the `:experimental:` attribute is missing.",
                 severity: IssueSeverity::Error,
             })
         }
@@ -542,31 +549,29 @@ fn check_experimental_flag(content: &str) -> Option<IssueReport> {
 /// In addition, let's also assume that the legacy 'Related information' heading is fine. (TODO: Make sure.)
 fn check_headings_in_assembly(content: &str) -> Vec<IssueReport> {
     let heading_regex = Regex::new(r"^={2,}\s+\S.*").unwrap();
-    let standard_headings_pattern = r"^==\s+(?:Prerequisites|Additional resources|Related information)";
+    let standard_headings_pattern =
+        r"^==\s+(?:Prerequisites|Additional resources|Related information)";
     let standard_headings_regex = Regex::new(standard_headings_pattern).unwrap();
 
     let mut lines_with_heading: Vec<usize> = Vec::new();
 
-    content.lines()
-        .enumerate()
-        .for_each(|(index, line)| {
-            if let Some(_heading) = heading_regex.find(line) {
-                if let Some(_standard_heading) = standard_headings_regex.find(line) {
-                    // This line is a standard heading. No report.
-                } else {
-                    // This is a non-standard heading. Record the line number for a report.
-                    lines_with_heading.push(index + 1);
-                }
+    content.lines().enumerate().for_each(|(index, line)| {
+        if let Some(_heading) = heading_regex.find(line) {
+            if let Some(_standard_heading) = standard_headings_regex.find(line) {
+                // This line is a standard heading. No report.
+            } else {
+                // This is a non-standard heading. Record the line number for a report.
+                lines_with_heading.push(index + 1);
             }
-        });
-    
-    let reports = lines_with_heading.iter()
-        .map(|line_no| {
-            IssueReport {
-                line_number: Some(*line_no),
-                description: "This heading is level-2 or greater. Be conscious of the heading level.",
-                severity: IssueSeverity::Warning,
-            }
+        }
+    });
+
+    let reports = lines_with_heading
+        .iter()
+        .map(|line_no| IssueReport {
+            line_number: Some(*line_no),
+            description: "This heading is level-2 or greater. Be conscious of the heading level.",
+            severity: IssueSeverity::Warning,
         })
         .collect();
 
@@ -577,12 +582,14 @@ fn check_headings_in_assembly(content: &str) -> Vec<IssueReport> {
 /// or the flag is further away than the one preceding line.
 fn check_additional_resources_flag(content: &str) -> Vec<IssueReport> {
     // This regex matches additional resources in modules, assemblies, and legacy files
-    let add_res_pattern = r"^(?:==\s+|\.)(?:Additional resources|Related information|Additional information)\s*$";
+    let add_res_pattern =
+        r"^(?:==\s+|\.)(?:Additional resources|Related information|Additional information)\s*$";
     let add_res_regex = Regex::new(add_res_pattern).unwrap();
     // Let's not allow any white space around the flag
     let add_res_flag = r#"[role="_additional-resources"]"#;
 
-    let add_res_without_flags = content.lines()
+    let add_res_without_flags = content
+        .lines()
         // The tuple_windows method comes from the itertools crate.
         // It enables us to browse the lines of the file in pairs.
         .tuple_windows()
@@ -590,7 +597,7 @@ fn check_additional_resources_flag(content: &str) -> Vec<IssueReport> {
         .positions(|(line, next_line)| {
             // Record the line number where the first line is _not_ an additional resources flag,
             // but the second line _is_ an additional resources heading.
-            add_res_regex.find(next_line).is_some() && !(line == add_res_flag)
+            add_res_regex.find(next_line).is_some() && line != add_res_flag
         });
 
     add_res_without_flags
