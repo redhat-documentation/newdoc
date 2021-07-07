@@ -521,6 +521,8 @@ fn check_abstract_flag(content: &str) -> Option<IssueReport> {
 /// Check that if the file uses any UI macros, it also contains the :experimental: attribute
 fn check_experimental_flag(content: &str) -> Option<IssueReport> {
     let ui_macros_regex = Regex::new(r"(?:btn:\[.+\]|menu:\S+\[.+\]|kbd:\[.+\])").unwrap();
+    // TODO: This regex searches through the whole text file, so the ^ symbol means the start of the file,
+    // not the start of a line as intended. fix this.
     let experimental_regex = Regex::new(r"^:experimental:").unwrap();
 
     if let Some((line_no, _line)) = find_first_occurrence(content, ui_macros_regex) {
