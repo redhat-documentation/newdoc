@@ -496,6 +496,9 @@ fn check_abstract_flag(content: &str) -> Option<IssueReport> {
         // becase the number from the abstract flag report starts from 1
         // and this counting starts from 0.
         if let Some(next_line) = content.lines().nth(line_no) {
+            // TODO: This regex isn't inclusive enough for a paragraph. Consider that a paragraph
+            // can also start with a role, such as:
+            // ⁠[systemitem]`firewalld` can be used to (...)
             let paragraph_regex = Regex::new(r"^(?:[[:alnum:]]|\{).+").unwrap();
             // If a line follows the flag but it doesn't appear as a paragraph, report the issue
             if paragraph_regex.find(next_line).is_none() {
