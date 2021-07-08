@@ -559,6 +559,7 @@ fn check_additional_resources(content: &str) -> Vec<IssueReport> {
         }
         issues.append(check_paragraphs_in_add_res(&lines, index_from_0).as_mut());
         issues.append(check_link_labels_in_add_res(&lines, index_from_0).as_mut());
+        issues.append(check_additional_resource_length(&lines, index_from_0).as_mut());
     }
 
     issues
@@ -639,6 +640,38 @@ fn check_link_labels_in_add_res(lines: &Vec<&str>, heading_index: usize) -> Vec<
                 description: "The additional resources section includes a link without a label.",
                 severity: IssueSeverity::Error,
             });
+        }
+    }
+
+    issues
+}
+
+/// Check that the items in the additional resources section aren't too long, measured in words.
+fn check_additional_resource_length(lines: &Vec<&str>, heading_index: usize) -> Vec<IssueReport> {
+    // This regex features capture groups to extract the content of the list item.
+    let bullet_point_regex = Regex::new(r"^(?:\*+\s+(\S+.*)|ifdef::\S+\[\*+\s+(\S+.*)\])").unwrap();
+    // This is the number of words you need to write:
+    // * The `program(1)` man page
+    // Let's use that as the approximate upper limit.
+    let maximum_words = 4;
+
+    let mut issues = Vec::new();
+
+    for (offset, &line) in lines[heading_index + 1..].iter().enumerate() {
+        if let Some(captures) = bullet_point_regex.captures(line) {
+            let list_item_text = captures.get(1).expect("Failed to extract text from a list item. This is a bug.");
+            // Counting words by splitting by white space is a crude measurement, but it should be
+            // close enough. The important thing is that it doesn't count long links as many words.
+            let number_of_words = list_item_text.as_str().split_whitespace().count();
+            debug!("Words in additional resources: {}", number_of_words);
+
+            if number_of_words > maximum_words {
+                issues.push(IssueReport {
+                    line_number: Some(heading_index + offset + 2),
+                    description: "The additional resource is long. Try to limit it to a couple of words.",
+                    severity: IssueSeverity::Warning,
+                });
+            }
         }
     }
 
