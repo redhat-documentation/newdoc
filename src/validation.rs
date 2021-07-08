@@ -95,7 +95,7 @@ const SIMPLE_ADDITIONAL_RESOURCES_TESTS: [IssueDefinition; 2] = [
         // to distinguish it from other elements that can officially follow, such as ifdefs and context setting.
         // To simplify, this regex checks only for cases where a plain paragraph follows the additional resources heading
         // as the first item.
-        // TODO: If the 'plain paragraph' is in fact an ifdef before the first list item, thsi regex reports it.
+        // TODO: If the 'plain paragraph' is in fact an ifdef before the first list item, this regex reports it.
         // However, what does Pv2 think about a case like that?
         // TODO: Probably just rewrite this into a more rigorous, stand-alone function.
         pattern: r"^(?:==\s+|\.)(?:Additional resources|Related information|Additional information)\s*\n+^(?:[[:alpha:]]|\{)",
@@ -453,7 +453,7 @@ fn find_first_occurrence(content: &str, regex: Regex) -> Option<(usize, &str)> {
 fn check_id_for_attributes(content: &str) -> Option<IssueReport> {
     let (line_no, mod_id) = match find_mod_id(content) {
         Some(mod_id) => mod_id,
-        // TODO: Refactor checking for teh presence of ID to a dedicated function;
+        // TODO: Refactor checking for the presence of ID to a dedicated function;
         // make other ID-related functions depend on it.
         None => {
             return Some(IssueReport {
@@ -526,7 +526,10 @@ fn check_experimental_flag(content: &str) -> Option<IssueReport> {
     let ui_macros_regex = Regex::new(r"(?:btn:\[.+\]|menu:\S+\[.+\]|kbd:\[.+\])").unwrap();
     // TODO: This regex searches through the whole text file, so the ^ symbol means the start of the file,
     // not the start of a line as intended. fix this.
-    let experimental_regex = Regex::new(r"^:experimental:").unwrap();
+    let experimental_regex = RegexBuilder::new(r"^:experimental:")
+        .multi_line(true)
+        .build()
+        .unwrap();
 
     if let Some((line_no, _line)) = find_first_occurrence(content, ui_macros_regex) {
         if let Some(_experimental) = experimental_regex.find(content) {
