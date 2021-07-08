@@ -3,8 +3,6 @@
 use std::fmt;
 use std::fs;
 use std::path::Path;
-// use std::process::exit;
-use itertools::Itertools;
 use log::{debug, error};
 use regex::{Regex, RegexBuilder};
 
@@ -27,7 +25,7 @@ const SIMPLE_ASSEMBLY_TESTS: [IssueDefinition; 3] = [
     },
     // Ensure the correct syntax for Additional resources
     IssueDefinition {
-        pattern: r"^\.Additional resources",
+        pattern: r"^\.Additional resources\s*$",
         description: "In assemblies, 'Additional resources' must use the == syntax.",
         severity: IssueSeverity::Error,
         multiline: false,
@@ -37,7 +35,7 @@ const SIMPLE_ASSEMBLY_TESTS: [IssueDefinition; 3] = [
 const SIMPLE_MODULE_TESTS: [IssueDefinition; 2] = [
     // Ensure the correct syntax for Additional resources
     IssueDefinition {
-        pattern: r"^==\s*Additional resources",
+        pattern: r"^==\s*Additional resources\s*$",
         description: "In modules, 'Additional resources' must use the dot syntax.",
         severity: IssueSeverity::Error,
         multiline: false,
@@ -287,7 +285,7 @@ fn test_common(_base_name: &str, content: &str) -> Vec<IssueReport> {
         reports.push(experimental_issue);
     }
 
-    reports.append(check_additional_resources_flag(content).as_mut());
+    reports.append(check_additional_resources(content).as_mut());
 
     reports
 }
@@ -421,32 +419,6 @@ fn check_title_level(content: &str) -> Option<IssueReport> {
             severity: IssueSeverity::Error,
         })
     }
-}
-
-/// Find the first occurence of any heading in the file.
-/// Returns the line number of the occurence and the line.
-fn find_first_heading(content: &str) -> Option<(usize, &str)> {
-    let any_heading_regex = Regex::new(r"^(\.|=+\s+)\S+.*").unwrap();
-
-    find_first_occurrence(content, any_heading_regex)
-}
-
-/// Find the first occurence of an ID definition in the file.
-/// Returns the line number of the occurence and the line.
-fn find_mod_id(content: &str) -> Option<(usize, &str)> {
-    let id_regex = Regex::new(r"^\[id=\S+\]").unwrap();
-
-    find_first_occurrence(content, id_regex)
-}
-
-/// Search for a predefined regex in a file. If found, return the line number and the line text.
-fn find_first_occurrence(content: &str, regex: Regex) -> Option<(usize, &str)> {
-    for (index, line) in content.lines().enumerate() {
-        if let Some(_occurrence) = regex.find(line) {
-            return Some((index + 1, line));
-        }
-    }
-    None
 }
 
 /// Detect attributes in module IDs. The only allowed attribute is {context}.
@@ -586,39 +558,73 @@ fn check_headings_in_assembly(content: &str) -> Vec<IssueReport> {
     reports
 }
 
-/// Find all additional resources headings that are missing the additional resources flag,
+/// Parform all available tests on the Additional resources section
+fn check_additional_resources(content: &str) -> Vec<IssueReport> {
+    let heading = find_additional_resources(content);
+    let mut issues = Vec::new();
+
+    if let Some((index, _line)) = heading {
+        let lines: Vec<&str> = content.lines().collect();
+        let index_from_0 = index - 1;
+
+        if let Some(issue) = check_add_res_flag(lines, index_from_0) {
+            issues.push(issue);
+        }
+    }
+
+    issues
+}
+
+/// See if the additional resources heading is missing the additional resources flag,
 /// or the flag is further away than the one preceding line.
-fn check_additional_resources_flag(content: &str) -> Vec<IssueReport> {
-    // This regex matches additional resources in modules, assemblies, and legacy files
-    let add_res_pattern =
-        r"^(?:==\s+|\.)(?:Additional resources|Related information|Additional information)\s*$";
-    let add_res_regex = Regex::new(add_res_pattern).unwrap();
-    // Let's not allow any white space around the flag
+fn check_add_res_flag(lines: Vec<&str>, heading_index: usize) -> Option<IssueReport> {
     let add_res_flag = r#"[role="_additional-resources"]"#;
 
-    let add_res_without_flags = content
-        .lines()
-        // The tuple_windows method comes from the itertools crate.
-        // It enables us to browse the lines of the file in pairs.
-        .tuple_windows()
-        // The positions method is essentially an enumeration on the pairs of tuple_windows
-        .positions(|(line, next_line)| {
-            // Record the line number where the first line is _not_ an additional resources flag,
-            // but the second line _is_ an additional resources heading.
-            add_res_regex.find(next_line).is_some() && line != add_res_flag
-        });
-
-    add_res_without_flags
-        .map(|line_no| {
-            IssueReport {
-                // Adding 2 to the line index: 1 because the human-readable line number starts from 1,
-                // and 1 because the originally reported line is the one preceding the heading.
-                line_number: Some(line_no + 2),
-                description: "The additional resources heading is not immediately preceded by the _additional-resources flag.",
-                severity: IssueSeverity::Error,
-            }
+    if lines[heading_index - 1] == add_res_flag {
+        None
+    } else {
+        Some(IssueReport {
+            line_number: Some(heading_index + 1),
+            description: "The additional resources heading is not immediately preceded by the _additional-resources flag.",
+            severity: IssueSeverity::Error,
         })
-        .collect()
+    }
+}
+
+/// Find the first occurence of any heading in the file.
+/// Returns the line number of the occurence and the line.
+fn find_first_heading(content: &str) -> Option<(usize, &str)> {
+    let any_heading_regex = Regex::new(r"^(\.|=+\s+)\S+.*").unwrap();
+
+    find_first_occurrence(content, any_heading_regex)
+}
+
+/// Find the first occurence of an ID definition in the file.
+/// Returns the line number of the occurence and the line.
+fn find_mod_id(content: &str) -> Option<(usize, &str)> {
+    let id_regex = Regex::new(r"^\[id=\S+\]").unwrap();
+
+    find_first_occurrence(content, id_regex)
+}
+
+/// Find the first heading that matches additional resources.
+/// This does not distinguish between the module and assembly format -- the simple tests check that.
+fn find_additional_resources(content: &str) -> Option<(usize, &str)> {
+    let add_res_regex = Regex::new(
+        r"^(?:==\s+|\.)(?:Additional resources|Related information|Additional information)\s*$")
+            .unwrap();
+    
+        find_first_occurrence(content, add_res_regex)
+}
+
+/// Search for a predefined regex in a file. If found, return the line number and the line text.
+fn find_first_occurrence(content: &str, regex: Regex) -> Option<(usize, &str)> {
+    for (index, line) in content.lines().enumerate() {
+        if let Some(_occurrence) = regex.find(line) {
+            return Some((index + 1, line));
+        }
+    }
+    None
 }
 
 /// The regex crate provides the byte number for matches in a multi-line search.
