@@ -80,27 +80,8 @@ const SIMPLE_CONTENT_TESTS: [IssueDefinition; 2] = [
     },
 ];
 
-const SIMPLE_ADDITIONAL_RESOURCES_TESTS: [IssueDefinition; 2] = [
-    IssueDefinition {
-        pattern: r"^(?:==\s+|\.)(?:Additional resources|Related information|Additional information)\s*\n\s*\n",
-        description: "The additional resources heading is followed by an empty line.",
-        severity: IssueSeverity::Error,
-        multiline: true,
-    },
-    IssueDefinition {
-        // This regular expression tries to catch plain paragraphs after Additional resources.
-        // The challenge is that you can have a plain paragraph after the proper list items, but it's difficult
-        // to distinguish it from other elements that can officially follow, such as ifdefs and context setting.
-        // To simplify, this regex checks only for cases where a plain paragraph follows the additional resources heading
-        // as the first item.
-        // TODO: If the 'plain paragraph' is in fact an ifdef before the first list item, this regex reports it.
-        // However, what does Pv2 think about a case like that?
-        // TODO: Probably just rewrite this into a more rigorous, stand-alone function.
-        pattern: r"^(?:==\s+|\.)(?:Additional resources|Related information|Additional information)\s*\n+^(?:[[:alpha:]]|\{)",
-        description: "The additional resources section includes a plain paragraph.",
-        severity: IssueSeverity::Error,
-        multiline: true,
-    },
+const SIMPLE_ADDITIONAL_RESOURCES_TESTS: [IssueDefinition; 0] = [
+    // No simple tests at this point.
 ];
 
 #[derive(Clone, Copy, Debug)]
@@ -567,9 +548,10 @@ fn check_additional_resources(content: &str) -> Vec<IssueReport> {
         let lines: Vec<&str> = content.lines().collect();
         let index_from_0 = index - 1;
 
-        if let Some(issue) = check_add_res_flag(lines, index_from_0) {
+        if let Some(issue) = check_add_res_flag(&lines, index_from_0) {
             issues.push(issue);
         }
+        issues.append(check_paragraphs_in_add_res(&lines, index_from_0).as_mut());
     }
 
     issues
@@ -577,7 +559,7 @@ fn check_additional_resources(content: &str) -> Vec<IssueReport> {
 
 /// See if the additional resources heading is missing the additional resources flag,
 /// or the flag is further away than the one preceding line.
-fn check_add_res_flag(lines: Vec<&str>, heading_index: usize) -> Option<IssueReport> {
+fn check_add_res_flag(lines: &Vec<&str>, heading_index: usize) -> Option<IssueReport> {
     let add_res_flag = r#"[role="_additional-resources"]"#;
 
     if lines[heading_index - 1] == add_res_flag {
@@ -589,6 +571,44 @@ fn check_add_res_flag(lines: Vec<&str>, heading_index: usize) -> Option<IssueRep
             severity: IssueSeverity::Error,
         })
     }
+}
+
+/// Check that the additional resources section is composed of list items, possibly with some ifdefs.
+fn check_paragraphs_in_add_res(lines: &Vec<&str>, heading_index: usize) -> Vec<IssueReport> {
+    // This regex matches either a plain list item, or one that's embedded in an inline ifdef.
+    let bullet_point_regex = Regex::new(r"(?:^\*+\s+\S+|^ifdef::\S+\[\*+\s+\S+.*\])").unwrap();
+    // A paragraph that isn't a list item is allowed if it's an ifdef or a comment.
+    let allowed_paragraph = Regex::new(r"^(?:ifdef::\S+\[.*]|endif::\[\]|//)").unwrap();
+    // Let's try to use a loose definition of an empty paragraph as a whitespace paragraph.
+    let empty_line_regex = Regex::new(r"^\s*$").unwrap();
+
+    let mut issues = Vec::new();
+
+    for (offset, &line) in lines[heading_index + 1..].iter().enumerate() {
+        if bullet_point_regex.is_match(line) {
+            return issues;
+        } else if empty_line_regex.is_match(line) {
+            issues.push(IssueReport {
+                line_number: Some(heading_index + offset + 2),
+                description: "The additional resources section includes an empty line.",
+                severity: IssueSeverity::Error,
+            });
+        } else if !allowed_paragraph.is_match(line) {
+            issues.push(IssueReport {
+                line_number: Some(heading_index + offset + 2),
+                description: "The additional resources section includes a plain paragraph.",
+                severity: IssueSeverity::Error,
+            });
+        }
+    }
+
+    issues.push(IssueReport {
+        line_number: Some(heading_index + 1),
+        description: "The additional resources section includes no items.",
+        severity: IssueSeverity::Error,
+    });
+
+    issues
 }
 
 /// Find the first occurence of any heading in the file.
