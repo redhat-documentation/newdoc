@@ -558,6 +558,7 @@ fn check_additional_resources(content: &str) -> Vec<IssueReport> {
             issues.push(issue);
         }
         issues.append(check_paragraphs_in_add_res(&lines, index_from_0).as_mut());
+        issues.append(check_link_labels_in_add_res(&lines, index_from_0).as_mut());
     }
 
     issues
@@ -617,9 +618,29 @@ fn check_paragraphs_in_add_res(lines: &Vec<&str>, heading_index: usize) -> Vec<I
     // If no list items have appeared until the end of the file, report that as the final issue.
     issues.push(IssueReport {
         line_number: Some(heading_index + 1),
-        description: "The additional resources section includes no items.",
+        description: "The additional resources section includes no list items.",
         severity: IssueSeverity::Error,
     });
+
+    issues
+}
+
+/// Detect links with no labels after a certain point in the file,
+/// specifically after the additional resources heading.
+fn check_link_labels_in_add_res(lines: &Vec<&str>, heading_index: usize) -> Vec<IssueReport> {
+    let link_regex = Regex::new(r"link:\S+\[]").unwrap();
+
+    let mut issues = Vec::new();
+
+    for (offset, &line) in lines[heading_index + 1..].iter().enumerate() {
+        if link_regex.is_match(line) {
+            issues.push(IssueReport {
+                line_number: Some(heading_index + offset + 2),
+                description: "The additional resources section includes a link without a label.",
+                severity: IssueSeverity::Error,
+            });
+        }
+    }
 
     issues
 }
