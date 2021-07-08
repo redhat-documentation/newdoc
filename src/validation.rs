@@ -544,10 +544,16 @@ fn check_additional_resources(content: &str) -> Vec<IssueReport> {
     let heading = find_additional_resources(content);
     let mut issues = Vec::new();
 
+    // Perform the tests only if the file actually has an additional resources heading.
+    // If it doesn't, skip the tests.
     if let Some((index, _line)) = heading {
+        // Prepare the lines vector in advance so that the following functions
+        // don't have to split the files again on their own.
         let lines: Vec<&str> = content.lines().collect();
+        // Translate the human-readable index to a 0-based index.
         let index_from_0 = index - 1;
 
+        // Collect the issues found by the particular functions.
         if let Some(issue) = check_add_res_flag(&lines, index_from_0) {
             issues.push(issue);
         }
@@ -562,8 +568,10 @@ fn check_additional_resources(content: &str) -> Vec<IssueReport> {
 fn check_add_res_flag(lines: &Vec<&str>, heading_index: usize) -> Option<IssueReport> {
     let add_res_flag = r#"[role="_additional-resources"]"#;
 
+    // If the line before the heading is the required flag, report no issue.
     if lines[heading_index - 1] == add_res_flag {
         None
+    // If the preceding line is anything else than the flag, report the missing flag.
     } else {
         Some(IssueReport {
             line_number: Some(heading_index + 1),
@@ -585,14 +593,18 @@ fn check_paragraphs_in_add_res(lines: &Vec<&str>, heading_index: usize) -> Vec<I
     let mut issues = Vec::new();
 
     for (offset, &line) in lines[heading_index + 1..].iter().enumerate() {
+        // If we find the first real list item, let's consider this a valid additional resources
+        // section and return the issues up to this point.
         if bullet_point_regex.is_match(line) {
             return issues;
+        // Report empty lines found before the first list item.
         } else if empty_line_regex.is_match(line) {
             issues.push(IssueReport {
                 line_number: Some(heading_index + offset + 2),
                 description: "The additional resources section includes an empty line.",
                 severity: IssueSeverity::Error,
             });
+        // Report unallowed paragraphs before the first list item.
         } else if !allowed_paragraph.is_match(line) {
             issues.push(IssueReport {
                 line_number: Some(heading_index + offset + 2),
@@ -602,6 +614,7 @@ fn check_paragraphs_in_add_res(lines: &Vec<&str>, heading_index: usize) -> Vec<I
         }
     }
 
+    // If no list items have appeared until the end of the file, report that as the final issue.
     issues.push(IssueReport {
         line_number: Some(heading_index + 1),
         description: "The additional resources section includes no items.",
