@@ -496,10 +496,12 @@ fn check_abstract_flag(content: &str) -> Option<IssueReport> {
         // becase the number from the abstract flag report starts from 1
         // and this counting starts from 0.
         if let Some(next_line) = content.lines().nth(line_no) {
-            // TODO: This regex isn't inclusive enough for a paragraph. Consider that a paragraph
-            // can also start with a role, such as:
+            // This regex is very inclusive for a 'paragraph', but that's intentional.
+            // Consider that a paragraph can also start with an attribute, or with a role, such as:
             // ⁠[systemitem]`firewalld` can be used to (...)
-            let paragraph_regex = Regex::new(r"^(?:[[:alnum:]]|\{).+").unwrap();
+            // Let's just check that the line starts with a non-whitespace character
+            // and that a letter appears at least somewhere.
+            let paragraph_regex = Regex::new(r"^\S+[[:alpha:]].*").unwrap();
             // If a line follows the flag but it doesn't appear as a paragraph, report the issue
             if paragraph_regex.find(next_line).is_none() {
                 debug!("The non-paragraph-line: {:?}", next_line);
@@ -524,8 +526,6 @@ fn check_abstract_flag(content: &str) -> Option<IssueReport> {
 /// Check that if the file uses any UI macros, it also contains the :experimental: attribute
 fn check_experimental_flag(content: &str) -> Option<IssueReport> {
     let ui_macros_regex = Regex::new(r"(?:btn:\[.+\]|menu:\S+\[.+\]|kbd:\[.+\])").unwrap();
-    // TODO: This regex searches through the whole text file, so the ^ symbol means the start of the file,
-    // not the start of a line as intended. fix this.
     let experimental_regex = RegexBuilder::new(r"^:experimental:")
         .multi_line(true)
         .build()
@@ -648,7 +648,5 @@ fn line_from_byte_no(content: &str, byte_no: usize) -> Option<usize> {
         }
     }
 
-    // TODO: Convert this return value into returing a Result
-    // panic!("Cannot locate the line where the issue occurs.");
     None
 }
