@@ -198,7 +198,7 @@ checksum = "0ee1c47aaa256ecabcaea351eae4a9b01ef39ed810004e298d2511ed284b1525"
 
 [[package]]
 name = "newdoc"
-version = "2.8.2"
+version = "2.8.3"
 dependencies = [
  "askama",
  "clap",
