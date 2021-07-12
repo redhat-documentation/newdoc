@@ -80,9 +80,6 @@ const SIMPLE_CONTENT_TESTS: [IssueDefinition; 2] = [
     },
 ];
 
-const SIMPLE_ADDITIONAL_RESOURCES_TESTS: [IssueDefinition; 0] = [
-    // No simple tests at this point.
-];
 
 #[derive(Clone, Copy, Debug)]
 struct IssueDefinition {
@@ -152,7 +149,7 @@ impl IssueDefinition {
 }
 
 #[derive(Debug)]
-struct IssueReport {
+pub struct IssueReport {
     // Not all issues have a line number
     line_number: Option<usize>,
     description: &'static str,
@@ -252,7 +249,6 @@ fn test_common(_base_name: &str, content: &str) -> Vec<IssueReport> {
 
     reports.append(perform_simple_tests(content, &SIMPLE_TITLE_TESTS).as_mut());
     reports.append(perform_simple_tests(content, &SIMPLE_CONTENT_TESTS).as_mut());
-    reports.append(perform_simple_tests(content, &SIMPLE_ADDITIONAL_RESOURCES_TESTS).as_mut());
 
     if let Some(title_level_issue) = check_title_level(content) {
         reports.push(title_level_issue);
@@ -267,7 +263,7 @@ fn test_common(_base_name: &str, content: &str) -> Vec<IssueReport> {
         reports.push(experimental_issue);
     }
 
-    reports.append(check_additional_resources(content).as_mut());
+    reports.append(additional_resources::check_all(content).as_mut());
 
     reports
 }
@@ -540,146 +536,175 @@ fn check_headings_in_assembly(content: &str) -> Vec<IssueReport> {
     reports
 }
 
-/// Parform all available tests on the Additional resources section
-fn check_additional_resources(content: &str) -> Vec<IssueReport> {
-    let heading = find_additional_resources(content);
-    let mut issues = Vec::new();
+mod additional_resources {
+    use crate::validation::find_first_occurrence;
+    use crate::validation::perform_simple_tests;
+    use crate::validation::IssueDefinition;
+    use crate::validation::IssueReport;
+    use crate::validation::IssueSeverity;
+    use log::debug;
+    use regex::Regex;
 
-    // Perform the tests only if the file actually has an additional resources heading.
-    // If it doesn't, skip the tests.
-    if let Some((index, _line)) = heading {
-        // Prepare the lines vector in advance so that the following functions
-        // don't have to split the files again on their own.
-        let lines: Vec<&str> = content.lines().collect();
-        // Translate the human-readable index to a 0-based index.
-        let index_from_0 = index - 1;
+    const SIMPLE_ADDITIONAL_RESOURCES_TESTS: [IssueDefinition; 0] = [
+        // No simple tests at this point.
+    ];
 
-        // Collect the issues found by the particular functions.
-        if let Some(issue) = check_add_res_flag(&lines, index_from_0) {
-            issues.push(issue);
+    /// Perform all available tests on the Additional resources section
+    pub fn check_all(content: &str) -> Vec<IssueReport> {
+        let heading = find_additional_resources(content);
+        let mut issues = Vec::new();
+
+        issues.append(perform_simple_tests(content, &SIMPLE_ADDITIONAL_RESOURCES_TESTS).as_mut());
+
+        // Perform the tests only if the file actually has an additional resources heading.
+        // If it doesn't, skip the tests.
+        if let Some((index, _line)) = heading {
+            // Prepare the lines vector in advance so that the following functions
+            // don't have to split the files again on their own.
+            let lines: Vec<&str> = content.lines().collect();
+            // Translate the human-readable index to a 0-based index.
+            let index_from_0 = index - 1;
+
+            // Collect the issues found by the particular functions.
+            if let Some(issue) = check_add_res_flag(&lines, index_from_0) {
+                issues.push(issue);
+            }
+            issues.append(check_paragraphs_in_add_res(&lines, index_from_0).as_mut());
+            issues.append(check_link_labels_in_add_res(&lines, index_from_0).as_mut());
+            issues.append(check_additional_resource_length(&lines, index_from_0).as_mut());
         }
-        issues.append(check_paragraphs_in_add_res(&lines, index_from_0).as_mut());
-        issues.append(check_link_labels_in_add_res(&lines, index_from_0).as_mut());
-        issues.append(check_additional_resource_length(&lines, index_from_0).as_mut());
+
+        issues
     }
 
-    issues
-}
+    /// Find the first heading that matches additional resources.
+    /// This does not distinguish between the module and assembly format -- the simple tests check that.
+    fn find_additional_resources(content: &str) -> Option<(usize, &str)> {
+        let add_res_regex = Regex::new(
+            r"^(?:==\s+|\.)(?:Additional resources|Related information|Additional information)\s*$",
+        )
+        .unwrap();
 
-/// See if the additional resources heading is missing the additional resources flag,
-/// or the flag is further away than the one preceding line.
-fn check_add_res_flag(lines: &[&str], heading_index: usize) -> Option<IssueReport> {
-    let add_res_flag = r#"[role="_additional-resources"]"#;
+        find_first_occurrence(content, add_res_regex)
+    }
 
-    // If the line before the heading is the required flag, report no issue.
-    if lines[heading_index - 1] == add_res_flag {
-        None
-    // If the preceding line is anything else than the flag, report the missing flag.
-    } else {
-        Some(IssueReport {
+    /// See if the additional resources heading is missing the additional resources flag,
+    /// or the flag is further away than the one preceding line.
+    fn check_add_res_flag(lines: &[&str], heading_index: usize) -> Option<IssueReport> {
+        let add_res_flag = r#"[role="_additional-resources"]"#;
+
+        // If the line before the heading is the required flag, report no issue.
+        if lines[heading_index - 1] == add_res_flag {
+            None
+        // If the preceding line is anything else than the flag, report the missing flag.
+        } else {
+            Some(IssueReport {
             line_number: Some(heading_index + 1),
             description: "The additional resources heading is not immediately preceded by the _additional-resources flag.",
             severity: IssueSeverity::Error,
         })
-    }
-}
-
-/// Check that the additional resources section is composed of list items, possibly with some ifdefs.
-fn check_paragraphs_in_add_res(lines: &[&str], heading_index: usize) -> Vec<IssueReport> {
-    // This regex matches either a plain list item, or one that's embedded in an inline ifdef.
-    let bullet_point_regex = Regex::new(r"(?:^\*+\s+\S+|^ifdef::\S+\[\*+\s+\S+.*\])").unwrap();
-    // A paragraph that isn't a list item is allowed if it's an ifdef or a comment.
-    let allowed_paragraph = Regex::new(r"^(?:ifdef::\S+\[.*]|endif::\[\]|//)").unwrap();
-    // Let's try to use a loose definition of an empty paragraph as a whitespace paragraph.
-    let empty_line_regex = Regex::new(r"^\s*$").unwrap();
-
-    let mut issues = Vec::new();
-
-    for (offset, &line) in lines[heading_index + 1..].iter().enumerate() {
-        // If we find the first real list item, let's consider this a valid additional resources
-        // section and return the issues up to this point.
-        if bullet_point_regex.is_match(line) {
-            return issues;
-        // Report empty lines found before the first list item.
-        } else if empty_line_regex.is_match(line) {
-            issues.push(IssueReport {
-                line_number: Some(heading_index + offset + 2),
-                description: "The additional resources section includes an empty line.",
-                severity: IssueSeverity::Error,
-            });
-        // Report unallowed paragraphs before the first list item.
-        } else if !allowed_paragraph.is_match(line) {
-            issues.push(IssueReport {
-                line_number: Some(heading_index + offset + 2),
-                description: "The additional resources section includes a plain paragraph.",
-                severity: IssueSeverity::Error,
-            });
         }
     }
 
-    // If no list items have appeared until the end of the file, report that as the final issue.
-    issues.push(IssueReport {
-        line_number: Some(heading_index + 1),
-        description: "The additional resources section includes no list items.",
-        severity: IssueSeverity::Error,
-    });
+    /// Check that the additional resources section is composed of list items, possibly with some ifdefs.
+    fn check_paragraphs_in_add_res(lines: &[&str], heading_index: usize) -> Vec<IssueReport> {
+        // This regex matches either a plain list item, or one that's embedded in an inline ifdef.
+        let bullet_point_regex = Regex::new(r"(?:^\*+\s+\S+|^ifdef::\S+\[\*+\s+\S+.*\])").unwrap();
+        // A paragraph that isn't a list item is allowed if it's an ifdef or a comment.
+        let allowed_paragraph = Regex::new(r"^(?:ifdef::\S+\[.*]|endif::\[\]|//)").unwrap();
+        // Let's try to use a loose definition of an empty paragraph as a whitespace paragraph.
+        let empty_line_regex = Regex::new(r"^\s*$").unwrap();
 
-    issues
-}
+        let mut issues = Vec::new();
 
-/// Detect links with no labels after a certain point in the file,
-/// specifically after the additional resources heading.
-fn check_link_labels_in_add_res(lines: &[&str], heading_index: usize) -> Vec<IssueReport> {
-    let link_regex = Regex::new(r"link:\S+\[]").unwrap();
-
-    let mut issues = Vec::new();
-
-    for (offset, &line) in lines[heading_index + 1..].iter().enumerate() {
-        if link_regex.is_match(line) {
-            issues.push(IssueReport {
-                line_number: Some(heading_index + offset + 2),
-                description: "The additional resources section includes a link without a label.",
-                severity: IssueSeverity::Error,
-            });
-        }
-    }
-
-    issues
-}
-
-/// Check that the items in the additional resources section aren't too long, measured in words.
-fn check_additional_resource_length(lines: &[&str], heading_index: usize) -> Vec<IssueReport> {
-    // This regex features capture groups to extract the content of the list item.
-    let bullet_point_regex = Regex::new(r"^(?:\*+\s+(\S+.*)|ifdef::\S+\[\*+\s+(\S+.*)\])").unwrap();
-    // This is the number of words you need to write:
-    // * The `program(1)` man page
-    // Let's use that as the approximate upper limit.
-    let maximum_words = 4;
-
-    let mut issues = Vec::new();
-
-    for (offset, &line) in lines[heading_index + 1..].iter().enumerate() {
-        if let Some(captures) = bullet_point_regex.captures(line) {
-            let list_item_text = captures
-                .get(1)
-                .expect("Failed to extract text from a list item. This is a bug.");
-            // Counting words by splitting by white space is a crude measurement, but it should be
-            // close enough. The important thing is that it doesn't count long links as many words.
-            let number_of_words = list_item_text.as_str().split_whitespace().count();
-            debug!("Words in additional resources: {}", number_of_words);
-
-            if number_of_words > maximum_words {
+        for (offset, &line) in lines[heading_index + 1..].iter().enumerate() {
+            // If we find the first real list item, let's consider this a valid additional resources
+            // section and return the issues up to this point.
+            if bullet_point_regex.is_match(line) {
+                return issues;
+            // Report empty lines found before the first list item.
+            } else if empty_line_regex.is_match(line) {
                 issues.push(IssueReport {
+                    line_number: Some(heading_index + offset + 2),
+                    description: "The additional resources section includes an empty line.",
+                    severity: IssueSeverity::Error,
+                });
+            // Report unallowed paragraphs before the first list item.
+            } else if !allowed_paragraph.is_match(line) {
+                issues.push(IssueReport {
+                    line_number: Some(heading_index + offset + 2),
+                    description: "The additional resources section includes a plain paragraph.",
+                    severity: IssueSeverity::Error,
+                });
+            }
+        }
+
+        // If no list items have appeared until the end of the file, report that as the final issue.
+        issues.push(IssueReport {
+            line_number: Some(heading_index + 1),
+            description: "The additional resources section includes no list items.",
+            severity: IssueSeverity::Error,
+        });
+
+        issues
+    }
+
+    /// Detect links with no labels after a certain point in the file,
+    /// specifically after the additional resources heading.
+    fn check_link_labels_in_add_res(lines: &[&str], heading_index: usize) -> Vec<IssueReport> {
+        let link_regex = Regex::new(r"link:\S+\[]").unwrap();
+
+        let mut issues = Vec::new();
+
+        for (offset, &line) in lines[heading_index + 1..].iter().enumerate() {
+            if link_regex.is_match(line) {
+                issues.push(IssueReport {
+                    line_number: Some(heading_index + offset + 2),
+                    description:
+                        "The additional resources section includes a link without a label.",
+                    severity: IssueSeverity::Error,
+                });
+            }
+        }
+
+        issues
+    }
+
+    /// Check that the items in the additional resources section aren't too long, measured in words.
+    fn check_additional_resource_length(lines: &[&str], heading_index: usize) -> Vec<IssueReport> {
+        // This regex features capture groups to extract the content of the list item.
+        let bullet_point_regex =
+            Regex::new(r"^(?:\*+\s+(\S+.*)|ifdef::\S+\[\*+\s+(\S+.*)\])").unwrap();
+        // This is the number of words you need to write:
+        // * The `program(1)` man page
+        // Let's use that as the approximate upper limit.
+        let maximum_words = 4;
+
+        let mut issues = Vec::new();
+
+        for (offset, &line) in lines[heading_index + 1..].iter().enumerate() {
+            if let Some(captures) = bullet_point_regex.captures(line) {
+                let list_item_text = captures
+                    .get(1)
+                    .expect("Failed to extract text from a list item. This is a bug.");
+                // Counting words by splitting by white space is a crude measurement, but it should be
+                // close enough. The important thing is that it doesn't count long links as many words.
+                let number_of_words = list_item_text.as_str().split_whitespace().count();
+                debug!("Words in additional resources: {}", number_of_words);
+
+                if number_of_words > maximum_words {
+                    issues.push(IssueReport {
                     line_number: Some(heading_index + offset + 2),
                     description:
                         "The additional resource is long. Try to limit it to a couple of words.",
                     severity: IssueSeverity::Warning,
                 });
+                }
             }
         }
-    }
 
-    issues
+        issues
+    }
 }
 
 /// Find the first occurence of any heading in the file.
@@ -696,17 +721,6 @@ fn find_mod_id(content: &str) -> Option<(usize, &str)> {
     let id_regex = Regex::new(r"^\[id=\S+\]").unwrap();
 
     find_first_occurrence(content, id_regex)
-}
-
-/// Find the first heading that matches additional resources.
-/// This does not distinguish between the module and assembly format -- the simple tests check that.
-fn find_additional_resources(content: &str) -> Option<(usize, &str)> {
-    let add_res_regex = Regex::new(
-        r"^(?:==\s+|\.)(?:Additional resources|Related information|Additional information)\s*$",
-    )
-    .unwrap();
-
-    find_first_occurrence(content, add_res_regex)
 }
 
 /// Search for a predefined regex in a file. If found, return the line number and the line text.
