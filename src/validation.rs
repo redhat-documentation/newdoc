@@ -8,38 +8,6 @@ use std::path::Path;
 
 use crate::module::ModuleType;
 
-const SIMPLE_TITLE_TESTS: [IssueDefinition; 2] = [
-    // Test that there are no inline anchors in the title
-    IssueDefinition {
-        pattern: r"^=\s+.*\[\[\S+\]\].*",
-        description: "The title contains an inline anchor.",
-        severity: IssueSeverity::Error,
-        multiline: false,
-    },
-    // Test that titles contain no attributes (variables)
-    IssueDefinition {
-        pattern: r"^=\s+.*\{\S+\}.*",
-        description: "The title contains an attribute.",
-        severity: IssueSeverity::Error,
-        multiline: false,
-    },
-];
-
-const SIMPLE_CONTENT_TESTS: [IssueDefinition; 2] = [
-    IssueDefinition {
-        pattern: r"<[[:alpha:]]+>.*</[[:alpha:]]+>",
-        description: "The file seems to contain HTML markup",
-        severity: IssueSeverity::Error,
-        multiline: false,
-    },
-    IssueDefinition {
-        pattern: r"(?:xref:\S+\[\]|<<\S+>>|<<\S+,.+>>)",
-        description: "The file contains an unsupported cross-reference.",
-        severity: IssueSeverity::Error,
-        multiline: false,
-    },
-];
-
 #[derive(Clone, Copy, Debug)]
 struct IssueDefinition {
     pattern: &'static str,
@@ -146,16 +114,19 @@ pub fn validate(file_name: &str) {
 
     let reports = match mod_type {
         ModTypeOrReport::Type(ModuleType::Assembly) => assembly::check(base_name, &content),
-        ModTypeOrReport::Report(r) => vec![r],
+        ModTypeOrReport::Report(report) => vec![report],
         _ => module::check(base_name, &content),
     };
 
     report_issues(reports, file_name);
 }
 
-/// Print a human-readable report about the issues found in the file
-fn report_issues(issues: Vec<IssueReport>, file_path: &str) {
+/// Print a sorted, human-readable report about the issues found in the file
+fn report_issues(mut issues: Vec<IssueReport>, file_path: &str) {
     if !issues.is_empty() {
+        // Sort the reported issues by their line number
+        issues.sort_by_key(|report| report.line_number);
+
         println!("💾 File: {}", file_path);
         for issue in issues {
             println!("    {}", issue);
@@ -202,161 +173,232 @@ fn perform_simple_tests(content: &str, tests: &[IssueDefinition]) -> Vec<IssueRe
         .collect()
 }
 
-/// This function collects all tests that target both assembly and module files
-fn test_common(_base_name: &str, content: &str) -> Vec<IssueReport> {
-    let mut reports = Vec::new();
+// This section groups all title requirements
+mod title {
+    use crate::validation::find_first_occurrence;
+    use crate::validation::find_mod_id;
+    use crate::validation::perform_simple_tests;
+    use crate::validation::IssueDefinition;
+    use crate::validation::IssueReport;
+    use crate::validation::IssueSeverity;
+    use log::debug;
+    use regex::Regex;
 
-    reports.append(perform_simple_tests(content, &SIMPLE_TITLE_TESTS).as_mut());
-    reports.append(perform_simple_tests(content, &SIMPLE_CONTENT_TESTS).as_mut());
+    const SIMPLE_TITLE_TESTS: [IssueDefinition; 2] = [
+        // Test that there are no inline anchors in the title
+        IssueDefinition {
+            pattern: r"^=\s+.*\[\[\S+\]\].*",
+            description: "The title contains an inline anchor.",
+            severity: IssueSeverity::Error,
+            multiline: false,
+        },
+        // Test that titles contain no attributes (variables)
+        IssueDefinition {
+            pattern: r"^=\s+.*\{\S+\}.*",
+            description: "The title contains an attribute.",
+            severity: IssueSeverity::Error,
+            multiline: false,
+        },
+    ];
 
-    if let Some(title_level_issue) = check_title_level(content) {
-        reports.push(title_level_issue);
+    /// This function collects all tests that target both assembly and module files
+    pub fn check(_base_name: &str, content: &str) -> Vec<IssueReport> {
+        let mut reports = Vec::new();
+
+        reports.append(perform_simple_tests(content, &SIMPLE_TITLE_TESTS).as_mut());
+
+        if let Some(title_level_issue) = check_title_level(content) {
+            reports.push(title_level_issue);
+        }
+        if let Some(id_attribute) = check_id_for_attributes(content) {
+            reports.push(id_attribute);
+        }
+
+        reports
     }
-    if let Some(id_attribute) = check_id_for_attributes(content) {
-        reports.push(id_attribute);
+
+    /// Find the first occurence of any heading in the file.
+    /// Returns the line number of the occurence and the line.
+    fn find_first_heading(content: &str) -> Option<(usize, &str)> {
+        let any_heading_regex = Regex::new(r"^(\.|=+\s+)\S+.*").unwrap();
+
+        find_first_occurrence(content, any_heading_regex)
     }
-    if let Some(abstract_issue) = check_abstract_flag(content) {
-        reports.push(abstract_issue);
-    }
-    if let Some(experimental_issue) = check_experimental_flag(content) {
-        reports.push(experimental_issue);
-    }
 
-    reports.append(additional_resources::check(content).as_mut());
+    /// Check that the first heading found in the file is a title: a level-1, numbered heading
+    fn check_title_level(content: &str) -> Option<IssueReport> {
+        let title_regex = Regex::new(r"^=\s+\S+.*").unwrap();
 
-    reports
-}
-
-/// Check that the first heading found in the file is a title: a level-1, numbered heading
-fn check_title_level(content: &str) -> Option<IssueReport> {
-    let title_regex = Regex::new(r"^=\s+\S+.*").unwrap();
-
-    if let Some((line_no, heading)) = find_first_heading(content) {
-        if let Some(_title) = title_regex.find(heading) {
-            debug!("This is the title: {:?}", heading);
-            None
+        if let Some((line_no, heading)) = find_first_heading(content) {
+            if let Some(_title) = title_regex.find(heading) {
+                debug!("This is the title: {:?}", heading);
+                None
+            } else {
+                debug!("This is the first heading: {:?}", heading);
+                Some(IssueReport {
+                    line_number: Some(line_no),
+                    description: "The first heading in the file is not level 1.",
+                    severity: IssueSeverity::Error,
+                })
+            }
         } else {
-            debug!("This is the first heading: {:?}", heading);
             Some(IssueReport {
-                line_number: Some(line_no),
-                description: "The first heading in the file is not level 1.",
+                line_number: None,
+                description: "The file has no title or headings.",
                 severity: IssueSeverity::Error,
             })
         }
-    } else {
-        Some(IssueReport {
-            line_number: None,
-            description: "The file has no title or headings.",
-            severity: IssueSeverity::Error,
-        })
     }
-}
 
-/// Detect attributes in module IDs. The only allowed attribute is {context}.
-fn check_id_for_attributes(content: &str) -> Option<IssueReport> {
-    let (line_no, mod_id) = match find_mod_id(content) {
-        Some(mod_id) => mod_id,
-        // TODO: Refactor checking for the presence of ID to a dedicated function;
-        // make other ID-related functions depend on it.
-        None => {
-            return Some(IssueReport {
-                line_number: None,
-                description: "The file is missing an ID.",
-                severity: IssueSeverity::Error,
-            });
-        }
-    };
-
-    let attribute_regex = Regex::new(r"\{((?:[[:alnum:]]|[-_])+)\}").unwrap();
-    let attribute = attribute_regex.captures(mod_id)?;
-
-    if attribute.get(1).unwrap().as_str() == "context" {
-        // The context attribute is allowed
-        None
-    } else {
-        Some(IssueReport {
-            line_number: Some(line_no),
-            description: "The ID includes an attribute.",
-            severity: IssueSeverity::Error,
-        })
-    }
-}
-
-/// Check that the abstract flag exists in the file and that it's followed by a paragraph.
-fn check_abstract_flag(content: &str) -> Option<IssueReport> {
-    let abstract_regex = Regex::new(r#"^\[role="_abstract"\]"#).unwrap();
-    let abstract_flag = find_first_occurrence(content, abstract_regex);
-
-    // If the file contains an abstract flag, test for the following paragraph
-    if let Some((line_no, _line)) = abstract_flag {
-        let no_paragraph_report = IssueReport {
-            line_number: Some(line_no + 1),
-            description: "The _abstract flag is not immediately followed by a paragraph.",
-            severity: IssueSeverity::Error,
+    /// Detect attributes in module IDs. The only allowed attribute is {context}.
+    fn check_id_for_attributes(content: &str) -> Option<IssueReport> {
+        let (line_no, mod_id) = match find_mod_id(content) {
+            Some(mod_id) => mod_id,
+            // TODO: Refactor checking for the presence of ID to a dedicated function;
+            // make other ID-related functions depend on it.
+            None => {
+                return Some(IssueReport {
+                    line_number: None,
+                    description: "The file is missing an ID.",
+                    severity: IssueSeverity::Error,
+                });
+            }
         };
 
-        // The next line number is the same as the line number for the abstract flag,
-        // becase the number from the abstract flag report starts from 1
-        // and this counting starts from 0.
-        if let Some(next_line) = content.lines().nth(line_no) {
-            // This regex is very inclusive for a 'paragraph', but that's intentional.
-            // Consider that a paragraph can also start with an attribute, or with a role, such as:
-            // ⁠[systemitem]`firewalld` can be used to (...)
-            // Let's just check that the line starts with a non-whitespace character
-            // and that a letter appears at least somewhere.
-            let paragraph_regex = Regex::new(r"^\S+[[:alpha:]].*").unwrap();
-            // If a line follows the flag but it doesn't appear as a paragraph, report the issue
-            if paragraph_regex.find(next_line).is_none() {
-                debug!("The non-paragraph-line: {:?}", next_line);
-                Some(no_paragraph_report)
-            } else {
-                None
-            }
-        // If no line follows the flag, also report the issue
-        } else {
-            debug!("No lines after the abstract.");
-            Some(no_paragraph_report)
-        }
-    } else {
-        Some(IssueReport {
-            line_number: None,
-            description: "The file is missing the _abstract flag.",
-            severity: IssueSeverity::Error,
-        })
-    }
-}
+        let attribute_regex = Regex::new(r"\{((?:[[:alnum:]]|[-_])+)\}").unwrap();
+        let attribute = attribute_regex.captures(mod_id)?;
 
-/// Check that if the file uses any UI macros, it also contains the :experimental: attribute
-fn check_experimental_flag(content: &str) -> Option<IssueReport> {
-    let ui_macros_regex = Regex::new(r"(?:btn:\[.+\]|menu:\S+\[.+\]|kbd:\[.+\])").unwrap();
-    let experimental_regex = RegexBuilder::new(r"^:experimental:")
-        .multi_line(true)
-        .build()
-        .unwrap();
-
-    if let Some((line_no, _line)) = find_first_occurrence(content, ui_macros_regex) {
-        if let Some(_experimental) = experimental_regex.find(content) {
-            // This is fine. The file has both a UI macro and the experimental attribute.
+        if attribute.get(1).unwrap().as_str() == "context" {
+            // The context attribute is allowed
             None
         } else {
             Some(IssueReport {
                 line_number: Some(line_no),
-                description:
-                    "The file uses a UI macro but the `:experimental:` attribute is missing.",
+                description: "The ID includes an attribute.",
                 severity: IssueSeverity::Error,
             })
         }
-    } else {
-        // No UI macro found, means no issue
-        None
     }
 }
 
+// This section groups all content requirements
+mod content {
+    use crate::validation::find_first_occurrence;
+    use crate::validation::perform_simple_tests;
+    use crate::validation::IssueDefinition;
+    use crate::validation::IssueReport;
+    use crate::validation::IssueSeverity;
+    use log::debug;
+    use regex::{Regex, RegexBuilder};
+
+    const SIMPLE_CONTENT_TESTS: [IssueDefinition; 2] = [
+        IssueDefinition {
+            pattern: r"<[[:alpha:]]+>.*</[[:alpha:]]+>",
+            description: "The file seems to contain HTML markup",
+            severity: IssueSeverity::Error,
+            multiline: false,
+        },
+        IssueDefinition {
+            pattern: r"(?:xref:\S+\[\]|<<\S+>>|<<\S+,.+>>)",
+            description: "The file contains an unsupported cross-reference.",
+            severity: IssueSeverity::Error,
+            multiline: false,
+        },
+    ];
+
+    /// This function collects all tests that target both assembly and module files
+    pub fn check(_base_name: &str, content: &str) -> Vec<IssueReport> {
+        let mut reports = Vec::new();
+
+        reports.append(perform_simple_tests(content, &SIMPLE_CONTENT_TESTS).as_mut());
+
+        if let Some(abstract_issue) = check_abstract_flag(content) {
+            reports.push(abstract_issue);
+        }
+        if let Some(experimental_issue) = check_experimental_flag(content) {
+            reports.push(experimental_issue);
+        }
+
+        reports
+    }
+
+    /// Check that the abstract flag exists in the file and that it's followed by a paragraph.
+    fn check_abstract_flag(content: &str) -> Option<IssueReport> {
+        let abstract_regex = Regex::new(r#"^\[role="_abstract"\]"#).unwrap();
+        let abstract_flag = find_first_occurrence(content, abstract_regex);
+
+        // If the file contains an abstract flag, test for the following paragraph
+        if let Some((line_no, _line)) = abstract_flag {
+            let no_paragraph_report = IssueReport {
+                line_number: Some(line_no + 1),
+                description: "The _abstract flag is not immediately followed by a paragraph.",
+                severity: IssueSeverity::Error,
+            };
+
+            // The next line number is the same as the line number for the abstract flag,
+            // becase the number from the abstract flag report starts from 1
+            // and this counting starts from 0.
+            if let Some(next_line) = content.lines().nth(line_no) {
+                // This regex is very inclusive for a 'paragraph', but that's intentional.
+                // Consider that a paragraph can also start with an attribute, or with a role, such as:
+                // ⁠[systemitem]`firewalld` can be used to (...)
+                // Let's just check that the line starts with a non-whitespace character
+                // and that a letter appears at least somewhere.
+                let paragraph_regex = Regex::new(r"^\S+[[:alpha:]].*").unwrap();
+                // If a line follows the flag but it doesn't appear as a paragraph, report the issue
+                if paragraph_regex.find(next_line).is_none() {
+                    debug!("The non-paragraph-line: {:?}", next_line);
+                    Some(no_paragraph_report)
+                } else {
+                    None
+                }
+            // If no line follows the flag, also report the issue
+            } else {
+                debug!("No lines after the abstract.");
+                Some(no_paragraph_report)
+            }
+        } else {
+            Some(IssueReport {
+                line_number: None,
+                description: "The file is missing the _abstract flag.",
+                severity: IssueSeverity::Error,
+            })
+        }
+    }
+
+    /// Check that if the file uses any UI macros, it also contains the :experimental: attribute
+    fn check_experimental_flag(content: &str) -> Option<IssueReport> {
+        let ui_macros_regex = Regex::new(r"(?:btn:\[.+\]|menu:\S+\[.+\]|kbd:\[.+\])").unwrap();
+        let experimental_regex = RegexBuilder::new(r"^:experimental:")
+            .multi_line(true)
+            .build()
+            .unwrap();
+
+        if let Some((line_no, _line)) = find_first_occurrence(content, ui_macros_regex) {
+            if let Some(_experimental) = experimental_regex.find(content) {
+                // This is fine. The file has both a UI macro and the experimental attribute.
+                None
+            } else {
+                Some(IssueReport {
+                    line_number: Some(line_no),
+                    description:
+                        "The file uses a UI macro but the `:experimental:` attribute is missing.",
+                    severity: IssueSeverity::Error,
+                })
+            }
+        } else {
+            // No UI macro found, means no issue
+            None
+        }
+    }
+}
+
+// This section groups all module requirements;
+// they depend on title and content, and additional resources requirements
 mod module {
     use crate::validation::find_first_occurrence;
     use crate::validation::find_mod_id;
     use crate::validation::perform_simple_tests;
-    use crate::validation::test_common;
     use crate::validation::IssueDefinition;
     use crate::validation::IssueReport;
     use crate::validation::IssueSeverity;
@@ -378,18 +420,17 @@ mod module {
         },
     ];
 
-    /// This function collects all tests that target only module files
+    /// This function collects all tests required in module files
     pub fn check(base_name: &str, content: &str) -> Vec<IssueReport> {
         let mut reports = Vec::new();
 
-        reports.append(test_common(base_name, content).as_mut());
+        reports.append(crate::validation::title::check(base_name, content).as_mut());
+        reports.append(crate::validation::content::check(base_name, content).as_mut());
+        reports.append(crate::validation::additional_resources::check(content).as_mut());
 
         reports.append(perform_simple_tests(content, &SIMPLE_MODULE_TESTS).as_mut());
         reports.append(check_metadata_variable(content).as_mut());
         reports.append(check_include_except_snip(content).as_mut());
-
-        // Sort the reported issues by their line number
-        reports.sort_by_key(|report| report.line_number);
 
         reports
     }
@@ -468,9 +509,10 @@ mod module {
     }
 }
 
+// This section groups all assembly requirements;
+// they depend on title and content, and additional resources requirements
 mod assembly {
     use crate::validation::perform_simple_tests;
-    use crate::validation::test_common;
     use crate::validation::IssueDefinition;
     use crate::validation::IssueReport;
     use crate::validation::IssueSeverity;
@@ -500,19 +542,18 @@ mod assembly {
         },
     ];
 
-    /// This function collects all tests that target only assembly files
+    /// This function collects all tests required in assembly files
     pub fn check(base_name: &str, content: &str) -> Vec<IssueReport> {
         // check_no_nesting(base_name, content);
         // check_supported_leveloffset(base_name, content);
         let mut reports = Vec::new();
 
-        reports.append(test_common(base_name, content).as_mut());
+        reports.append(crate::validation::title::check(base_name, content).as_mut());
+        reports.append(crate::validation::content::check(base_name, content).as_mut());
+        reports.append(crate::validation::additional_resources::check(content).as_mut());
 
         reports.append(perform_simple_tests(content, &SIMPLE_ASSEMBLY_TESTS).as_mut());
         reports.append(check_headings_in_assembly(content).as_mut());
-
-        // Sort the reported issues by their line number
-        reports.sort_by_key(|report| report.line_number);
 
         reports
     }
@@ -725,14 +766,6 @@ mod additional_resources {
 
         issues
     }
-}
-
-/// Find the first occurence of any heading in the file.
-/// Returns the line number of the occurence and the line.
-fn find_first_heading(content: &str) -> Option<(usize, &str)> {
-    let any_heading_regex = Regex::new(r"^(\.|=+\s+)\S+.*").unwrap();
-
-    find_first_occurrence(content, any_heading_regex)
 }
 
 /// Find the first occurence of an ID definition in the file.
