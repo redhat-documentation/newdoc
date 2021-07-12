@@ -8,30 +8,6 @@ use std::path::Path;
 
 use crate::module::ModuleType;
 
-const SIMPLE_ASSEMBLY_TESTS: [IssueDefinition; 3] = [
-    // Test that an assembly includes no other assemblies
-    IssueDefinition {
-        pattern: r"^include::.*assembly[_-].*\.adoc",
-        description: "This assembly includes another assembly.",
-        severity: IssueSeverity::Error,
-        multiline: false,
-    },
-    // Test that files don't use the unsupported leveloffset configuration
-    IssueDefinition {
-        pattern: r"^:leveloffset:\s*\+\d*",
-        description: "Unsupported level offset configuration.",
-        severity: IssueSeverity::Error,
-        multiline: false,
-    },
-    // Ensure the correct syntax for Additional resources
-    IssueDefinition {
-        pattern: r"^\.Additional resources\s*$",
-        description: "In assemblies, 'Additional resources' must use the == syntax.",
-        severity: IssueSeverity::Error,
-        multiline: false,
-    },
-];
-
 const SIMPLE_MODULE_TESTS: [IssueDefinition; 2] = [
     // Ensure the correct syntax for Additional resources
     IssueDefinition {
@@ -79,7 +55,6 @@ const SIMPLE_CONTENT_TESTS: [IssueDefinition; 2] = [
         multiline: false,
     },
 ];
-
 
 #[derive(Clone, Copy, Debug)]
 struct IssueDefinition {
@@ -186,7 +161,7 @@ pub fn validate(file_name: &str) {
     let mod_type = determine_mod_type(base_name, &content);
 
     let reports = match mod_type {
-        ModTypeOrReport::Type(ModuleType::Assembly) => test_assemblies(base_name, &content),
+        ModTypeOrReport::Type(ModuleType::Assembly) => assembly::check_all(base_name, &content),
         ModTypeOrReport::Report(r) => vec![r],
         _ => test_modules(base_name, &content),
     };
@@ -264,23 +239,6 @@ fn test_common(_base_name: &str, content: &str) -> Vec<IssueReport> {
     }
 
     reports.append(additional_resources::check_all(content).as_mut());
-
-    reports
-}
-
-/// This function collects all tests that target only assembly files
-fn test_assemblies(base_name: &str, content: &str) -> Vec<IssueReport> {
-    // check_no_nesting(base_name, content);
-    // check_supported_leveloffset(base_name, content);
-    let mut reports = Vec::new();
-
-    reports.append(test_common(base_name, content).as_mut());
-
-    reports.append(perform_simple_tests(content, &SIMPLE_ASSEMBLY_TESTS).as_mut());
-    reports.append(check_headings_in_assembly(content).as_mut());
-
-    // Sort the reported issues by their line number
-    reports.sort_by_key(|report| report.line_number);
 
     reports
 }
@@ -499,41 +457,92 @@ fn check_experimental_flag(content: &str) -> Option<IssueReport> {
     }
 }
 
-/// Check for numbered headings of level 2 or greater in assemblies.
-/// This is more complicated than the same check in modules because the assembly template
-/// includes two such headings, which should _not_ be reported:
-/// * == Prerequisites
-/// * == Additional resources
-/// In addition, let's also assume that the legacy 'Related information' heading is fine. (TODO: Make sure.)
-fn check_headings_in_assembly(content: &str) -> Vec<IssueReport> {
-    let heading_regex = Regex::new(r"^={2,}\s+\S.*").unwrap();
-    let standard_headings_pattern =
-        r"^==\s+(?:Prerequisites|Additional resources|Related information)";
-    let standard_headings_regex = Regex::new(standard_headings_pattern).unwrap();
+mod assembly {
+    use crate::validation::perform_simple_tests;
+    use crate::validation::test_common;
+    use crate::validation::IssueDefinition;
+    use crate::validation::IssueReport;
+    use crate::validation::IssueSeverity;
+    use regex::Regex;
 
-    let mut lines_with_heading: Vec<usize> = Vec::new();
+    const SIMPLE_ASSEMBLY_TESTS: [IssueDefinition; 3] = [
+        // Test that an assembly includes no other assemblies
+        IssueDefinition {
+            pattern: r"^include::.*assembly[_-].*\.adoc",
+            description: "This assembly includes another assembly.",
+            severity: IssueSeverity::Error,
+            multiline: false,
+        },
+        // Test that files don't use the unsupported leveloffset configuration
+        IssueDefinition {
+            pattern: r"^:leveloffset:\s*\+\d*",
+            description: "Unsupported level offset configuration.",
+            severity: IssueSeverity::Error,
+            multiline: false,
+        },
+        // Ensure the correct syntax for Additional resources
+        IssueDefinition {
+            pattern: r"^\.Additional resources\s*$",
+            description: "In assemblies, 'Additional resources' must use the == syntax.",
+            severity: IssueSeverity::Error,
+            multiline: false,
+        },
+    ];
 
-    content.lines().enumerate().for_each(|(index, line)| {
-        if let Some(_heading) = heading_regex.find(line) {
-            if let Some(_standard_heading) = standard_headings_regex.find(line) {
-                // This line is a standard heading. No report.
-            } else {
-                // This is a non-standard heading. Record the line number for a report.
-                lines_with_heading.push(index + 1);
+    /// This function collects all tests that target only assembly files
+    pub fn check_all(base_name: &str, content: &str) -> Vec<IssueReport> {
+        // check_no_nesting(base_name, content);
+        // check_supported_leveloffset(base_name, content);
+        let mut reports = Vec::new();
+
+        reports.append(test_common(base_name, content).as_mut());
+
+        reports.append(perform_simple_tests(content, &SIMPLE_ASSEMBLY_TESTS).as_mut());
+        reports.append(check_headings_in_assembly(content).as_mut());
+
+        // Sort the reported issues by their line number
+        reports.sort_by_key(|report| report.line_number);
+
+        reports
+    }
+
+    /// Check for numbered headings of level 2 or greater in assemblies.
+    /// This is more complicated than the same check in modules because the assembly template
+    /// includes two such headings, which should _not_ be reported:
+    /// * == Prerequisites
+    /// * == Additional resources
+    /// In addition, let's also assume that the legacy 'Related information' heading is fine. (TODO: Make sure.)
+    fn check_headings_in_assembly(content: &str) -> Vec<IssueReport> {
+        let heading_regex = Regex::new(r"^={2,}\s+\S.*").unwrap();
+        let standard_headings_pattern =
+            r"^==\s+(?:Prerequisites|Additional resources|Related information)";
+        let standard_headings_regex = Regex::new(standard_headings_pattern).unwrap();
+
+        let mut lines_with_heading: Vec<usize> = Vec::new();
+
+        content.lines().enumerate().for_each(|(index, line)| {
+            if let Some(_heading) = heading_regex.find(line) {
+                if let Some(_standard_heading) = standard_headings_regex.find(line) {
+                    // This line is a standard heading. No report.
+                } else {
+                    // This is a non-standard heading. Record the line number for a report.
+                    lines_with_heading.push(index + 1);
+                }
             }
-        }
-    });
+        });
 
-    let reports = lines_with_heading
-        .iter()
-        .map(|line_no| IssueReport {
-            line_number: Some(*line_no),
-            description: "This heading is level-2 or greater. Be conscious of the heading level.",
-            severity: IssueSeverity::Warning,
-        })
-        .collect();
+        let reports = lines_with_heading
+            .iter()
+            .map(|line_no| IssueReport {
+                line_number: Some(*line_no),
+                description:
+                    "This heading is level-2 or greater. Be conscious of the heading level.",
+                severity: IssueSeverity::Warning,
+            })
+            .collect();
 
-    reports
+        reports
+    }
 }
 
 mod additional_resources {
