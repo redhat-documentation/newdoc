@@ -64,8 +64,7 @@ impl IssueDefinition {
             findings
                 .map(|(index, _finding)| {
                     IssueReport {
-                        // Line numbers start from 1, but the enumeration starts from 0. Add 1 to the index
-                        line_number: Some(index + 1),
+                        line_number: Some(index),
                         description: self.description,
                         severity: self.severity,
                     }
@@ -86,7 +85,9 @@ pub struct IssueReport {
 impl fmt::Display for IssueReport {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let stamp = if let Some(line_number) = self.line_number {
-            format!("{} at line {}: ", self.severity, line_number)
+            // Add 1 to the line number because we store the line number as counted from 0,
+            // but users want to count the first line as line number 1
+            format!("{} at line {}: ", self.severity, line_number + 1)
         } else {
             format!("{}: ", self.severity)
         };
@@ -178,6 +179,17 @@ fn perform_simple_tests(content: &str, tests: &[IssueDefinition]) -> Vec<IssueRe
         .map(|&definition| definition.check(content))
         .flatten()
         .collect()
+}
+
+/// This function collects all tests required regardless of the module or assembly type
+fn check_common(content: &str) -> Vec<IssueReport> {
+    let mut reports = Vec::new();
+
+    reports.append(title::check(content).as_mut());
+    reports.append(content::check(content).as_mut());
+    reports.append(additional_resources::check(content).as_mut());
+
+    reports
 }
 
 // This section groups all title requirements
@@ -337,7 +349,7 @@ mod content {
         // If the file contains an abstract flag, test for the following paragraph
         if let Some((line_no, _line)) = abstract_flag {
             let no_paragraph_report = IssueReport {
-                line_number: Some(line_no + 1),
+                line_number: Some(line_no),
                 description: "The _abstract flag is not immediately followed by a paragraph.",
                 severity: IssueSeverity::Error,
             };
@@ -398,17 +410,6 @@ mod content {
             None
         }
     }
-}
-
-/// This function collects all tests required regardless of the module or assembly type
-fn check_common(content: &str) -> Vec<IssueReport> {
-    let mut reports = Vec::new();
-
-    reports.append(title::check(content).as_mut());
-    reports.append(content::check(content).as_mut());
-    reports.append(additional_resources::check(content).as_mut());
-
-    reports
 }
 
 // This section groups all module requirements;
@@ -504,14 +505,14 @@ mod module {
                 if let Some(_snippet) = snip_include_regex.find(include.as_str()) {
                     // In this case, the detected include is most likely a snippet. Report as Information
                     let report = IssueReport {
-                    line_number: Some(index + 1),
+                    line_number: Some(index),
                     description: "This module includes a file that appears to be a snippet. This is supported.",
                     severity: IssueSeverity::Information,
                 };
                     reports.push(report);
                 } else {
                     let report = IssueReport {
-                        line_number: Some(index + 1),
+                        line_number: Some(index),
                         description:
                             "This module includes a file that does not appear to be a snippet.",
                         severity: IssueSeverity::Error,
@@ -592,7 +593,7 @@ mod assembly {
                     // This line is a standard heading. No report.
                 } else {
                     // This is a non-standard heading. Record the line number for a report.
-                    lines_with_heading.push(index + 1);
+                    lines_with_heading.push(index);
                 }
             }
         });
@@ -637,16 +638,14 @@ mod additional_resources {
             // Prepare the lines vector in advance so that the following functions
             // don't have to split the files again on their own.
             let lines: Vec<&str> = content.lines().collect();
-            // Translate the human-readable index to a 0-based index.
-            let index_from_0 = index - 1;
 
             // Collect the issues found by the particular functions.
-            if let Some(issue) = check_add_res_flag(&lines, index_from_0) {
+            if let Some(issue) = check_add_res_flag(&lines, index) {
                 issues.push(issue);
             }
-            issues.append(check_paragraphs_in_add_res(&lines, index_from_0).as_mut());
-            issues.append(check_link_labels_in_add_res(&lines, index_from_0).as_mut());
-            issues.append(check_additional_resource_length(&lines, index_from_0).as_mut());
+            issues.append(check_paragraphs_in_add_res(&lines, index).as_mut());
+            issues.append(check_link_labels_in_add_res(&lines, index).as_mut());
+            issues.append(check_additional_resource_length(&lines, index).as_mut());
         }
 
         issues
@@ -674,7 +673,7 @@ mod additional_resources {
         // If the preceding line is anything else than the flag, report the missing flag.
         } else {
             Some(IssueReport {
-            line_number: Some(heading_index + 1),
+            line_number: Some(heading_index),
             description: "The additional resources heading is not immediately preceded by the _additional-resources flag.",
             severity: IssueSeverity::Error,
         })
@@ -700,14 +699,16 @@ mod additional_resources {
             // Report empty lines found before the first list item.
             } else if empty_line_regex.is_match(line) {
                 issues.push(IssueReport {
-                    line_number: Some(heading_index + offset + 2),
+                    // Add 1 because the offset starts counting the first line that follows the heading from 0
+                    line_number: Some(heading_index + offset + 1),
                     description: "The additional resources section includes an empty line.",
                     severity: IssueSeverity::Error,
                 });
             // Report unallowed paragraphs before the first list item.
             } else if !allowed_paragraph.is_match(line) {
                 issues.push(IssueReport {
-                    line_number: Some(heading_index + offset + 2),
+                    // Add 1 because the offset starts counting the first line that follows the heading from 0
+                    line_number: Some(heading_index + offset + 1),
                     description: "The additional resources section includes a plain paragraph.",
                     severity: IssueSeverity::Error,
                 });
@@ -716,7 +717,7 @@ mod additional_resources {
 
         // If no list items have appeared until the end of the file, report that as the final issue.
         issues.push(IssueReport {
-            line_number: Some(heading_index + 1),
+            line_number: Some(heading_index),
             description: "The additional resources section includes no list items.",
             severity: IssueSeverity::Error,
         });
@@ -734,7 +735,7 @@ mod additional_resources {
         for (offset, &line) in lines[heading_index + 1..].iter().enumerate() {
             if link_regex.is_match(line) {
                 issues.push(IssueReport {
-                    line_number: Some(heading_index + offset + 2),
+                    line_number: Some(heading_index + offset + 1),
                     description:
                         "The additional resources section includes a link without a label.",
                     severity: IssueSeverity::Error,
@@ -769,7 +770,7 @@ mod additional_resources {
 
                 if number_of_words > maximum_words {
                     issues.push(IssueReport {
-                    line_number: Some(heading_index + offset + 2),
+                    line_number: Some(heading_index + offset + 1),
                     description:
                         "The additional resource is long. Try to limit it to a couple of words.",
                     severity: IssueSeverity::Warning,
@@ -794,7 +795,7 @@ fn find_mod_id(content: &str) -> Option<(usize, &str)> {
 fn find_first_occurrence(content: &str, regex: Regex) -> Option<(usize, &str)> {
     for (index, line) in content.lines().enumerate() {
         if let Some(_occurrence) = regex.find(line) {
-            return Some((index + 1, line));
+            return Some((index, line));
         }
     }
     None
@@ -821,8 +822,7 @@ fn line_from_byte_no(content: &str, byte_no: usize) -> Option<usize> {
         for _byte in line.bytes() {
             total_bytes += 1;
             if total_bytes == byte_no {
-                // Line numbers start from 1, but the enumeration starts from 0. Add 1 to the index
-                return Some(line_index + 1);
+                return Some(line_index);
             }
         }
     }
