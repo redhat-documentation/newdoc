@@ -113,9 +113,16 @@ pub fn validate(file_name: &str) {
     let mod_type = determine_mod_type(base_name, &content);
 
     let reports = match mod_type {
-        ModTypeOrReport::Type(ModuleType::Assembly) => assembly::check(base_name, &content),
-        ModTypeOrReport::Report(report) => vec![report],
-        _ => module::check(base_name, &content),
+        // If the file is an assembly, test the assembly requirements
+        ModTypeOrReport::Type(ModuleType::Assembly) => assembly::check(&content),
+        // If the module type is indeterminate, test the requirements that don't depend on the type
+        ModTypeOrReport::Report(type_report) => {
+            let mut reports = check_common(&content);
+            reports.push(type_report);
+            reports
+        }
+        // In the remaining cases, the file is a module, so test module requirements
+        _ => module::check(&content),
     };
 
     report_issues(reports, file_name);
@@ -202,7 +209,7 @@ mod title {
     ];
 
     /// This function collects all tests that target both assembly and module files
-    pub fn check(_base_name: &str, content: &str) -> Vec<IssueReport> {
+    pub fn check(content: &str) -> Vec<IssueReport> {
         let mut reports = Vec::new();
 
         reports.append(perform_simple_tests(content, &SIMPLE_TITLE_TESTS).as_mut());
@@ -307,7 +314,7 @@ mod content {
     ];
 
     /// This function collects all tests that target both assembly and module files
-    pub fn check(_base_name: &str, content: &str) -> Vec<IssueReport> {
+    pub fn check(content: &str) -> Vec<IssueReport> {
         let mut reports = Vec::new();
 
         reports.append(perform_simple_tests(content, &SIMPLE_CONTENT_TESTS).as_mut());
@@ -393,9 +400,21 @@ mod content {
     }
 }
 
+/// This function collects all tests required regardless of the module or assembly type
+fn check_common(content: &str) -> Vec<IssueReport> {
+    let mut reports = Vec::new();
+
+    reports.append(title::check(content).as_mut());
+    reports.append(content::check(content).as_mut());
+    reports.append(additional_resources::check(content).as_mut());
+
+    reports
+}
+
 // This section groups all module requirements;
 // they depend on title and content, and additional resources requirements
 mod module {
+    use crate::validation::check_common;
     use crate::validation::find_first_occurrence;
     use crate::validation::find_mod_id;
     use crate::validation::perform_simple_tests;
@@ -421,13 +440,10 @@ mod module {
     ];
 
     /// This function collects all tests required in module files
-    pub fn check(base_name: &str, content: &str) -> Vec<IssueReport> {
+    pub fn check(content: &str) -> Vec<IssueReport> {
         let mut reports = Vec::new();
 
-        reports.append(crate::validation::title::check(base_name, content).as_mut());
-        reports.append(crate::validation::content::check(base_name, content).as_mut());
-        reports.append(crate::validation::additional_resources::check(content).as_mut());
-
+        reports.append(check_common(content).as_mut());
         reports.append(perform_simple_tests(content, &SIMPLE_MODULE_TESTS).as_mut());
         reports.append(check_metadata_variable(content).as_mut());
         reports.append(check_include_except_snip(content).as_mut());
@@ -512,6 +528,7 @@ mod module {
 // This section groups all assembly requirements;
 // they depend on title and content, and additional resources requirements
 mod assembly {
+    use crate::validation::check_common;
     use crate::validation::perform_simple_tests;
     use crate::validation::IssueDefinition;
     use crate::validation::IssueReport;
@@ -543,15 +560,12 @@ mod assembly {
     ];
 
     /// This function collects all tests required in assembly files
-    pub fn check(base_name: &str, content: &str) -> Vec<IssueReport> {
+    pub fn check(content: &str) -> Vec<IssueReport> {
         // check_no_nesting(base_name, content);
         // check_supported_leveloffset(base_name, content);
         let mut reports = Vec::new();
 
-        reports.append(crate::validation::title::check(base_name, content).as_mut());
-        reports.append(crate::validation::content::check(base_name, content).as_mut());
-        reports.append(crate::validation::additional_resources::check(content).as_mut());
-
+        reports.append(check_common(content).as_mut());
         reports.append(perform_simple_tests(content, &SIMPLE_ASSEMBLY_TESTS).as_mut());
         reports.append(check_headings_in_assembly(content).as_mut());
 
