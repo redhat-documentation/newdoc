@@ -1,10 +1,10 @@
+use log::{debug, error};
+use regex::{Regex, RegexBuilder};
 /// This module provides functionality to validate (lint) existing module and assembly files,
 /// to check if the files meet the template structure and other requirements.
 use std::fmt;
 use std::fs;
 use std::path::Path;
-use log::{debug, error};
-use regex::{Regex, RegexBuilder};
 
 use crate::module::ModuleType;
 
@@ -128,6 +128,7 @@ impl IssueDefinition {
                     severity: self.severity,
                 })
                 .collect()
+        // If single-line:
         } else {
             let regex = Regex::new(self.pattern).unwrap();
             let findings = content
@@ -567,7 +568,7 @@ fn check_additional_resources(content: &str) -> Vec<IssueReport> {
 
 /// See if the additional resources heading is missing the additional resources flag,
 /// or the flag is further away than the one preceding line.
-fn check_add_res_flag(lines: &Vec<&str>, heading_index: usize) -> Option<IssueReport> {
+fn check_add_res_flag(lines: &[&str], heading_index: usize) -> Option<IssueReport> {
     let add_res_flag = r#"[role="_additional-resources"]"#;
 
     // If the line before the heading is the required flag, report no issue.
@@ -584,7 +585,7 @@ fn check_add_res_flag(lines: &Vec<&str>, heading_index: usize) -> Option<IssueRe
 }
 
 /// Check that the additional resources section is composed of list items, possibly with some ifdefs.
-fn check_paragraphs_in_add_res(lines: &Vec<&str>, heading_index: usize) -> Vec<IssueReport> {
+fn check_paragraphs_in_add_res(lines: &[&str], heading_index: usize) -> Vec<IssueReport> {
     // This regex matches either a plain list item, or one that's embedded in an inline ifdef.
     let bullet_point_regex = Regex::new(r"(?:^\*+\s+\S+|^ifdef::\S+\[\*+\s+\S+.*\])").unwrap();
     // A paragraph that isn't a list item is allowed if it's an ifdef or a comment.
@@ -628,7 +629,7 @@ fn check_paragraphs_in_add_res(lines: &Vec<&str>, heading_index: usize) -> Vec<I
 
 /// Detect links with no labels after a certain point in the file,
 /// specifically after the additional resources heading.
-fn check_link_labels_in_add_res(lines: &Vec<&str>, heading_index: usize) -> Vec<IssueReport> {
+fn check_link_labels_in_add_res(lines: &[&str], heading_index: usize) -> Vec<IssueReport> {
     let link_regex = Regex::new(r"link:\S+\[]").unwrap();
 
     let mut issues = Vec::new();
@@ -647,7 +648,7 @@ fn check_link_labels_in_add_res(lines: &Vec<&str>, heading_index: usize) -> Vec<
 }
 
 /// Check that the items in the additional resources section aren't too long, measured in words.
-fn check_additional_resource_length(lines: &Vec<&str>, heading_index: usize) -> Vec<IssueReport> {
+fn check_additional_resource_length(lines: &[&str], heading_index: usize) -> Vec<IssueReport> {
     // This regex features capture groups to extract the content of the list item.
     let bullet_point_regex = Regex::new(r"^(?:\*+\s+(\S+.*)|ifdef::\S+\[\*+\s+(\S+.*)\])").unwrap();
     // This is the number of words you need to write:
@@ -659,7 +660,9 @@ fn check_additional_resource_length(lines: &Vec<&str>, heading_index: usize) -> 
 
     for (offset, &line) in lines[heading_index + 1..].iter().enumerate() {
         if let Some(captures) = bullet_point_regex.captures(line) {
-            let list_item_text = captures.get(1).expect("Failed to extract text from a list item. This is a bug.");
+            let list_item_text = captures
+                .get(1)
+                .expect("Failed to extract text from a list item. This is a bug.");
             // Counting words by splitting by white space is a crude measurement, but it should be
             // close enough. The important thing is that it doesn't count long links as many words.
             let number_of_words = list_item_text.as_str().split_whitespace().count();
@@ -668,7 +671,8 @@ fn check_additional_resource_length(lines: &Vec<&str>, heading_index: usize) -> 
             if number_of_words > maximum_words {
                 issues.push(IssueReport {
                     line_number: Some(heading_index + offset + 2),
-                    description: "The additional resource is long. Try to limit it to a couple of words.",
+                    description:
+                        "The additional resource is long. Try to limit it to a couple of words.",
                     severity: IssueSeverity::Warning,
                 });
             }
@@ -698,10 +702,11 @@ fn find_mod_id(content: &str) -> Option<(usize, &str)> {
 /// This does not distinguish between the module and assembly format -- the simple tests check that.
 fn find_additional_resources(content: &str) -> Option<(usize, &str)> {
     let add_res_regex = Regex::new(
-        r"^(?:==\s+|\.)(?:Additional resources|Related information|Additional information)\s*$")
-            .unwrap();
-    
-        find_first_occurrence(content, add_res_regex)
+        r"^(?:==\s+|\.)(?:Additional resources|Related information|Additional information)\s*$",
+    )
+    .unwrap();
+
+    find_first_occurrence(content, add_res_regex)
 }
 
 /// Search for a predefined regex in a file. If found, return the line number and the line text.
