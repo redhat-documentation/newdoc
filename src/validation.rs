@@ -8,22 +8,6 @@ use std::path::Path;
 
 use crate::module::ModuleType;
 
-const SIMPLE_MODULE_TESTS: [IssueDefinition; 2] = [
-    // Ensure the correct syntax for Additional resources
-    IssueDefinition {
-        pattern: r"^==\s*Additional resources\s*$",
-        description: "In modules, 'Additional resources' must use the dot syntax.",
-        severity: IssueSeverity::Error,
-        multiline: false,
-    },
-    IssueDefinition {
-        pattern: r"^={2,}\s+\S.*",
-        description: "This heading is level-2 or greater. Be conscious of the heading level.",
-        severity: IssueSeverity::Warning,
-        multiline: false,
-    },
-];
-
 const SIMPLE_TITLE_TESTS: [IssueDefinition; 2] = [
     // Test that there are no inline anchors in the title
     IssueDefinition {
@@ -161,9 +145,9 @@ pub fn validate(file_name: &str) {
     let mod_type = determine_mod_type(base_name, &content);
 
     let reports = match mod_type {
-        ModTypeOrReport::Type(ModuleType::Assembly) => assembly::check_all(base_name, &content),
+        ModTypeOrReport::Type(ModuleType::Assembly) => assembly::check(base_name, &content),
         ModTypeOrReport::Report(r) => vec![r],
-        _ => test_modules(base_name, &content),
+        _ => module::check(base_name, &content),
     };
 
     report_issues(reports, file_name);
@@ -238,96 +222,7 @@ fn test_common(_base_name: &str, content: &str) -> Vec<IssueReport> {
         reports.push(experimental_issue);
     }
 
-    reports.append(additional_resources::check_all(content).as_mut());
-
-    reports
-}
-
-/// This function collects all tests that target only module files
-fn test_modules(base_name: &str, content: &str) -> Vec<IssueReport> {
-    let mut reports = Vec::new();
-
-    reports.append(test_common(base_name, content).as_mut());
-
-    reports.append(perform_simple_tests(content, &SIMPLE_MODULE_TESTS).as_mut());
-    reports.append(check_metadata_variable(content).as_mut());
-    reports.append(check_include_except_snip(content).as_mut());
-
-    // Sort the reported issues by their line number
-    reports.sort_by_key(|report| report.line_number);
-
-    reports
-}
-
-/// Check that the module type variable is located before the module ID, as required.
-/// As a side effect, this function also checks that both the varible and the ID are present.
-fn check_metadata_variable(content: &str) -> Vec<IssueReport> {
-    let metadata_var_pattern = r":_module-type:\s*(?:PROCEDURE|CONCEPT|REFERENCE)";
-    let metadata_var_regex = Regex::new(metadata_var_pattern).unwrap();
-    let metadata_var = find_first_occurrence(content, metadata_var_regex);
-
-    let mod_id = find_mod_id(content);
-
-    // Prepare to store the reports about the module
-    let mut results: Vec<IssueReport> = Vec::new();
-
-    // Report if the metadata variable is completely missing.
-    // A missing ID is already reported elsewhere.
-    if metadata_var.is_none() {
-        let report = IssueReport {
-            line_number: None,
-            description: "The module is missing the module type variable.",
-            severity: IssueSeverity::Warning,
-        };
-        results.push(report);
-    }
-
-    // If both elements are present, ensure their proper position in relation to each other
-    if let (Some(mod_id), Some(metadata_var)) = (mod_id, metadata_var) {
-        if mod_id.0 < metadata_var.0 {
-            let report = IssueReport {
-                line_number: Some(metadata_var.0),
-                description: "The module type variable is located after the module ID.",
-                severity: IssueSeverity::Error,
-            };
-            results.push(report);
-        }
-    }
-
-    results
-}
-
-/// Test that modules include no other modules, except for snippets
-fn check_include_except_snip(content: &str) -> Vec<IssueReport> {
-    let any_include_pattern = r"^include::.*\.adoc";
-    let any_include_regex = Regex::new(any_include_pattern).unwrap();
-
-    let snip_include_pattern = r"^include::((snip|.*/snip)[_-]|common-content/).*\.adoc";
-    let snip_include_regex = Regex::new(snip_include_pattern).unwrap();
-
-    let mut reports: Vec<IssueReport> = Vec::new();
-
-    for (index, line) in content.lines().enumerate() {
-        if let Some(include) = any_include_regex.find(line) {
-            if let Some(_snippet) = snip_include_regex.find(include.as_str()) {
-                // In this case, the detected include is most likely a snippet. Report as Information
-                let report = IssueReport {
-                    line_number: Some(index + 1),
-                    description: "This module includes a file that appears to be a snippet. This is supported.",
-                    severity: IssueSeverity::Information,
-                };
-                reports.push(report);
-            } else {
-                let report = IssueReport {
-                    line_number: Some(index + 1),
-                    description:
-                        "This module includes a file that does not appear to be a snippet.",
-                    severity: IssueSeverity::Error,
-                };
-                reports.push(report);
-            }
-        }
-    }
+    reports.append(additional_resources::check(content).as_mut());
 
     reports
 }
@@ -457,6 +352,122 @@ fn check_experimental_flag(content: &str) -> Option<IssueReport> {
     }
 }
 
+mod module {
+    use crate::validation::find_first_occurrence;
+    use crate::validation::find_mod_id;
+    use crate::validation::perform_simple_tests;
+    use crate::validation::test_common;
+    use crate::validation::IssueDefinition;
+    use crate::validation::IssueReport;
+    use crate::validation::IssueSeverity;
+    use regex::Regex;
+
+    const SIMPLE_MODULE_TESTS: [IssueDefinition; 2] = [
+        // Ensure the correct syntax for Additional resources
+        IssueDefinition {
+            pattern: r"^==\s*Additional resources\s*$",
+            description: "In modules, 'Additional resources' must use the dot syntax.",
+            severity: IssueSeverity::Error,
+            multiline: false,
+        },
+        IssueDefinition {
+            pattern: r"^={2,}\s+\S.*",
+            description: "This heading is level-2 or greater. Be conscious of the heading level.",
+            severity: IssueSeverity::Warning,
+            multiline: false,
+        },
+    ];
+
+    /// This function collects all tests that target only module files
+    pub fn check(base_name: &str, content: &str) -> Vec<IssueReport> {
+        let mut reports = Vec::new();
+
+        reports.append(test_common(base_name, content).as_mut());
+
+        reports.append(perform_simple_tests(content, &SIMPLE_MODULE_TESTS).as_mut());
+        reports.append(check_metadata_variable(content).as_mut());
+        reports.append(check_include_except_snip(content).as_mut());
+
+        // Sort the reported issues by their line number
+        reports.sort_by_key(|report| report.line_number);
+
+        reports
+    }
+
+    /// Check that the module type variable is located before the module ID, as required.
+    /// As a side effect, this function also checks that both the varible and the ID are present.
+    fn check_metadata_variable(content: &str) -> Vec<IssueReport> {
+        let metadata_var_pattern = r":_module-type:\s*(?:PROCEDURE|CONCEPT|REFERENCE)";
+        let metadata_var_regex = Regex::new(metadata_var_pattern).unwrap();
+        let metadata_var = find_first_occurrence(content, metadata_var_regex);
+
+        let mod_id = find_mod_id(content);
+
+        // Prepare to store the reports about the module
+        let mut results: Vec<IssueReport> = Vec::new();
+
+        // Report if the metadata variable is completely missing.
+        // A missing ID is already reported elsewhere.
+        if metadata_var.is_none() {
+            let report = IssueReport {
+                line_number: None,
+                description: "The module is missing the module type variable.",
+                severity: IssueSeverity::Warning,
+            };
+            results.push(report);
+        }
+
+        // If both elements are present, ensure their proper position in relation to each other
+        if let (Some(mod_id), Some(metadata_var)) = (mod_id, metadata_var) {
+            if mod_id.0 < metadata_var.0 {
+                let report = IssueReport {
+                    line_number: Some(metadata_var.0),
+                    description: "The module type variable is located after the module ID.",
+                    severity: IssueSeverity::Error,
+                };
+                results.push(report);
+            }
+        }
+
+        results
+    }
+
+    /// Test that modules include no other modules, except for snippets
+    fn check_include_except_snip(content: &str) -> Vec<IssueReport> {
+        let any_include_pattern = r"^include::.*\.adoc";
+        let any_include_regex = Regex::new(any_include_pattern).unwrap();
+
+        let snip_include_pattern = r"^include::((snip|.*/snip)[_-]|common-content/).*\.adoc";
+        let snip_include_regex = Regex::new(snip_include_pattern).unwrap();
+
+        let mut reports: Vec<IssueReport> = Vec::new();
+
+        for (index, line) in content.lines().enumerate() {
+            if let Some(include) = any_include_regex.find(line) {
+                if let Some(_snippet) = snip_include_regex.find(include.as_str()) {
+                    // In this case, the detected include is most likely a snippet. Report as Information
+                    let report = IssueReport {
+                    line_number: Some(index + 1),
+                    description: "This module includes a file that appears to be a snippet. This is supported.",
+                    severity: IssueSeverity::Information,
+                };
+                    reports.push(report);
+                } else {
+                    let report = IssueReport {
+                        line_number: Some(index + 1),
+                        description:
+                            "This module includes a file that does not appear to be a snippet.",
+                        severity: IssueSeverity::Error,
+                    };
+                    reports.push(report);
+                }
+            }
+        }
+
+        reports
+    }
+}
+
 mod assembly {
     use crate::validation::perform_simple_tests;
     use crate::validation::test_common;
@@ -490,7 +501,7 @@ mod assembly {
     ];
 
     /// This function collects all tests that target only assembly files
-    pub fn check_all(base_name: &str, content: &str) -> Vec<IssueReport> {
+    pub fn check(base_name: &str, content: &str) -> Vec<IssueReport> {
         // check_no_nesting(base_name, content);
         // check_supported_leveloffset(base_name, content);
         let mut reports = Vec::new();
@@ -559,7 +570,7 @@ mod additional_resources {
     ];
 
     /// Perform all available tests on the Additional resources section
-    pub fn check_all(content: &str) -> Vec<IssueReport> {
+    pub fn check(content: &str) -> Vec<IssueReport> {
         let heading = find_additional_resources(content);
         let mut issues = Vec::new();
 
