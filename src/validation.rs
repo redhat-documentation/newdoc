@@ -62,12 +62,10 @@ impl IssueDefinition {
                 .filter(|(_index, found)| found.is_some());
 
             findings
-                .map(|(index, _finding)| {
-                    IssueReport {
-                        line_number: Some(index),
-                        description: self.description,
-                        severity: self.severity,
-                    }
+                .map(|(index, _finding)| IssueReport {
+                    line_number: Some(index),
+                    description: self.description,
+                    severity: self.severity,
                 })
                 .collect()
         }
