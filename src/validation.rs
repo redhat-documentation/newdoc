@@ -377,8 +377,8 @@ mod content {
         } else {
             Some(IssueReport {
                 line_number: None,
-                description: "The file is missing the _abstract flag.",
-                severity: IssueSeverity::Error,
+                description: "The file is missing the _abstract flag. The flag is recommended but not required.",
+                severity: IssueSeverity::Warning,
             })
         }
     }
