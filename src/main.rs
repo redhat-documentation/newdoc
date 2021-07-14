@@ -4,6 +4,7 @@ mod cmd_line;
 mod logging;
 mod module;
 mod templating;
+mod validation;
 mod write;
 
 use module::{Input, Module, ModuleType};
@@ -96,6 +97,13 @@ fn main() {
             .into();
 
         populated.write_file(&options);
+    }
+
+    // Validate all file names specified on the command line
+    if let Some(files_iterator) = cmdline_args.values_of("validate") {
+        for file in files_iterator {
+            validation::validate(file);
+        }
     }
 }
 

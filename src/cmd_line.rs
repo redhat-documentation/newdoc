@@ -59,10 +59,19 @@ pub fn get_args() -> ArgMatches<'static> {
                 .multiple(true)
                 .help("Create a reference module"),
         )
-        // This group ensures that at least one of the assembly or module inputs is present
+        .arg(
+            Arg::with_name("validate")
+                .short("l")
+                .long("validate")
+                .takes_value(true)
+                .value_name("file")
+                .multiple(true)
+                .help("Validate (lint) an existing module or assembly file")
+        )
+        // This group specifies that you either generate modules or validate existing ones
         .group(
-            ArgGroup::with_name("modules")
-                .args(&["assembly", "concept", "procedure", "reference"])
+            ArgGroup::with_name("required")
+                .args(&["assembly", "concept", "procedure", "reference", "validate"])
                 .required(true)
                 .multiple(true),
         )
