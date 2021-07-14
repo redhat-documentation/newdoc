@@ -49,7 +49,7 @@ The `newdoc` tool generates pre-populated module and assembly files formatted wi
 * To update `newdoc` that is installed from RPM, use the DNF package manager:
 
     ```
-    # dnf upgrade newdoc
+    # dnf --refresh upgrade newdoc
     ```
 
 * To update `newdoc` from source, use the `cargo` package manager:
