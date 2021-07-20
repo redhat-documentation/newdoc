@@ -336,6 +336,8 @@ mod content {
             reports.push(experimental_issue);
         }
 
+        reports.append(check_path_xrefs(content).as_mut());
+
         reports
     }
 
@@ -407,6 +409,34 @@ mod content {
             // No UI macro found, means no issue
             None
         }
+    }
+
+    /// Check that supported xrefs are path-based.
+    /// Report issues as warnings because ID-based xrefs might still work in some instances, such as within the file.
+    fn check_path_xrefs(content: &str) -> Vec<IssueReport> {
+        // Check only those xrefs that have labels. Skip unsupported, label-less xrefs, which are reported elsewhere.
+        let xref_regex = Regex::new(r"xref:(\S+)\[\S+.*?\]").unwrap();
+        // This regex checks only the captured content of the xref.
+        let path_based_regex = Regex::new(r"\S+\.(?:adoc|asciidoc)").unwrap();
+
+        let mut issues = Vec::new();
+
+        for (index, line) in content.lines().enumerate() {
+            if let Some(xref) = xref_regex.captures(line) {
+                if path_based_regex.is_match(xref.get(1).expect("Cannot capture the xref content.").as_str()) {
+                    // This xref is path-based. This is the correct form. Skip.
+                } else {
+                    // This xref is not path-based. Report.
+                    issues.push(IssueReport {
+                        line_number: Some(index),
+                        description: "This xref does not appear to be path-based. Make sure that it works in your assembly.",
+                        severity: IssueSeverity::Warning,
+                    });
+                }
+            }
+        }
+
+        issues
     }
 }
 
