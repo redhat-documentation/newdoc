@@ -433,7 +433,11 @@ mod content {
 
         for (index, line) in content.lines().enumerate() {
             if let Some(xref) = xref_regex.captures(line) {
-                if path_based_regex.is_match(xref.get(1).expect("Cannot capture the xref content.").as_str()) {
+                if path_based_regex.is_match(
+                    xref.get(1)
+                        .expect("Cannot capture the xref content.")
+                        .as_str(),
+                ) {
                     // This xref is path-based. This is the correct form. Skip.
                 } else {
                     // This xref is not path-based. Report.
