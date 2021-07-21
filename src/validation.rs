@@ -417,7 +417,7 @@ mod content {
         // Check only those xrefs that have labels. Skip unsupported, label-less xrefs, which are reported elsewhere.
         let xref_regex = Regex::new(r"xref:(\S+)\[\S+.*?\]").unwrap();
         // This regex checks only the captured content of the xref.
-        let path_based_regex = Regex::new(r"\S+\.(?:adoc|asciidoc)").unwrap();
+        let path_based_regex = Regex::new(r"\S+\.(?:adoc|asciidoc)$").unwrap();
 
         let mut issues = Vec::new();
 
