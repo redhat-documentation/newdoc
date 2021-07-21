@@ -95,9 +95,29 @@ The `newdoc` tool generates pre-populated module and assembly files formatted wi
     Alternatively, you can use the `--include-in` option when creating the assembly to generate modules and include them automatically, in a single step. See the description in the *Options* section.
 
 
+## Validating a file for Red Hat requirements
+
+You can use the `--validate` (`-l`) option to check an existing file for Red Hat publishing requirements. For example:
+
+```
+$ newdoc --validate modules/empty-file.adoc
+
+💾 File: empty-file.adoc
+    🔴 Error: The file has no title or headings.
+    🔴 Error: The file is missing an ID.
+    🔶 Warning: The file is missing the _abstract flag. The flag is recommended but not required.
+    🔴 Error: Cannot determine the module type.
+```
+
+```
+$ newdoc --validate modules/con_proper-module.adoc
+
+💾 File: modules/con_proper-module.adoc
+    🔷 Information: No issues found in this file.
+```
+
 
 ## Options
-
 
 * To generate the file without the explanatory comments, add the `--no-comments` or `-C` option when creating documents.
 
