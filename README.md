@@ -48,9 +48,13 @@ The `newdoc` tool generates pre-populated module and assembly files formatted wi
 
 * To update `newdoc` that is installed from RPM, use the DNF package manager:
 
-    ```
-    # dnf --refresh upgrade newdoc
-    ```
+    1. Make sure that you are using a supported release of your Linux distribution. The Copr repository does not publish `newdoc` packages for unsupported distribution releases.
+
+    2. Refresh repository metadata and update the package:
+
+        ```
+        # dnf --refresh upgrade newdoc
+        ```
 
 * To update `newdoc` from source, use the `cargo` package manager:
 
