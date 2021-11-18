@@ -15,6 +15,14 @@ Base the file name and the ID on the assembly title. For example:
 The ID is an anchor that links to the module. Avoid changing it after the module has been published to ensure existing links are not broken. Include {context} in the ID so the assembly can be reused.
 ////
 
+////
+Indicate the module type in one of the following
+ways:
+Add the prefix assembly- or assembly_ to the file name.
+Add the following attribute before the module ID:
+////
+:_content-type: ASSEMBLY
+
 ifndef::context[]
 [id="{{module_id}}"]
 endif::[]
@@ -79,4 +87,3 @@ Restore the context to what it was before this assembly.
 ////
 ifdef::parent-context-of-{{module_id}}[:context: {parent-context-of-{{module_id}}}]
 ifndef::parent-context-of-{{module_id}}[:!context:]
-

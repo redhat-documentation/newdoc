@@ -11,7 +11,7 @@ ways:
 Add the prefix con- or con_ to the file name.
 Add the following attribute before the module ID:
 ////
-:_module-type: CONCEPT
+:_content-type: CONCEPT
 
 ////
 The ID is an anchor that links to the module. Avoid changing it after the module has been published to ensure existing links are not broken.
@@ -46,4 +46,3 @@ Optional. Delete if not used.
 * For more details on writing concept modules, see the link:https://github.com/redhat-documentation/modular-docs#modular-documentation-reference-guide[Modular Documentation Reference Guide].
 * Use a consistent system for file names, IDs, and titles. For tips, see _Anchor Names and File Names_ in link:https://github.com/redhat-documentation/modular-docs#modular-documentation-reference-guide[Modular Documentation Reference Guide].
 {%- endif %}
-
