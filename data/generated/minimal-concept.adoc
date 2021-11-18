@@ -1,4 +1,4 @@
-:_module-type: CONCEPT
+:_content-type: CONCEPT
 
 [id="minimal-concept_{context}"]
 = Minimal concept

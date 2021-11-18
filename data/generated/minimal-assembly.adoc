@@ -1,5 +1,7 @@
 ifdef::context[:parent-context-of-minimal-assembly: {context}]
 
+:_content-type: ASSEMBLY
+
 ifndef::context[]
 [id="minimal-assembly"]
 endif::[]
