@@ -159,13 +159,11 @@ enum ModTypeOrReport {
 
 /// Try to determine the module type of a file, using the file name and the file content.
 fn determine_mod_type(base_name: &str, content: &str) -> ModTypeOrReport {
-    if base_name.starts_with("assembly_") || base_name.starts_with("assembly-") {
-        return ModTypeOrReport::Type(ModuleType::Assembly);
-    }
     let mod_patterns = [
-        ("con", ":_module-type: CONCEPT", ModuleType::Concept),
-        ("proc", ":_module-type: PROCEDURE", ModuleType::Procedure),
-        ("ref", ":_module-type: REFERENCE", ModuleType::Reference),
+        ("assembly", ":_content-type: ASSEMBLY", ModuleType::Assembly),
+        ("con", ":_content-type: CONCEPT", ModuleType::Concept),
+        ("proc", ":_content-type: PROCEDURE", ModuleType::Procedure),
+        ("ref", ":_content-type: REFERENCE", ModuleType::Reference),
     ];
     for pattern in mod_patterns.iter() {
         if base_name.starts_with(pattern.0) || content.contains(pattern.1) {
@@ -311,6 +309,7 @@ mod title {
 // This section groups all content requirements
 mod content {
     use crate::validation::find_first_occurrence;
+    use crate::validation::find_mod_id;
     use crate::validation::perform_simple_tests;
     use crate::validation::IssueDefinition;
     use crate::validation::IssueReport;
@@ -347,8 +346,48 @@ mod content {
         }
 
         reports.append(check_path_xrefs(content).as_mut());
+        reports.append(check_metadata_variable(content).as_mut());
 
         reports
+    }
+
+    /// Check that the module type variable is located before the module ID, as required.
+    /// As a side effect, this function also checks that both the varible and the ID are present.
+    fn check_metadata_variable(content: &str) -> Vec<IssueReport> {
+        let metadata_var_pattern =
+            r":_content-type:\s*(?:ASSEMBLY|PROCEDURE|CONCEPT|REFERENCE|SNIPPET)";
+        let metadata_var_regex = Regex::new(metadata_var_pattern).unwrap();
+        let metadata_var = find_first_occurrence(content, metadata_var_regex);
+
+        let mod_id = find_mod_id(content);
+
+        // Prepare to store the reports about the module
+        let mut results: Vec<IssueReport> = Vec::new();
+
+        // Report if the metadata variable is completely missing.
+        // A missing ID is already reported elsewhere.
+        if metadata_var.is_none() {
+            let report = IssueReport {
+                line_number: None,
+                description: "The module is missing the _content-type attribute.",
+                severity: IssueSeverity::Warning,
+            };
+            results.push(report);
+        }
+
+        // If both elements are present, ensure their proper position in relation to each other
+        if let (Some(mod_id), Some(metadata_var)) = (mod_id, metadata_var) {
+            if mod_id.0 < metadata_var.0 {
+                let report = IssueReport {
+                    line_number: Some(metadata_var.0),
+                    description: "The _content-type attribute is located after the module ID.",
+                    severity: IssueSeverity::Error,
+                };
+                results.push(report);
+            }
+        }
+
+        results
     }
 
     /// Check that the abstract flag exists in the file and that it's followed by a paragraph.
@@ -458,8 +497,6 @@ mod content {
 // they depend on title and content, and additional resources requirements
 mod module {
     use crate::validation::check_common;
-    use crate::validation::find_first_occurrence;
-    use crate::validation::find_mod_id;
     use crate::validation::perform_simple_tests;
     use crate::validation::IssueDefinition;
     use crate::validation::IssueReport;
@@ -488,48 +525,9 @@ mod module {
 
         reports.append(check_common(content).as_mut());
         reports.append(perform_simple_tests(content, &SIMPLE_MODULE_TESTS).as_mut());
-        reports.append(check_metadata_variable(content).as_mut());
         reports.append(check_include_except_snip(content).as_mut());
 
         reports
-    }
-
-    /// Check that the module type variable is located before the module ID, as required.
-    /// As a side effect, this function also checks that both the varible and the ID are present.
-    fn check_metadata_variable(content: &str) -> Vec<IssueReport> {
-        let metadata_var_pattern = r":_module-type:\s*(?:PROCEDURE|CONCEPT|REFERENCE)";
-        let metadata_var_regex = Regex::new(metadata_var_pattern).unwrap();
-        let metadata_var = find_first_occurrence(content, metadata_var_regex);
-
-        let mod_id = find_mod_id(content);
-
-        // Prepare to store the reports about the module
-        let mut results: Vec<IssueReport> = Vec::new();
-
-        // Report if the metadata variable is completely missing.
-        // A missing ID is already reported elsewhere.
-        if metadata_var.is_none() {
-            let report = IssueReport {
-                line_number: None,
-                description: "The module is missing the module type variable.",
-                severity: IssueSeverity::Warning,
-            };
-            results.push(report);
-        }
-
-        // If both elements are present, ensure their proper position in relation to each other
-        if let (Some(mod_id), Some(metadata_var)) = (mod_id, metadata_var) {
-            if mod_id.0 < metadata_var.0 {
-                let report = IssueReport {
-                    line_number: Some(metadata_var.0),
-                    description: "The module type variable is located after the module ID.",
-                    severity: IssueSeverity::Error,
-                };
-                results.push(report);
-            }
-        }
-
-        results
     }
 
     /// Test that modules include no other modules, except for snippets
