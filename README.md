@@ -17,7 +17,7 @@ The `newdoc` tool generates pre-populated module and assembly files formatted wi
     ```
     # dnf copr enable mareksu/newdoc-rs
     # dnf install newdoc
-    
+
     $ newdoc
     ```
 
@@ -27,22 +27,25 @@ The `newdoc` tool generates pre-populated module and assembly files formatted wi
 
     ```
     $ cargo install newdoc
-    
+
     $ newdoc
     ```
 
     For installing `cargo`, see <https://rustup.rs/>.
-    
+
+<!--
+Note: The configuration files for a container image are still usable in the repo, but Docker Hub no longer provides free builds, so I'm disabling this part of instructions.
+
 * To install `newdoc` as a Docker image, use the `docker` or `podman` tool. If you use `podman`, replace `docker` with `podman` in the following commands:
 
     ```
     $ docker pull mrksu/newdoc
-    
+
     $ docker run mrksu/newdoc
     ```
-    
-    **Warning:** The container currently does not generate files properly. For details and a workaround, see [Issue #17](https://github.com/redhat-documentation/newdoc/issues/17).
 
+    **Warning:** The container currently does not generate files properly. For details and a workaround, see [Issue #17](https://github.com/redhat-documentation/newdoc/issues/17).
+-->
 
 ## Updating newdoc
 
@@ -62,12 +65,15 @@ The `newdoc` tool generates pre-populated module and assembly files formatted wi
     $ cargo install newdoc
     ```
 
+<!--
+Note: The configuration files for a container image are still usable in the repo, but Docker Hub no longer provides free builds, so I'm disabling this part of instructions.
+
 * To update `newdoc` from Docker, use the `docker` or `podman` tool:
 
     ```
     $ docker pull mrksu/newdoc
     ```
-
+-->
 
 ## Creating a new module
 
@@ -89,9 +95,9 @@ The `newdoc` tool generates pre-populated module and assembly files formatted wi
     ```
     assemblies-dir]$ newdoc --assembly "Achieving thing"
     ```
-    
+
     You can use the short form of the `--assembly` option instead: `newdoc -a "Achieving thing"`.
-    
+
 2. Rewrite the placeholders in the generated file with your docs.
 
     Add AsciiDoc include statements to include modules. See [Include Files](https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#include-files) in the AsciiDoc Syntax Quick Reference.
@@ -155,4 +161,3 @@ You can find a brief change log on the [Releases](https://github.com/redhat-docu
 * The `newdoc --help` command
 * [Modular Documentation Reference Guide](https://redhat-documentation.github.io/modular-docs/)
 * [AsciiDoc Mark-up Quick Reference for Red Hat Documentation](https://redhat-documentation.github.io/asciidoc-markup-conventions/)
-
