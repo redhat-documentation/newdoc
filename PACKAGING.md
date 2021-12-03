@@ -32,7 +32,7 @@ The following are instructions for the maintainers of `newdoc` to package and di
 
 ## Packaging and distributing newdoc on Crates.io
 
-1. If you are publishing to Crates.io for teh first time on this system, log into your account:
+1. If you are publishing to Crates.io for the first time on this system, log into your account:
 
     ```
     $ cargo login
@@ -46,6 +46,9 @@ The following are instructions for the maintainers of `newdoc` to package and di
     $ cargo publish
     ```
 
+
+<!--
+Note: The configuration files for a container image are still usable in the repo, but Docker Hub no longer provides free builds, so I'm disabling this part of instructions.
 
 ## Packaging and distributing newdoc as a Docker image
 
@@ -84,3 +87,4 @@ Note: The following steps might be sub-optimal. Feel free to suggest improvement
     ```
     $ docker push mrksu/newdoc:v2.3.3
     ```
+-->
