@@ -345,11 +345,7 @@ mod tests {
     fn check_detected_path() {
         let options = path_options();
 
-        let module = Module::new(
-            ModuleType::Procedure,
-            "Testing the detected path",
-            &options,
-        );
+        let module = Module::new(ModuleType::Procedure, "Testing the detected path", &options);
 
         assert_eq!(
             module.include_statement,
