@@ -14,24 +14,41 @@ The `newdoc` tool generates pre-populated module and assembly files formatted wi
 
 * To install `newdoc` on Fedora, RHEL, or CentOS, use the Copr package repository:
 
-    ```
-    # dnf copr enable mareksu/newdoc-rs
-    # dnf install newdoc
+    1. Enable the repository:
 
-    $ newdoc
-    ```
+        ```
+        # dnf copr enable mareksu/newdoc-rs
+        ```
 
-    Note that the Copr repository distributes packages only for *supported* releases of Fedora. If you have enabled the repository but the package fails to install, check if your Fedora is still supported.
+    2. Install `newdoc`:
+
+        ```
+        # dnf install newdoc
+        ```
+
+        The Copr repository distributes packages only for *supported* releases of Fedora. If you have enabled the repository but the package fails to install, check if your Fedora is still supported.
+
+    3. Test that `newdoc` works:
+
+        ```
+        $ newdoc
+        ```
 
 * To install `newdoc` from source on a Linux distribution, on macOS, or on Microsoft Windows, use the `cargo` package manager:
 
-    ```
-    $ cargo install newdoc
+    1. Install the Rust toolchain: see <https://rustup.rs/>.
 
-    $ newdoc
-    ```
+    2. Install `newdoc`:
 
-    For installing `cargo`, see <https://rustup.rs/>.
+        ```
+        $ cargo install newdoc
+        ```
+
+    3. Test that `newdoc` works:
+
+        ```
+        $ newdoc
+        ```
 
 <!--
 Note: The configuration files for a container image are still usable in the repo, but Docker Hub no longer provides free builds, so I'm disabling this part of instructions.
@@ -61,9 +78,17 @@ Note: The configuration files for a container image are still usable in the repo
 
 * To update `newdoc` from source, use the `cargo` package manager:
 
-    ```
-    $ cargo install newdoc
-    ```
+    1. Update the Rust toolchain:
+
+        ```
+        $ rustup update
+        ```
+
+    2. Update `newdoc`:
+
+        ```
+        $ cargo install newdoc
+        ```
 
 <!--
 Note: The configuration files for a container image are still usable in the repo, but Docker Hub no longer provides free builds, so I'm disabling this part of instructions.
