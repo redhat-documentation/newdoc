@@ -62,7 +62,7 @@ fn main() {
 
     // TODO: Maybe attach these strings to the ModuleType enum somehow
     // For each module type, see if it occurs on the command line and process it
-    for module_type_str in ["assembly", "concept", "procedure", "reference"].iter() {
+    for module_type_str in &["assembly", "concept", "procedure", "reference"] {
         // Check if the given module type occurs on the command line
         if let Some(titles_iterator) = cmdline_args.values_of(module_type_str) {
             let mut modules = process_module_type(titles_iterator, module_type_str, &options);
@@ -73,7 +73,7 @@ fn main() {
     }
 
     // Write all non-populated modules to the disk
-    for module in non_populated.iter() {
+    for module in &non_populated {
         module.write_file(&options);
     }
 
@@ -85,14 +85,14 @@ fn main() {
         // TODO: Figure out if this can be done without calling .to_owned on all the Strings
         let include_statements: Vec<String> = non_populated
             .iter()
-            .map(|module| module.include_statement.to_owned())
+            .map(|module| module.include_statement.clone())
             .collect();
 
         // The include_statements should never be empty thanks to the required group in clap
         assert!(!include_statements.is_empty());
 
         // Generate the populated assembly module
-        let populated: Module = Input::new(&ModuleType::Assembly, title, &options)
+        let populated: Module = Input::new(ModuleType::Assembly, title, &options)
             .include(include_statements)
             .into();
 
@@ -115,15 +115,14 @@ fn process_module_type(
     options: &Options,
 ) -> Vec<Module> {
     let module_type = match module_type_str {
-        "assembly" => ModuleType::Assembly,
-        "include-in" => ModuleType::Assembly,
+        "assembly" | "include-in" => ModuleType::Assembly,
         "concept" => ModuleType::Concept,
         "procedure" => ModuleType::Procedure,
         "reference" => ModuleType::Reference,
         _ => unimplemented!(),
     };
 
-    let modules_from_type = titles.map(|title| Module::new(&module_type, title, &options));
+    let modules_from_type = titles.map(|title| Module::new(module_type, title, options));
 
     modules_from_type.collect()
 }
@@ -151,7 +150,7 @@ mod tests {
     /// Test that we generate the assembly that we expect.
     #[test]
     fn test_assembly() {
-        let mod_type = &ModuleType::Assembly;
+        let mod_type = ModuleType::Assembly;
         let mod_title = "Testing that an assembly forms properly";
         let options = basic_options();
         let assembly = Module::new(mod_type, mod_title, &options);
@@ -165,7 +164,7 @@ mod tests {
     /// Test that we generate the concept module that we expect.
     #[test]
     fn test_concept_module() {
-        let mod_type = &ModuleType::Concept;
+        let mod_type = ModuleType::Concept;
         let mod_title = "A title that tests a concept";
         let options = basic_options();
         let concept = Module::new(mod_type, mod_title, &options);
@@ -178,7 +177,7 @@ mod tests {
     /// Test that we generate the procedure module that we expect.
     #[test]
     fn test_procedure_module() {
-        let mod_type = &ModuleType::Procedure;
+        let mod_type = ModuleType::Procedure;
         let mod_title = "Testing a procedure";
         let options = basic_options();
         let procedure = Module::new(mod_type, mod_title, &options);
@@ -191,7 +190,7 @@ mod tests {
     /// Test that we generate the reference module that we expect.
     #[test]
     fn test_reference_module() {
-        let mod_type = &ModuleType::Reference;
+        let mod_type = ModuleType::Reference;
         let mod_title = "The lines in a reference module";
         let options = basic_options();
         let reference = Module::new(mod_type, mod_title, &options);
@@ -216,7 +215,7 @@ mod tests {
     /// Test that we generate the assembly that we expect.
     #[test]
     fn test_minimal_assembly() {
-        let mod_type = &ModuleType::Assembly;
+        let mod_type = ModuleType::Assembly;
         let mod_title = "Minimal assembly";
         let options = minimal_options();
         let assembly = Module::new(mod_type, mod_title, &options);
@@ -229,7 +228,7 @@ mod tests {
     /// Test that we generate the concept module that we expect.
     #[test]
     fn test_minimal_concept() {
-        let mod_type = &ModuleType::Concept;
+        let mod_type = ModuleType::Concept;
         let mod_title = "Minimal concept";
         let options = minimal_options();
         let concept = Module::new(mod_type, mod_title, &options);
@@ -242,7 +241,7 @@ mod tests {
     /// Test that we generate the procedure module that we expect.
     #[test]
     fn test_minimal_procedure() {
-        let mod_type = &ModuleType::Procedure;
+        let mod_type = ModuleType::Procedure;
         let mod_title = "Minimal procedure";
         let options = minimal_options();
         let procedure = Module::new(mod_type, mod_title, &options);
@@ -255,7 +254,7 @@ mod tests {
     /// Test that we generate the reference module that we expect.
     #[test]
     fn test_minimal_reference() {
-        let mod_type = &ModuleType::Reference;
+        let mod_type = ModuleType::Reference;
         let mod_title = "Minimal reference";
         let options = minimal_options();
         let reference = Module::new(mod_type, mod_title, &options);

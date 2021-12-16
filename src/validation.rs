@@ -36,7 +36,7 @@ impl fmt::Display for IssueSeverity {
 
 impl IssueDefinition {
     /// This function checks a file content for the presence of an issue based on a regex.
-    /// These issues are defined using the IssueDefinition struct.
+    /// These issues are defined using the `IssueDefinition` struct.
     fn check(self, content: &str) -> Vec<IssueReport> {
         if self.multiline {
             let regex = RegexBuilder::new(self.pattern)
@@ -123,7 +123,7 @@ pub fn validate(file_name: &str) {
             reports
         }
         // In the remaining cases, the file is a module, so test module requirements
-        _ => module::check(&content),
+        ModTypeOrReport::Type(_) => module::check(&content),
     };
 
     report_issues(reports, file_name);
@@ -165,7 +165,7 @@ fn determine_mod_type(base_name: &str, content: &str) -> ModTypeOrReport {
         ("proc", ":_content-type: PROCEDURE", ModuleType::Procedure),
         ("ref", ":_content-type: REFERENCE", ModuleType::Reference),
     ];
-    for pattern in mod_patterns.iter() {
+    for pattern in &mod_patterns {
         if base_name.starts_with(pattern.0) || content.contains(pattern.1) {
             return ModTypeOrReport::Type(pattern.2);
         }
@@ -182,8 +182,7 @@ fn determine_mod_type(base_name: &str, content: &str) -> ModTypeOrReport {
 fn perform_simple_tests(content: &str, tests: &[IssueDefinition]) -> Vec<IssueReport> {
     tests
         .iter()
-        .map(|&definition| definition.check(content))
-        .flatten()
+        .flat_map(|&definition| definition.check(content))
         .collect()
 }
 

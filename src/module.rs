@@ -50,14 +50,14 @@ pub struct Module {
 
 /// Construct a basic builder for `Module`, storing information from the user input.
 impl Input {
-    pub fn new(mod_type: &ModuleType, title: &str, options: &Options) -> Input {
+    pub fn new(mod_type: ModuleType, title: &str, options: &Options) -> Input {
         debug!("Processing title `{}` of type `{:?}`", title, mod_type);
 
         let title = String::from(title);
         let options = options.clone();
 
         Input {
-            mod_type: *mod_type,
+            mod_type,
             title,
             options,
             includes: None,
@@ -265,7 +265,7 @@ impl From<Input> for Module {
 impl Module {
     /// The constructor for the Module struct. Creates a basic version of Module
     /// without any optional features.
-    pub fn new(mod_type: &ModuleType, title: &str, options: &Options) -> Module {
+    pub fn new(mod_type: ModuleType, title: &str, options: &Options) -> Module {
         let input = Input::new(mod_type, title, options);
         input.into()
     }
@@ -302,7 +302,7 @@ mod tests {
     fn check_basic_assembly_fields() {
         let options = basic_options();
         let assembly = Module::new(
-            &ModuleType::Assembly,
+            ModuleType::Assembly,
             "A testing assembly with /special-characters*",
             &options,
         );
@@ -328,12 +328,12 @@ mod tests {
     fn check_module_builder_and_new() {
         let options = basic_options();
         let from_new: Module = Module::new(
-            &ModuleType::Assembly,
+            ModuleType::Assembly,
             "A testing assembly with /special-characters*",
             &options,
         );
         let from_builder: Module = Input::new(
-            &ModuleType::Assembly,
+            ModuleType::Assembly,
             "A testing assembly with /special-characters*",
             &options,
         )
@@ -346,7 +346,7 @@ mod tests {
         let options = path_options();
 
         let module = Module::new(
-            &ModuleType::Procedure,
+            ModuleType::Procedure,
             "Testing the detected path",
             &options,
         );
