@@ -2,7 +2,7 @@
 name = "newdoc"
 version = "2.9.4"
 description = "Generate pre-populated module files formatted with AsciiDoc that are used in Red Hat and Fedora documentation."
-authors = ["Marek Suchánek <marek.suchanek@protonmail.com>"]
+authors = ["Marek Suchánek <msuchane@redhat.com>"]
 license = "GPL-3.0-or-later"
 edition = "2018"
 documentation = "https://docs.rs/newdoc"
