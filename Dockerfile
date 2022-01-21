@@ -12,7 +12,7 @@
 # ENTRYPOINT ["newdoc"]
 
 ## This configuration results in a small image based on Debian Bullseye without Rust tooling
-FROM rust:1.51 as builder
+FROM rust:1.58 as builder
 WORKDIR /usr/src/newdoc
 COPY . .
 RUN cargo install --path .
