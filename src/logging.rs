@@ -1,8 +1,9 @@
+use color_eyre::eyre::{Context, Result};
 use simplelog::{ColorChoice, ConfigBuilder, LevelFilter, TermLogger, TerminalMode};
 
 /// This function initializes the `simplelog` logging system, which plugs into the `log`
 /// infrastructure. The function returns nothing. It only affects the global state when it runs.
-pub fn initialize_logger(verbose: bool, quiet: bool) {
+pub fn initialize_logger(verbose: bool, quiet: bool) -> Result<()> {
     // Set the verbosity level based on the command-line options.
     // Our `clap` configuration ensures that `verbose` and `quiet` can never be both true.
     let verbosity = if verbose {
@@ -31,5 +32,7 @@ pub fn initialize_logger(verbose: bool, quiet: bool) {
         // Try to use color if possible.
         ColorChoice::Auto,
     )
-    .expect("Failed to configure the terminal logging.");
+    .context("Failed to configure the terminal logging.")?;
+
+    Ok(())
 }

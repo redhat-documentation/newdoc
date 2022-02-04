@@ -1,3 +1,4 @@
+use color_eyre::eyre::Result;
 use log::{debug, info};
 
 mod cmd_line;
@@ -20,14 +21,14 @@ pub struct Options {
     detect_directory: bool,
 }
 
-fn main() {
+fn main() -> Result<()> {
     // Parse the command-line options
     let cmdline_args = cmd_line::get_args();
     // Determine the configured verbosity level
     let verbose = cmdline_args.is_present("verbose");
     let quiet = cmdline_args.is_present("quiet");
     // Initialize the logging system based on the set verbosity
-    logging::initialize_logger(verbose, quiet);
+    logging::initialize_logger(verbose, quiet)?;
 
     if cmdline_args.is_present("detect-directory") {
         info!("The `--detect-directory` (`-D`) option is now enabled by default.");
@@ -74,7 +75,7 @@ fn main() {
 
     // Write all non-populated modules to the disk
     for module in &non_populated {
-        module.write_file(&options);
+        module.write_file(&options)?;
     }
 
     // Treat the populated assembly module as a special case:
@@ -96,15 +97,17 @@ fn main() {
             .include(include_statements)
             .into();
 
-        populated.write_file(&options);
+        populated.write_file(&options)?;
     }
 
     // Validate all file names specified on the command line
     if let Some(files_iterator) = cmdline_args.values_of("validate") {
         for file in files_iterator {
-            validation::validate(file);
+            validation::validate(file)?;
         }
     }
+
+    Ok(())
 }
 
 /// Process all titles that have been specified on the command line and that belong to a single

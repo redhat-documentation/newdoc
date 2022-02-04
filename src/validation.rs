@@ -1,10 +1,12 @@
-use log::{debug, error};
-use regex::{Regex, RegexBuilder};
 /// This module provides functionality to validate (lint) existing module and assembly files,
 /// to check if the files meet the template structure and other requirements.
 use std::fmt;
 use std::fs;
 use std::path::Path;
+
+use color_eyre::eyre::{Context, Result};
+use log::debug;
+use regex::{Regex, RegexBuilder};
 
 use crate::module::ModuleType;
 
@@ -96,20 +98,14 @@ impl fmt::Display for IssueReport {
 
 /// The main validation function. Checks all possible issues in a single file, loaded from a file name.
 /// Prints the issues to the standard output.
-pub fn validate(file_name: &str) {
+pub fn validate(file_name: &str) -> Result<()> {
     debug!("Validating file `{}`", file_name);
 
     let path = Path::new(file_name);
     let base_name = path.file_name().unwrap().to_str().unwrap();
 
-    let read_result = fs::read_to_string(path);
-    let content = match read_result {
-        Ok(content) => content,
-        Err(err) => {
-            error!("Error reading file `{}`: {}", file_name, err);
-            return;
-        }
-    };
+    let content =
+        fs::read_to_string(path).context(format!("Error reading file `{}`.", file_name))?;
 
     let mod_type = determine_mod_type(base_name, &content);
 
@@ -127,6 +123,8 @@ pub fn validate(file_name: &str) {
     };
 
     report_issues(reports, file_name);
+
+    Ok(())
 }
 
 /// Print a sorted, human-readable report about the issues found in the file
