@@ -12,7 +12,7 @@ The `newdoc` tool generates pre-populated module and assembly files formatted wi
 
 ## Installing newdoc
 
-* To install `newdoc` on Fedora, RHEL, or CentOS, use the Copr package repository:
+* To install `newdoc` on current Fedora, RHEL 8 or later, or CentOS 8 or later, enable the Copr package repository:
 
     1. Enable the repository:
 
@@ -28,10 +28,29 @@ The `newdoc` tool generates pre-populated module and assembly files formatted wi
 
         The Copr repository distributes packages only for *supported* releases of Fedora. If you have enabled the repository but the package fails to install, check if your Fedora is still supported.
 
-    3. Test that `newdoc` works:
+* To install `newdoc` on openSUSE:
+
+    1. Enable the Copr package repository:
+
+        * On openSUSE Leap 15.3:
+
+            ```
+            # zypper addrepo \
+              'https://copr.fedorainfracloud.org/coprs/mareksu/newdoc-rs/repo/opensuse-leap-15.3/mareksu-newdoc-rs-opensuse-leap-15.3.repo'
+            ```
+
+        * On openSUSE Tumbleweed:
+
+            ```
+            # zypper addrepo \
+              'https://copr.fedorainfracloud.org/coprs/mareksu/newdoc-rs/repo/opensuse-tumbleweed/mareksu-newdoc-rs-opensuse-tumbleweed.repo'
+            ```
+
+    2. Install `newdoc`:
 
         ```
-        $ newdoc
+        # zypper refresh
+        # zypper install --allow-vendor-change newdoc
         ```
 
 * To install `newdoc` from source on a Linux distribution, on macOS, or on Microsoft Windows, use the `cargo` package manager:
@@ -44,11 +63,11 @@ The `newdoc` tool generates pre-populated module and assembly files formatted wi
         $ cargo install newdoc
         ```
 
-    3. Test that `newdoc` works:
+Test that `newdoc` works:
 
-        ```
-        $ newdoc
-        ```
+```
+$ newdoc
+```
 
 <!--
 Note: The configuration files for a container image are still usable in the repo, but Docker Hub no longer provides free builds, so I'm disabling this part of instructions.
@@ -66,7 +85,7 @@ Note: The configuration files for a container image are still usable in the repo
 
 ## Updating newdoc
 
-* To update `newdoc` that is installed from RPM, use the DNF package manager:
+* To update `newdoc` that is installed from RPM on Fedora, RHEL, or CentOS, use the DNF package manager:
 
     1. Make sure that you are using a supported release of your Linux distribution. The Copr repository does not publish `newdoc` packages for unsupported distribution releases.
 
@@ -74,6 +93,22 @@ Note: The configuration files for a container image are still usable in the repo
 
         ```
         # dnf --refresh upgrade newdoc
+        ```
+
+* To update `newdoc` installed on openSUSE:
+
+    1. Make sure that you are using a supported release of your Linux distribution. The Copr repository does not publish `newdoc` packages for unsupported distribution releases.
+
+    2. Refresh repository metadata:
+
+        ```
+        # zypper refresh
+        ```
+
+    3. Update the package:
+
+        ```
+        # zypper update newdoc
         ```
 
 * To update `newdoc` from source, use the `cargo` package manager:
