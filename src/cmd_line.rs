@@ -59,7 +59,7 @@ pub fn get_args() -> ArgMatches {
                 .long("validate")
                 .takes_value(true)
                 .value_name("file")
-                .multiple_occurrences(true)
+                .multiple_values(true)
                 .help("Validate (lint) an existing module or assembly file")
         )
         // This group specifies that you either generate modules or validate existing ones
