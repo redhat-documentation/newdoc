@@ -1,13 +1,13 @@
 /// This module defines the command-line arguments and behavior of `newdoc`.
 /// It relies on the `clap` crate.
-use clap::{app_from_crate, AppSettings, Arg, ArgGroup, ArgMatches};
+use clap::{command, Arg, ArgGroup, ArgMatches};
 
 /// Define the command-line arguments and return them as the `clap::ArgMatches` struct.
 pub fn get_args() -> ArgMatches {
     // Define command-line options
-    let matches = app_from_crate!()
+    let matches = command!()
         // If no arguments are provided, print help
-        .setting(AppSettings::ArgRequiredElseHelp)
+        .arg_required_else_help(true)
         .arg(
             Arg::new("assembly")
                 .short('a')
