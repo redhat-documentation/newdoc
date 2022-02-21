@@ -12,8 +12,6 @@ endif::[]
 
 :context: minimal-assembly
 
-[role="_abstract"]
-
 == Prerequisites
 
 [role="_additional-resources"]

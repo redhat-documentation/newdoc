@@ -3,8 +3,6 @@
 [id="minimal-reference_{context}"]
 = Minimal reference
 
-[role="_abstract"]
-
 [role="_additional-resources"]
 .Additional resources
 

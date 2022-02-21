@@ -3,8 +3,6 @@
 [id="minimal-concept_{context}"]
 = Minimal concept
 
-[role="_abstract"]
-
 [role="_additional-resources"]
 .Additional resources
 

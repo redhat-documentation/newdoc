@@ -386,7 +386,8 @@ mod content {
         results
     }
 
-    /// Check that the abstract flag exists in the file and that it's followed by a paragraph.
+    /// Check that the abstract flag is followed by a paragraph,
+    /// if it exists at all. The abstract flag is not required.
     fn check_abstract_flag(content: &str) -> Option<IssueReport> {
         let abstract_regex = Regex::new(r#"^\[role="_abstract"\]"#).unwrap();
         let abstract_flag = find_first_occurrence(content, abstract_regex);
@@ -421,12 +422,9 @@ mod content {
                 debug!("No lines after the abstract.");
                 Some(no_paragraph_report)
             }
+        // If the file contains no abstract tag, report no error. This is supported format.
         } else {
-            Some(IssueReport {
-                line_number: None,
-                description: "The file is missing the _abstract flag. The flag is recommended but not required.",
-                severity: IssueSeverity::Warning,
-            })
+            None
         }
     }
 

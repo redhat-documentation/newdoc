@@ -3,8 +3,6 @@
 [id="minimal-procedure_{context}"]
 = Minimal procedure
 
-[role="_abstract"]
-
 .Prerequisites
 
 .Procedure

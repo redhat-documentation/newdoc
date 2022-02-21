@@ -23,7 +23,6 @@ Add the following attribute before the module ID:
 In the title of a reference module, include nouns that are used in the body text. For example, "Keyboard shortcuts for ___" or "Command options for ___." This helps readers and search engines find the information quickly.
 ////
 
-[role="_abstract"]
 {% if examples -%}
 Write a short introductory paragraph that provides an overview of the module.
 
