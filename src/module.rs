@@ -130,7 +130,7 @@ impl Input {
         ];
 
         // Perform all the defined replacements on the title
-        for (old, new) in substitutions.into_iter() {
+        for (old, new) in substitutions {
             title_with_replacements = title_with_replacements.replace(old, new);
         }
 
