@@ -83,7 +83,6 @@ fn main() -> Result<()> {
     // * It must be generated after the other modules so that it can use their include statements
     if let Some(title) = cmdline_args.value_of("include-in") {
         // Gather all include statements for the other modules
-        // TODO: Figure out if this can be done without calling .to_owned on all the Strings
         let include_statements: Vec<String> = non_populated
             .into_iter()
             .map(|module| module.include_statement)
@@ -205,6 +204,20 @@ mod tests {
         assert_eq!(reference.text, pre_generated);
     }
 
+    /// Test that we generate the snippet file that we expect.
+    #[test]
+    fn test_snippet_file() {
+        let mod_type = ModuleType::Snippet;
+        let mod_title = "Some notes in a snippet file";
+        let options = basic_options();
+        let snippet = Module::new(mod_type, mod_title, &options);
+
+        let pre_generated =
+            include_str!("../data/generated/snip_some-notes-in-a-snippet-file.adoc");
+
+        assert_eq!(snippet.text, pre_generated);
+    }
+
     // These values strip down the modules to the bare minimum.
     fn minimal_options() -> Options {
         Options {
@@ -266,5 +279,18 @@ mod tests {
         let pre_generated = include_str!("../data/generated/minimal-reference.adoc");
 
         assert_eq!(reference.text, pre_generated);
+    }
+
+    /// Test that we generate the snippet file that we expect.
+    #[test]
+    fn test_minimal_snippet() {
+        let mod_type = ModuleType::Snippet;
+        let mod_title = "Minimal snippet";
+        let options = minimal_options();
+        let snippet = Module::new(mod_type, mod_title, &options);
+
+        let pre_generated = include_str!("../data/generated/minimal-snippet.adoc");
+
+        assert_eq!(snippet.text, pre_generated);
     }
 }
