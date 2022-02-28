@@ -211,7 +211,7 @@ $ newdoc --help
 
 ## Release notes
 
-You can find a brief change log on the [Releases](https://github.com/redhat-documentation/newdoc/releases) page.
+You can find a brief change log in the [CHANGELOG.md](CHANGELOG.md) file.
 
 
 ## Additional resources
