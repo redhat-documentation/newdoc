@@ -1,3 +1,7 @@
+# Changelog
+
+The following is a summary of changes in each `newdoc` release, which is also a Git tag by the same name in this repository.
+
 ## v2.9.8
 
 * Remove the abstract tag from the templates. Jupiter doesn't require it.
