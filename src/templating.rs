@@ -48,6 +48,13 @@ struct ReferenceTemplate<'a> {
     examples: bool,
 }
 
+#[derive(Template)]
+#[template(path = "snippet.adoc", escape = "none")]
+struct SnippetTemplate<'a> {
+    module_title: &'a str,
+    examples: bool,
+}
+
 // We're implementing the template functions on the Input struct, not on Module,
 // because the templating happens at the point when newdoc composes the text of the module,
 // which is part of the module creation. The module then stores the rendered template.
@@ -94,6 +101,11 @@ impl Input {
             .render(),
             ModuleType::Reference => ReferenceTemplate {
                 module_id: &self.id(),
+                module_title: &self.title,
+                examples: self.options.examples,
+            }
+            .render(),
+            ModuleType::Snippet => SnippetTemplate {
                 module_title: &self.title,
                 examples: self.options.examples,
             }

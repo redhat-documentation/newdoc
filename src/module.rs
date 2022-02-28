@@ -12,6 +12,7 @@ pub enum ModuleType {
     Concept,
     Procedure,
     Reference,
+    Snippet,
 }
 
 // Implement human-readable string display for the module type
@@ -22,6 +23,7 @@ impl fmt::Display for ModuleType {
             Self::Concept => "concept",
             Self::Procedure => "procedure",
             Self::Reference => "reference",
+            Self::Snippet => "snippet",
         };
         write!(f, "{}", name)
     }
@@ -128,7 +130,7 @@ impl Input {
         ];
 
         // Perform all the defined replacements on the title
-        for (old, new) in substitutions.iter() {
+        for (old, new) in substitutions.into_iter() {
             title_with_replacements = title_with_replacements.replace(old, new);
         }
 
@@ -140,7 +142,7 @@ impl Input {
 
         let prefix = self.prefix();
 
-        prefix + &title_with_replacements
+        format!("{}{}", prefix, title_with_replacements)
     }
 
     /// Prepare the file name for the generated file.
@@ -152,7 +154,7 @@ impl Input {
         self.id() + suffix
     }
 
-    fn prefix(&self) -> String {
+    fn prefix(&self) -> &'static str {
         if self.options.prefixes {
             // If prefixes are enabled, pick the right file prefix
             match self.mod_type {
@@ -160,12 +162,12 @@ impl Input {
                 ModuleType::Concept => "con_",
                 ModuleType::Procedure => "proc_",
                 ModuleType::Reference => "ref_",
+                ModuleType::Snippet => "snip_",
             }
         } else {
             // If prefixes are disabled, use an empty string for the prefix
             ""
         }
-        .to_string()
     }
 
     /// Prepare an include statement that can be used to include the generated file from elsewhere.
@@ -193,9 +195,10 @@ impl Input {
     /// to determine it automatically.
     fn infer_include_dir(&self) -> Option<PathBuf> {
         // The first directory in the include path is either `assemblies/` or `modules/`,
-        // based on the module type.
+        // based on the module type, or `snippets/` for snippet files.
         let include_root = match &self.mod_type {
             ModuleType::Assembly => "assemblies",
+            ModuleType::Snippet => "snippets",
             _ => "modules",
         };
 
