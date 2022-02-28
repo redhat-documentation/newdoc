@@ -54,6 +54,15 @@ pub fn get_args() -> ArgMatches {
                 .help("Create a reference module"),
         )
         .arg(
+            Arg::new("snippet")
+                .short('s')
+                .long("snippet")
+                .takes_value(true)
+                .value_name("title")
+                .multiple_occurrences(true)
+                .help("Create a snippet file"),
+        )
+        .arg(
             Arg::new("validate")
                 .short('l')
                 .long("validate")
@@ -65,7 +74,7 @@ pub fn get_args() -> ArgMatches {
         // This group specifies that you either generate modules or validate existing ones
         .group(
             ArgGroup::new("required")
-                .args(&["assembly", "concept", "procedure", "reference", "validate"])
+                .args(&["assembly", "concept", "procedure", "reference", "snippet", "validate"])
                 .required(true)
                 .multiple(true),
         )
