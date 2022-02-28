@@ -63,7 +63,7 @@ fn main() -> Result<()> {
 
     // TODO: Maybe attach these strings to the ModuleType enum somehow
     // For each module type, see if it occurs on the command line and process it
-    for module_type_str in &["assembly", "concept", "procedure", "reference"] {
+    for module_type_str in ["assembly", "concept", "procedure", "reference", "snippet"] {
         // Check if the given module type occurs on the command line
         if let Some(titles_iterator) = cmdline_args.values_of(module_type_str) {
             let mut modules = process_module_type(titles_iterator, module_type_str, &options);
@@ -85,8 +85,8 @@ fn main() -> Result<()> {
         // Gather all include statements for the other modules
         // TODO: Figure out if this can be done without calling .to_owned on all the Strings
         let include_statements: Vec<String> = non_populated
-            .iter()
-            .map(|module| module.include_statement.clone())
+            .into_iter()
+            .map(|module| module.include_statement)
             .collect();
 
         // The include_statements should never be empty thanks to the required group in clap
@@ -122,6 +122,7 @@ fn process_module_type(
         "concept" => ModuleType::Concept,
         "procedure" => ModuleType::Procedure,
         "reference" => ModuleType::Reference,
+        "snippet" => ModuleType::Snippet,
         _ => unimplemented!(),
     };
 
