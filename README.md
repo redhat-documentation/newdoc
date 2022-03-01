@@ -141,7 +141,7 @@ Note: The configuration files for a container image are still usable in the repo
     modules-dir]$ newdoc --procedure "Setting up thing"
     ```
 
-    The script also accepts the `--concept` and `--reference` options. You can use these short forms instead: `-p`, `-c`, and `-r`.
+    The tool also accepts the `--concept` and `--reference` options. You can use these short forms instead: `-p`, `-c`, and `-r`.
 
 2. Rewrite the placeholders in the generated file with your docs.
 
@@ -161,6 +161,18 @@ Note: The configuration files for a container image are still usable in the repo
     Add AsciiDoc include statements to include modules. See [Include Files](https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#include-files) in the AsciiDoc Syntax Quick Reference.
 
     Alternatively, you can use the `--include-in` option when creating the assembly to generate modules and include them automatically, in a single step. See the description in the *Options* section.
+
+## Creating a new snippet file
+
+1. In the directory where snippets are located, use `newdoc` to create a new file:
+
+    ```
+    snippets-dir]$ newdoc --snippet "A reusable note"
+    ```
+
+    You can use the short forms instead: `newdoc -s "A reusable note"`.
+
+2. Rewrite the placeholders in the generated file with your docs.
 
 
 ## Validating a file for Red Hat requirements
