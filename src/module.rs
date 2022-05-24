@@ -80,7 +80,7 @@ impl Input {
     pub fn id(&self) -> String {
         let title = &self.title;
         // The ID is all lower-case
-        let mut title_with_replacements = String::from(title).to_lowercase();
+        let mut title_with_replacements: String = String::from(title).to_lowercase();
 
         // Replace characters that aren't allowed in the ID, usually with a dash or an empty string
         let substitutions = [
@@ -125,7 +125,7 @@ impl Input {
             ("]", ""),
             // TODO: Curly braces shouldn't appear in the title in the first place.
             // They'd be interpreted as attributes there.
-            // Print an error in that case? Escape them with AciiDoc escapes?
+            // Print an error in that case? Escape them with AsciiDoc escapes?
             ("{", ""),
             ("}", ""),
         ];
@@ -135,10 +135,22 @@ impl Input {
             title_with_replacements = title_with_replacements.replace(old, new);
         }
 
-        // Make sure the converted ID doesn't contain double dashes ("--"), because
+        // Replace remaining characters that aren't ASCII, or that are non-alphanumeric ASCII,
+        // with dashes. For example, this replaces diacritics and typographic quotation marks.
+        title_with_replacements = title_with_replacements.chars()
+            .map(|c| if c.is_ascii_alphanumeric() { c } else { '-' })
+            .collect();
+
+        // Ensure the converted ID doesn't contain double dashes ("--"), because
         // that breaks references to the ID
         while title_with_replacements.contains("--") {
             title_with_replacements = title_with_replacements.replace("--", "-");
+        }
+
+        // Ensure that the ID doesn't end with a dash
+        if title_with_replacements.ends_with("-") {
+            let len = title_with_replacements.len();
+            title_with_replacements = title_with_replacements[..len-1].to_string();
         }
 
         let prefix = self.prefix();
