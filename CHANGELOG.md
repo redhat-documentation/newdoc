@@ -2,6 +2,11 @@
 
 The following is a summary of changes in each `newdoc` release, which is also a Git tag by the same name in this repository.
 
+## v2.10.2
+
+* Sanitize non-ASCII characters in the module ID ([#33](https://github.com/redhat-documentation/newdoc/issues/33)).
+* No longer check for the `experimental` attribute, which isn't required anymore.
+
 ## v2.10.1
 
 * Fix an ID bug reported by Marc Muehlfeld.
