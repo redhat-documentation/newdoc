@@ -312,7 +312,7 @@ mod content {
     use crate::validation::IssueReport;
     use crate::validation::IssueSeverity;
     use log::debug;
-    use regex::{Regex, RegexBuilder};
+    use regex::Regex;
 
     const SIMPLE_CONTENT_TESTS: [IssueDefinition; 2] = [
         IssueDefinition {
@@ -337,9 +337,6 @@ mod content {
 
         if let Some(abstract_issue) = check_abstract_flag(content) {
             reports.push(abstract_issue);
-        }
-        if let Some(experimental_issue) = check_experimental_flag(content) {
-            reports.push(experimental_issue);
         }
 
         reports.append(check_metadata_variable(content).as_mut());
@@ -424,32 +421,6 @@ mod content {
             }
         // If the file contains no abstract tag, report no error. This is supported format.
         } else {
-            None
-        }
-    }
-
-    /// Check that if the file uses any UI macros, it also contains the :experimental: attribute
-    fn check_experimental_flag(content: &str) -> Option<IssueReport> {
-        let ui_macros_regex = Regex::new(r"(?:btn:\[.+\]|menu:\S+\[.+\]|kbd:\[.+\])").unwrap();
-        let experimental_regex = RegexBuilder::new(r"^:experimental:")
-            .multi_line(true)
-            .build()
-            .unwrap();
-
-        if let Some((line_no, _line)) = find_first_occurrence(content, ui_macros_regex) {
-            if let Some(_experimental) = experimental_regex.find(content) {
-                // This is fine. The file has both a UI macro and the experimental attribute.
-                None
-            } else {
-                Some(IssueReport {
-                    line_number: Some(line_no),
-                    description:
-                        "The file uses a UI macro but the `:experimental:` attribute is missing.",
-                    severity: IssueSeverity::Error,
-                })
-            }
-        } else {
-            // No UI macro found, means no issue
             None
         }
     }
