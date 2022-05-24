@@ -148,7 +148,7 @@ impl Input {
         }
 
         // Ensure that the ID doesn't end with a dash
-        if title_with_replacements.ends_with("-") {
+        if title_with_replacements.ends_with('-') {
             let len = title_with_replacements.len();
             title_with_replacements = title_with_replacements[..len-1].to_string();
         }
