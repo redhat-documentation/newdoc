@@ -1,5 +1,5 @@
-use color_eyre::eyre::Result;
 use clap::ArgMatches;
+use color_eyre::eyre::Result;
 
 pub mod cmd_line;
 mod logging;

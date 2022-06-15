@@ -69,12 +69,19 @@ pub fn get_args() -> ArgMatches {
                 .takes_value(true)
                 .value_name("file")
                 .multiple_values(true)
-                .help("Validate (lint) an existing module or assembly file")
+                .help("Validate (lint) an existing module or assembly file"),
         )
         // This group specifies that you either generate modules or validate existing ones
         .group(
             ArgGroup::new("required")
-                .args(&["assembly", "concept", "procedure", "reference", "snippet", "validate"])
+                .args(&[
+                    "assembly",
+                    "concept",
+                    "procedure",
+                    "reference",
+                    "snippet",
+                    "validate",
+                ])
                 .required(true)
                 .multiple(true),
         )
