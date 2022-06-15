@@ -1,3 +1,0 @@
-[general]
-# Directories to search for templates, relative to the crate root.
-dirs = ["data/templates"]
