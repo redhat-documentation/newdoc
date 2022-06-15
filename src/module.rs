@@ -187,13 +187,9 @@ impl Input {
     fn include_statement(&self) -> String {
         let path_placeholder = Path::new("<path>").to_path_buf();
 
-        let include_path = if self.options.detect_directory {
-            match self.infer_include_dir() {
-                Some(path) => path,
-                None => path_placeholder,
-            }
-        } else {
-            path_placeholder
+        let include_path = match self.infer_include_dir() {
+            Some(path) => path,
+            None => path_placeholder,
         };
 
         format!(
@@ -298,7 +294,6 @@ mod tests {
             prefixes: true,
             examples: true,
             target_dir: ".".to_string(),
-            detect_directory: false,
             verbosity: Verbosity::Default,
         }
     }
@@ -309,7 +304,6 @@ mod tests {
             prefixes: true,
             examples: true,
             target_dir: "repo/modules/topic/".to_string(),
-            detect_directory: true,
             verbosity: Verbosity::Default,
         }
     }

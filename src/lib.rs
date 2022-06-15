@@ -18,7 +18,6 @@ pub struct Options {
     prefixes: bool,
     examples: bool,
     target_dir: String,
-    detect_directory: bool,
     verbosity: Verbosity,
 }
 
@@ -49,12 +48,6 @@ impl Options {
             } else {
                 String::from(".")
             },
-            // I'm turning this into the default behavior.
-            // For now, I'm going to keep the switch as is, just always true,
-            // So that I can easily revert the changes later if needed.
-            // After this change has had proper user testing, let's remove the switch
-            // and the dead code.
-            detect_directory: true,
             verbosity,
         }
     }
@@ -70,10 +63,6 @@ pub enum Verbosity {
 pub fn run(options: Options, cmdline_args: ArgMatches) -> Result<()> {
     // Initialize the logging system based on the set verbosity
     logging::initialize_logger(options.verbosity)?;
-
-    if cmdline_args.is_present("detect-directory") {
-        log::info!("The `--detect-directory` (`-D`) option is now enabled by default.");
-    }
 
     log::debug!("Active options:\n{:#?}", &options);
 
@@ -163,7 +152,6 @@ mod tests {
             prefixes: true,
             examples: true,
             target_dir: ".".to_string(),
-            detect_directory: true,
             verbosity: Verbosity::Default,
         }
     }
@@ -243,7 +231,6 @@ mod tests {
             prefixes: false,
             examples: false,
             target_dir: ".".to_string(),
-            detect_directory: true,
             verbosity: Verbosity::Default,
         }
     }

@@ -92,15 +92,6 @@ pub fn get_args() -> ArgMatches {
                 .help("Generate the file without any example, placeholder content"),
         )
         .arg(
-            Arg::new("detect-directory")
-                .short('D')
-                .long("detect-directory")
-                .help("Detect the include path, rather than using the <path> placeholder. This is now the default behavior")
-                // I'm enabling this option by default, without a way to disable it.
-                // Let the users test the new behavior and evaluate.
-                .hide(true),
-        )
-        .arg(
             Arg::new("no-prefixes")
                 .short('P')
                 .long("no-prefixes")
