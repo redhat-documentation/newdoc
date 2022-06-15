@@ -289,10 +289,8 @@ impl Module {
 
 #[cfg(test)]
 mod tests {
-    use crate::module::Input;
-    use crate::module::Module;
-    use crate::module::ModuleType;
-    use crate::Options;
+    use super::*;
+    use crate::{Options, Verbosity};
 
     fn basic_options() -> Options {
         Options {
@@ -301,6 +299,7 @@ mod tests {
             examples: true,
             target_dir: ".".to_string(),
             detect_directory: false,
+            verbosity: Verbosity::Default,
         }
     }
 
@@ -311,6 +310,7 @@ mod tests {
             examples: true,
             target_dir: "repo/modules/topic/".to_string(),
             detect_directory: true,
+            verbosity: Verbosity::Default,
         }
     }
 

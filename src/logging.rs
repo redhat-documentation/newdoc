@@ -1,19 +1,19 @@
 use color_eyre::eyre::{Context, Result};
 use simplelog::{ColorChoice, ConfigBuilder, LevelFilter, TermLogger, TerminalMode};
 
+use crate::Verbosity;
+
 /// This function initializes the `simplelog` logging system, which plugs into the `log`
 /// infrastructure. The function returns nothing. It only affects the global state when it runs.
-pub fn initialize_logger(verbose: bool, quiet: bool) -> Result<()> {
+pub fn initialize_logger(verbosity: Verbosity) -> Result<()> {
     // Set the verbosity level based on the command-line options.
     // Our `clap` configuration ensures that `verbose` and `quiet` can never be both true.
-    let verbosity = if verbose {
-        LevelFilter::Debug
-    } else if quiet {
-        LevelFilter::Warn
-    } else {
+    let verbosity = match verbosity {
+        Verbosity::Verbose => LevelFilter::Debug,
+        Verbosity::Quiet => LevelFilter::Warn,
         // The default verbosity level is Info because newdoc displays the include statement
         // at that level.
-        LevelFilter::Info
+        Verbosity::Default => LevelFilter::Info,
     };
 
     let config = ConfigBuilder::new()
