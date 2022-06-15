@@ -1,5 +1,4 @@
 use color_eyre::eyre::Result;
-use log::{debug, info};
 
 mod cmd_line;
 mod logging;
@@ -31,7 +30,7 @@ fn main() -> Result<()> {
     logging::initialize_logger(verbose, quiet)?;
 
     if cmdline_args.is_present("detect-directory") {
-        info!("The `--detect-directory` (`-D`) option is now enabled by default.");
+        log::info!("The `--detect-directory` (`-D`) option is now enabled by default.");
     }
 
     // Set current options based on the command-line options
@@ -56,7 +55,7 @@ fn main() -> Result<()> {
         detect_directory: true,
     };
 
-    debug!("Active options:\n{:#?}", &options);
+    log::debug!("Active options:\n{:#?}", &options);
 
     // Store all modules except for the populated assembly that will be created in this Vec
     let mut non_populated: Vec<Module> = Vec::new();

@@ -1,5 +1,4 @@
 /// This module defines the `Module` struct, its builder struct, and methods on both structs.
-use log::debug;
 use std::fmt;
 use std::path::{Path, PathBuf};
 
@@ -53,7 +52,7 @@ pub struct Module {
 /// Construct a basic builder for `Module`, storing information from the user input.
 impl Input {
     pub fn new(mod_type: ModuleType, title: &str, options: &Options) -> Input {
-        debug!("Processing title `{}` of type `{:?}`", title, mod_type);
+        log::debug!("Processing title `{}` of type `{:?}`", title, mod_type);
 
         let title = String::from(title);
         let options = options.clone();
@@ -137,7 +136,8 @@ impl Input {
 
         // Replace remaining characters that aren't ASCII, or that are non-alphanumeric ASCII,
         // with dashes. For example, this replaces diacritics and typographic quotation marks.
-        title_with_replacements = title_with_replacements.chars()
+        title_with_replacements = title_with_replacements
+            .chars()
             .map(|c| if c.is_ascii_alphanumeric() { c } else { '-' })
             .collect();
 
@@ -150,7 +150,7 @@ impl Input {
         // Ensure that the ID doesn't end with a dash
         if title_with_replacements.ends_with('-') {
             let len = title_with_replacements.len();
-            title_with_replacements = title_with_replacements[..len-1].to_string();
+            title_with_replacements = title_with_replacements[..len - 1].to_string();
         }
 
         let prefix = self.prefix();
@@ -260,12 +260,12 @@ impl From<Input> for Module {
             text: input.text(),
         };
 
-        debug!("Generated module properties:");
-        debug!("Type: {:?}", &module.mod_type);
-        debug!("ID: {}", &module.id);
-        debug!("File name: {}", &module.file_name);
-        debug!("Include statement: {}", &module.include_statement);
-        debug!(
+        log::debug!("Generated module properties:");
+        log::debug!("Type: {:?}", &module.mod_type);
+        log::debug!("ID: {}", &module.id);
+        log::debug!("File name: {}", &module.file_name);
+        log::debug!("Include statement: {}", &module.include_statement);
+        log::debug!(
             "Included modules: {}",
             if let Some(includes) = &module.includes {
                 includes.join(", ")

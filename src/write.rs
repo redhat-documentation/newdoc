@@ -3,7 +3,6 @@ use std::io;
 use std::path::PathBuf;
 
 use color_eyre::eyre::{Context, Result};
-use log::{debug, info, warn};
 
 use crate::module::Module;
 use crate::Options;
@@ -15,13 +14,13 @@ impl Module {
         let full_path_buf: PathBuf = [&options.target_dir, &self.file_name].iter().collect();
         let full_path = full_path_buf.as_path();
 
-        debug!("Writing file `{}`", &full_path.display());
+        log::debug!("Writing file `{}`", &full_path.display());
 
         // If the target file already exists, just print out an error
         if full_path.exists() {
             // A prompt enabling the user to overwrite the existing file
-            warn!("File already exists: {}", full_path.display());
-            warn!("Do you want to overwrite it? [y/N] ");
+            log::warn!("File already exists: {}", full_path.display());
+            log::warn!("Do you want to overwrite it? [y/N] ");
 
             let mut answer = String::new();
 
@@ -31,10 +30,10 @@ impl Module {
 
             match answer.trim().to_lowercase().as_str() {
                 "y" | "yes" => {
-                    warn!("→ Rewriting the file.");
+                    log::warn!("→ Rewriting the file.");
                 }
                 _ => {
-                    info!("→ Preserving the existing file.");
+                    log::info!("→ Preserving the existing file.");
                     // Break from generating this particular module.
                     // Other modules that might be in the queue will be generated on next iteration.
                     return Ok(());
@@ -49,9 +48,9 @@ impl Module {
         ))?;
 
         // If the write succeeds, print the include statement
-        debug!("Successfully written file `{}`", &full_path.display());
-        info!("‣ File generated: {}", full_path.display());
-        info!("  {}", self.include_statement);
+        log::debug!("Successfully written file `{}`", &full_path.display());
+        log::info!("‣ File generated: {}", full_path.display());
+        log::info!("  {}", self.include_statement);
 
         Ok(())
     }

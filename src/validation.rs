@@ -5,7 +5,6 @@ use std::fs;
 use std::path::Path;
 
 use color_eyre::eyre::{Context, Result};
-use log::debug;
 use regex::{Regex, RegexBuilder};
 
 use crate::module::ModuleType;
@@ -99,7 +98,7 @@ impl fmt::Display for IssueReport {
 /// The main validation function. Checks all possible issues in a single file, loaded from a file name.
 /// Prints the issues to the standard output.
 pub fn validate(file_name: &str) -> Result<()> {
-    debug!("Validating file `{}`", file_name);
+    log::debug!("Validating file `{}`", file_name);
 
     let path = Path::new(file_name);
     let base_name = path.file_name().unwrap().to_str().unwrap();
@@ -203,7 +202,6 @@ mod title {
     use crate::validation::IssueDefinition;
     use crate::validation::IssueReport;
     use crate::validation::IssueSeverity;
-    use log::debug;
     use regex::Regex;
 
     const SIMPLE_TITLE_TESTS: [IssueDefinition; 2] = [
@@ -253,10 +251,10 @@ mod title {
 
         if let Some((line_no, heading)) = find_first_heading(content) {
             if let Some(_title) = title_regex.find(heading) {
-                debug!("This is the title: {:?}", heading);
+                log::debug!("This is the title: {:?}", heading);
                 None
             } else {
-                debug!("This is the first heading: {:?}", heading);
+                log::debug!("This is the first heading: {:?}", heading);
                 Some(IssueReport {
                     line_number: Some(line_no),
                     description: "The first heading in the file is not level 1.",
@@ -311,7 +309,6 @@ mod content {
     use crate::validation::IssueDefinition;
     use crate::validation::IssueReport;
     use crate::validation::IssueSeverity;
-    use log::debug;
     use regex::Regex;
 
     const SIMPLE_CONTENT_TESTS: [IssueDefinition; 2] = [
@@ -409,14 +406,14 @@ mod content {
                 let paragraph_regex = Regex::new(r"^\S+[[:alpha:]].*").unwrap();
                 // If a line follows the flag but it doesn't appear as a paragraph, report the issue
                 if paragraph_regex.find(next_line).is_none() {
-                    debug!("The non-paragraph-line: {:?}", next_line);
+                    log::debug!("The non-paragraph-line: {:?}", next_line);
                     Some(no_paragraph_report)
                 } else {
                     None
                 }
             // If no line follows the flag, also report the issue
             } else {
-                debug!("No lines after the abstract.");
+                log::debug!("No lines after the abstract.");
                 Some(no_paragraph_report)
             }
         // If the file contains no abstract tag, report no error. This is supported format.
@@ -591,7 +588,6 @@ mod additional_resources {
     use crate::validation::IssueDefinition;
     use crate::validation::IssueReport;
     use crate::validation::IssueSeverity;
-    use log::debug;
     use regex::Regex;
 
     const SIMPLE_ADDITIONAL_RESOURCES_TESTS: [IssueDefinition; 0] = [
@@ -739,7 +735,7 @@ mod additional_resources {
                 // Counting words by splitting by white space is a crude measurement, but it should be
                 // close enough. The important thing is that it doesn't count long links as many words.
                 let number_of_words = list_item_text.as_str().split_whitespace().count();
-                debug!("Words in additional resources: {}", number_of_words);
+                log::debug!("Words in additional resources: {}", number_of_words);
 
                 if number_of_words > maximum_words {
                     issues.push(IssueReport {
@@ -779,14 +775,14 @@ fn find_first_occurrence(content: &str, regex: Regex) -> Option<(usize, &str)> {
 /// useful to a human. However, this is still WIP and inaccurate.
 fn line_from_byte_no(content: &str, byte_no: usize) -> Option<usize> {
     // Debugging messages to help me pinpoint the byte offset
-    debug!("Seeking byte: {}", byte_no);
-    debug!("File size in bytes: {}", content.bytes().len());
+    log::debug!("Seeking byte: {}", byte_no);
+    log::debug!("File size in bytes: {}", content.bytes().len());
     let mut line_bytes = 0;
     for line in content.lines() {
         line_bytes += line.bytes().len();
     }
-    debug!("Lines size in bytes: {}", line_bytes);
-    debug!("Number of lines: {}", content.lines().count());
+    log::debug!("Lines size in bytes: {}", line_bytes);
+    log::debug!("Number of lines: {}", content.lines().count());
 
     let mut total_bytes: usize = 0;
 
