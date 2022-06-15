@@ -23,7 +23,7 @@ fn test_assembly() {
     let assembly = Module::new(mod_type, mod_title, &options);
 
     let pre_generated =
-        include_str!("../data/generated/assembly_testing-that-an-assembly-forms-properly.adoc");
+        include_str!("./generated/assembly_testing-that-an-assembly-forms-properly.adoc");
 
     assert_eq!(assembly.text, pre_generated);
 }
@@ -36,7 +36,7 @@ fn test_concept_module() {
     let options = basic_options();
     let concept = Module::new(mod_type, mod_title, &options);
 
-    let pre_generated = include_str!("../data/generated/con_a-title-that-tests-a-concept.adoc");
+    let pre_generated = include_str!("./generated/con_a-title-that-tests-a-concept.adoc");
 
     assert_eq!(concept.text, pre_generated);
 }
@@ -49,7 +49,7 @@ fn test_procedure_module() {
     let options = basic_options();
     let procedure = Module::new(mod_type, mod_title, &options);
 
-    let pre_generated = include_str!("../data/generated/proc_testing-a-procedure.adoc");
+    let pre_generated = include_str!("./generated/proc_testing-a-procedure.adoc");
 
     assert_eq!(procedure.text, pre_generated);
 }
@@ -62,7 +62,7 @@ fn test_reference_module() {
     let options = basic_options();
     let reference = Module::new(mod_type, mod_title, &options);
 
-    let pre_generated = include_str!("../data/generated/ref_the-lines-in-a-reference-module.adoc");
+    let pre_generated = include_str!("./generated/ref_the-lines-in-a-reference-module.adoc");
 
     assert_eq!(reference.text, pre_generated);
 }
@@ -75,7 +75,7 @@ fn test_snippet_file() {
     let options = basic_options();
     let snippet = Module::new(mod_type, mod_title, &options);
 
-    let pre_generated = include_str!("../data/generated/snip_some-notes-in-a-snippet-file.adoc");
+    let pre_generated = include_str!("./generated/snip_some-notes-in-a-snippet-file.adoc");
 
     assert_eq!(snippet.text, pre_generated);
 }
@@ -99,7 +99,7 @@ fn test_minimal_assembly() {
     let options = minimal_options();
     let assembly = Module::new(mod_type, mod_title, &options);
 
-    let pre_generated = include_str!("../data/generated/minimal-assembly.adoc");
+    let pre_generated = include_str!("./generated/minimal-assembly.adoc");
 
     assert_eq!(assembly.text, pre_generated);
 }
@@ -112,7 +112,7 @@ fn test_minimal_concept() {
     let options = minimal_options();
     let concept = Module::new(mod_type, mod_title, &options);
 
-    let pre_generated = include_str!("../data/generated/minimal-concept.adoc");
+    let pre_generated = include_str!("./generated/minimal-concept.adoc");
 
     assert_eq!(concept.text, pre_generated);
 }
@@ -125,7 +125,7 @@ fn test_minimal_procedure() {
     let options = minimal_options();
     let procedure = Module::new(mod_type, mod_title, &options);
 
-    let pre_generated = include_str!("../data/generated/minimal-procedure.adoc");
+    let pre_generated = include_str!("./generated/minimal-procedure.adoc");
 
     assert_eq!(procedure.text, pre_generated);
 }
@@ -138,7 +138,7 @@ fn test_minimal_reference() {
     let options = minimal_options();
     let reference = Module::new(mod_type, mod_title, &options);
 
-    let pre_generated = include_str!("../data/generated/minimal-reference.adoc");
+    let pre_generated = include_str!("./generated/minimal-reference.adoc");
 
     assert_eq!(reference.text, pre_generated);
 }
@@ -151,7 +151,7 @@ fn test_minimal_snippet() {
     let options = minimal_options();
     let snippet = Module::new(mod_type, mod_title, &options);
 
-    let pre_generated = include_str!("../data/generated/minimal-snippet.adoc");
+    let pre_generated = include_str!("./generated/minimal-snippet.adoc");
 
     assert_eq!(snippet.text, pre_generated);
 }
