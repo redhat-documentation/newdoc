@@ -8,17 +8,17 @@ mod templating;
 mod validation;
 mod write;
 
-use module::{Input, Module, ModuleType};
+pub use module::{Input, Module, ModuleType};
 
 /// This struct stores options based on the command-line arguments,
 /// and is passed to various functions across the program.
 #[derive(Debug, Clone)]
 pub struct Options {
-    comments: bool,
-    prefixes: bool,
-    examples: bool,
-    target_dir: String,
-    verbosity: Verbosity,
+    pub comments: bool,
+    pub prefixes: bool,
+    pub examples: bool,
+    pub target_dir: String,
+    pub verbosity: Verbosity,
 }
 
 impl Options {
@@ -136,167 +136,4 @@ fn process_module_type(
     let modules_from_type = titles.map(|title| Module::new(module_type, title, options));
 
     modules_from_type.collect()
-}
-
-// These tests act as pseudo-integration tests. They let the top-level functions generate
-// each module type and then they compare the generated content with a pre-generated specimen
-// to check that we introduce no changes unknowingly.
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    // These values represent the default newdoc options.
-    fn basic_options() -> Options {
-        Options {
-            comments: true,
-            prefixes: true,
-            examples: true,
-            target_dir: ".".to_string(),
-            verbosity: Verbosity::Default,
-        }
-    }
-
-    /// Test that we generate the assembly that we expect.
-    #[test]
-    fn test_assembly() {
-        let mod_type = ModuleType::Assembly;
-        let mod_title = "Testing that an assembly forms properly";
-        let options = basic_options();
-        let assembly = Module::new(mod_type, mod_title, &options);
-
-        let pre_generated =
-            include_str!("../data/generated/assembly_testing-that-an-assembly-forms-properly.adoc");
-
-        assert_eq!(assembly.text, pre_generated);
-    }
-
-    /// Test that we generate the concept module that we expect.
-    #[test]
-    fn test_concept_module() {
-        let mod_type = ModuleType::Concept;
-        let mod_title = "A title that tests a concept";
-        let options = basic_options();
-        let concept = Module::new(mod_type, mod_title, &options);
-
-        let pre_generated = include_str!("../data/generated/con_a-title-that-tests-a-concept.adoc");
-
-        assert_eq!(concept.text, pre_generated);
-    }
-
-    /// Test that we generate the procedure module that we expect.
-    #[test]
-    fn test_procedure_module() {
-        let mod_type = ModuleType::Procedure;
-        let mod_title = "Testing a procedure";
-        let options = basic_options();
-        let procedure = Module::new(mod_type, mod_title, &options);
-
-        let pre_generated = include_str!("../data/generated/proc_testing-a-procedure.adoc");
-
-        assert_eq!(procedure.text, pre_generated);
-    }
-
-    /// Test that we generate the reference module that we expect.
-    #[test]
-    fn test_reference_module() {
-        let mod_type = ModuleType::Reference;
-        let mod_title = "The lines in a reference module";
-        let options = basic_options();
-        let reference = Module::new(mod_type, mod_title, &options);
-
-        let pre_generated =
-            include_str!("../data/generated/ref_the-lines-in-a-reference-module.adoc");
-
-        assert_eq!(reference.text, pre_generated);
-    }
-
-    /// Test that we generate the snippet file that we expect.
-    #[test]
-    fn test_snippet_file() {
-        let mod_type = ModuleType::Snippet;
-        let mod_title = "Some notes in a snippet file";
-        let options = basic_options();
-        let snippet = Module::new(mod_type, mod_title, &options);
-
-        let pre_generated =
-            include_str!("../data/generated/snip_some-notes-in-a-snippet-file.adoc");
-
-        assert_eq!(snippet.text, pre_generated);
-    }
-
-    // These values strip down the modules to the bare minimum.
-    fn minimal_options() -> Options {
-        Options {
-            comments: false,
-            prefixes: false,
-            examples: false,
-            target_dir: ".".to_string(),
-            verbosity: Verbosity::Default,
-        }
-    }
-
-    /// Test that we generate the assembly that we expect.
-    #[test]
-    fn test_minimal_assembly() {
-        let mod_type = ModuleType::Assembly;
-        let mod_title = "Minimal assembly";
-        let options = minimal_options();
-        let assembly = Module::new(mod_type, mod_title, &options);
-
-        let pre_generated = include_str!("../data/generated/minimal-assembly.adoc");
-
-        assert_eq!(assembly.text, pre_generated);
-    }
-
-    /// Test that we generate the concept module that we expect.
-    #[test]
-    fn test_minimal_concept() {
-        let mod_type = ModuleType::Concept;
-        let mod_title = "Minimal concept";
-        let options = minimal_options();
-        let concept = Module::new(mod_type, mod_title, &options);
-
-        let pre_generated = include_str!("../data/generated/minimal-concept.adoc");
-
-        assert_eq!(concept.text, pre_generated);
-    }
-
-    /// Test that we generate the procedure module that we expect.
-    #[test]
-    fn test_minimal_procedure() {
-        let mod_type = ModuleType::Procedure;
-        let mod_title = "Minimal procedure";
-        let options = minimal_options();
-        let procedure = Module::new(mod_type, mod_title, &options);
-
-        let pre_generated = include_str!("../data/generated/minimal-procedure.adoc");
-
-        assert_eq!(procedure.text, pre_generated);
-    }
-
-    /// Test that we generate the reference module that we expect.
-    #[test]
-    fn test_minimal_reference() {
-        let mod_type = ModuleType::Reference;
-        let mod_title = "Minimal reference";
-        let options = minimal_options();
-        let reference = Module::new(mod_type, mod_title, &options);
-
-        let pre_generated = include_str!("../data/generated/minimal-reference.adoc");
-
-        assert_eq!(reference.text, pre_generated);
-    }
-
-    /// Test that we generate the snippet file that we expect.
-    #[test]
-    fn test_minimal_snippet() {
-        let mod_type = ModuleType::Snippet;
-        let mod_title = "Minimal snippet";
-        let options = minimal_options();
-        let snippet = Module::new(mod_type, mod_title, &options);
-
-        let pre_generated = include_str!("../data/generated/minimal-snippet.adoc");
-
-        assert_eq!(snippet.text, pre_generated);
-    }
 }
