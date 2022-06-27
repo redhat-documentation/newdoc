@@ -204,18 +204,11 @@ mod title {
     use crate::validation::IssueSeverity;
     use regex::Regex;
 
-    const SIMPLE_TITLE_TESTS: [IssueDefinition; 2] = [
+    const SIMPLE_TITLE_TESTS: [IssueDefinition; 1] = [
         // Test that there are no inline anchors in the title
         IssueDefinition {
             pattern: r"^=\s+.*\[\[\S+\]\].*",
             description: "The title contains an inline anchor.",
-            severity: IssueSeverity::Error,
-            multiline: false,
-        },
-        // Test that titles contain no attributes (variables)
-        IssueDefinition {
-            pattern: r"^=\s+.*\{\S+\}.*",
-            description: "The title contains an attribute.",
             severity: IssueSeverity::Error,
             multiline: false,
         },
