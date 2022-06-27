@@ -6,7 +6,7 @@ use crate::Options;
 
 /// All possible types of the AsciiDoc module
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub enum ModuleType {
+pub enum ContentType {
     Assembly,
     Concept,
     Procedure,
@@ -15,7 +15,7 @@ pub enum ModuleType {
 }
 
 // Implement human-readable string display for the module type
-impl fmt::Display for ModuleType {
+impl fmt::Display for ContentType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let name = match self {
             Self::Assembly => "assembly",
@@ -31,7 +31,7 @@ impl fmt::Display for ModuleType {
 /// An initial representation of the module with input data, used to construct the `Module` struct
 #[derive(Debug)]
 pub struct Input {
-    pub mod_type: ModuleType,
+    pub mod_type: ContentType,
     pub title: String,
     pub options: Options,
     pub includes: Option<Vec<String>>,
@@ -40,7 +40,7 @@ pub struct Input {
 /// A representation of the module with all its metadata and the generated AsciiDoc content
 #[derive(Debug, PartialEq)]
 pub struct Module {
-    mod_type: ModuleType,
+    mod_type: ContentType,
     title: String,
     id: String,
     pub file_name: String,
@@ -51,7 +51,8 @@ pub struct Module {
 
 /// Construct a basic builder for `Module`, storing information from the user input.
 impl Input {
-    pub fn new(mod_type: ModuleType, title: &str, options: &Options) -> Input {
+    #[must_use]
+    pub fn new(mod_type: ContentType, title: &str, options: &Options) -> Input {
         log::debug!("Processing title `{}` of type `{:?}`", title, mod_type);
 
         let title = String::from(title);
@@ -66,6 +67,7 @@ impl Input {
     }
 
     /// Set the optional include statements for files that this assembly includes
+    #[must_use]
     pub fn include(mut self, include_statements: Vec<String>) -> Self {
         self.includes = Some(include_statements);
         self
@@ -76,6 +78,7 @@ impl Input {
     /// * An AsciiDoc section ID
     /// * A DocBook section ID
     /// * A file name
+    #[must_use]
     pub fn id(&self) -> String {
         let title = &self.title;
         // The ID is all lower-case
@@ -161,6 +164,7 @@ impl Input {
     /// Prepare the file name for the generated file.
     ///
     /// The file name is based on the module ID, with the `.adoc` extension.
+    #[must_use]
     pub fn file_name(&self) -> String {
         let suffix = ".adoc";
 
@@ -171,11 +175,11 @@ impl Input {
         if self.options.prefixes {
             // If prefixes are enabled, pick the right file prefix
             match self.mod_type {
-                ModuleType::Assembly => "assembly_",
-                ModuleType::Concept => "con_",
-                ModuleType::Procedure => "proc_",
-                ModuleType::Reference => "ref_",
-                ModuleType::Snippet => "snip_",
+                ContentType::Assembly => "assembly_",
+                ContentType::Concept => "con_",
+                ContentType::Procedure => "proc_",
+                ContentType::Reference => "ref_",
+                ContentType::Snippet => "snip_",
             }
         } else {
             // If prefixes are disabled, use an empty string for the prefix
@@ -206,8 +210,8 @@ impl Input {
         // The first directory in the include path is either `assemblies/` or `modules/`,
         // based on the module type, or `snippets/` for snippet files.
         let include_root = match &self.mod_type {
-            ModuleType::Assembly => "assemblies",
-            ModuleType::Snippet => "snippets",
+            ContentType::Assembly => "assemblies",
+            ContentType::Snippet => "snippets",
             _ => "modules",
         };
 
@@ -277,7 +281,8 @@ impl From<Input> for Module {
 impl Module {
     /// The constructor for the Module struct. Creates a basic version of Module
     /// without any optional features.
-    pub fn new(mod_type: ModuleType, title: &str, options: &Options) -> Module {
+    #[must_use]
+    pub fn new(mod_type: ContentType, title: &str, options: &Options) -> Module {
         let input = Input::new(mod_type, title, options);
         input.into()
     }
@@ -312,12 +317,12 @@ mod tests {
     fn check_basic_assembly_fields() {
         let options = basic_options();
         let assembly = Module::new(
-            ModuleType::Assembly,
+            ContentType::Assembly,
             "A testing assembly with /special-characters*",
             &options,
         );
 
-        assert_eq!(assembly.mod_type, ModuleType::Assembly);
+        assert_eq!(assembly.mod_type, ContentType::Assembly);
         assert_eq!(
             assembly.title,
             "A testing assembly with /special-characters*"
@@ -338,12 +343,12 @@ mod tests {
     fn check_module_builder_and_new() {
         let options = basic_options();
         let from_new: Module = Module::new(
-            ModuleType::Assembly,
+            ContentType::Assembly,
             "A testing assembly with /special-characters*",
             &options,
         );
         let from_builder: Module = Input::new(
-            ModuleType::Assembly,
+            ContentType::Assembly,
             "A testing assembly with /special-characters*",
             &options,
         )
@@ -355,7 +360,11 @@ mod tests {
     fn check_detected_path() {
         let options = path_options();
 
-        let module = Module::new(ModuleType::Procedure, "Testing the detected path", &options);
+        let module = Module::new(
+            ContentType::Procedure,
+            "Testing the detected path",
+            &options,
+        );
 
         assert_eq!(
             module.include_statement,

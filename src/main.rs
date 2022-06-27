@@ -10,7 +10,7 @@ fn main() -> Result<()> {
     let options = Options::new(&cmdline_args);
 
     // Run the main functionality
-    newdoc::run(options, cmdline_args)?;
+    newdoc::run(&options, &cmdline_args)?;
 
     Ok(())
 }

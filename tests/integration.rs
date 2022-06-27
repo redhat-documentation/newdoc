@@ -17,7 +17,7 @@ fn basic_options() -> Options {
 /// Test that we generate the assembly that we expect.
 #[test]
 fn test_assembly() {
-    let mod_type = ModuleType::Assembly;
+    let mod_type = ContentType::Assembly;
     let mod_title = "Testing that an assembly forms properly";
     let options = basic_options();
     let assembly = Module::new(mod_type, mod_title, &options);
@@ -31,7 +31,7 @@ fn test_assembly() {
 /// Test that we generate the concept module that we expect.
 #[test]
 fn test_concept_module() {
-    let mod_type = ModuleType::Concept;
+    let mod_type = ContentType::Concept;
     let mod_title = "A title that tests a concept";
     let options = basic_options();
     let concept = Module::new(mod_type, mod_title, &options);
@@ -44,7 +44,7 @@ fn test_concept_module() {
 /// Test that we generate the procedure module that we expect.
 #[test]
 fn test_procedure_module() {
-    let mod_type = ModuleType::Procedure;
+    let mod_type = ContentType::Procedure;
     let mod_title = "Testing a procedure";
     let options = basic_options();
     let procedure = Module::new(mod_type, mod_title, &options);
@@ -57,7 +57,7 @@ fn test_procedure_module() {
 /// Test that we generate the reference module that we expect.
 #[test]
 fn test_reference_module() {
-    let mod_type = ModuleType::Reference;
+    let mod_type = ContentType::Reference;
     let mod_title = "The lines in a reference module";
     let options = basic_options();
     let reference = Module::new(mod_type, mod_title, &options);
@@ -70,7 +70,7 @@ fn test_reference_module() {
 /// Test that we generate the snippet file that we expect.
 #[test]
 fn test_snippet_file() {
-    let mod_type = ModuleType::Snippet;
+    let mod_type = ContentType::Snippet;
     let mod_title = "Some notes in a snippet file";
     let options = basic_options();
     let snippet = Module::new(mod_type, mod_title, &options);
@@ -94,7 +94,7 @@ fn minimal_options() -> Options {
 /// Test that we generate the assembly that we expect.
 #[test]
 fn test_minimal_assembly() {
-    let mod_type = ModuleType::Assembly;
+    let mod_type = ContentType::Assembly;
     let mod_title = "Minimal assembly";
     let options = minimal_options();
     let assembly = Module::new(mod_type, mod_title, &options);
@@ -107,7 +107,7 @@ fn test_minimal_assembly() {
 /// Test that we generate the concept module that we expect.
 #[test]
 fn test_minimal_concept() {
-    let mod_type = ModuleType::Concept;
+    let mod_type = ContentType::Concept;
     let mod_title = "Minimal concept";
     let options = minimal_options();
     let concept = Module::new(mod_type, mod_title, &options);
@@ -120,7 +120,7 @@ fn test_minimal_concept() {
 /// Test that we generate the procedure module that we expect.
 #[test]
 fn test_minimal_procedure() {
-    let mod_type = ModuleType::Procedure;
+    let mod_type = ContentType::Procedure;
     let mod_title = "Minimal procedure";
     let options = minimal_options();
     let procedure = Module::new(mod_type, mod_title, &options);
@@ -133,7 +133,7 @@ fn test_minimal_procedure() {
 /// Test that we generate the reference module that we expect.
 #[test]
 fn test_minimal_reference() {
-    let mod_type = ModuleType::Reference;
+    let mod_type = ContentType::Reference;
     let mod_title = "Minimal reference";
     let options = minimal_options();
     let reference = Module::new(mod_type, mod_title, &options);
@@ -146,7 +146,7 @@ fn test_minimal_reference() {
 /// Test that we generate the snippet file that we expect.
 #[test]
 fn test_minimal_snippet() {
-    let mod_type = ModuleType::Snippet;
+    let mod_type = ContentType::Snippet;
     let mod_title = "Minimal snippet";
     let options = minimal_options();
     let snippet = Module::new(mod_type, mod_title, &options);

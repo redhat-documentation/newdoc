@@ -7,7 +7,7 @@ use std::path::Path;
 use color_eyre::eyre::{Context, Result};
 use regex::{Regex, RegexBuilder};
 
-use crate::module::ModuleType;
+use crate::module::ContentType;
 
 #[derive(Clone, Copy, Debug)]
 struct IssueDefinition {
@@ -110,7 +110,7 @@ pub fn validate(file_name: &str) -> Result<()> {
 
     let reports = match mod_type {
         // If the file is an assembly, test the assembly requirements
-        ModTypeOrReport::Type(ModuleType::Assembly) => assembly::check(&content),
+        ModTypeOrReport::Type(ContentType::Assembly) => assembly::check(&content),
         // If the module type is indeterminate, test the requirements that don't depend on the type
         ModTypeOrReport::Report(type_report) => {
             let mut reports = check_common(&content);
@@ -150,17 +150,21 @@ fn report_issues(mut issues: Vec<IssueReport>, file_path: &str) {
 /// This enum contains either the module type determined from a file, or an issue report saying
 /// that the module type could not be determined.
 enum ModTypeOrReport {
-    Type(ModuleType),
+    Type(ContentType),
     Report(IssueReport),
 }
 
 /// Try to determine the module type of a file, using the file name and the file content.
 fn determine_mod_type(base_name: &str, content: &str) -> ModTypeOrReport {
     let mod_patterns = [
-        ("assembly", ":_content-type: ASSEMBLY", ModuleType::Assembly),
-        ("con", ":_content-type: CONCEPT", ModuleType::Concept),
-        ("proc", ":_content-type: PROCEDURE", ModuleType::Procedure),
-        ("ref", ":_content-type: REFERENCE", ModuleType::Reference),
+        (
+            "assembly",
+            ":_content-type: ASSEMBLY",
+            ContentType::Assembly,
+        ),
+        ("con", ":_content-type: CONCEPT", ContentType::Concept),
+        ("proc", ":_content-type: PROCEDURE", ContentType::Procedure),
+        ("ref", ":_content-type: REFERENCE", ContentType::Reference),
     ];
     for pattern in &mod_patterns {
         if base_name.starts_with(pattern.0) || content.contains(pattern.1) {
@@ -235,7 +239,7 @@ mod title {
     fn find_first_heading(content: &str) -> Option<(usize, &str)> {
         let any_heading_regex = Regex::new(r"^(\.|=+\s+)\S+.*").unwrap();
 
-        find_first_occurrence(content, any_heading_regex)
+        find_first_occurrence(content, &any_heading_regex)
     }
 
     /// Check that the first heading found in the file is a title: a level-1, numbered heading
@@ -340,7 +344,7 @@ mod content {
         let metadata_var_pattern =
             r":_content-type:\s*(?:ASSEMBLY|PROCEDURE|CONCEPT|REFERENCE|SNIPPET)";
         let metadata_var_regex = Regex::new(metadata_var_pattern).unwrap();
-        let metadata_var = find_first_occurrence(content, metadata_var_regex);
+        let metadata_var = find_first_occurrence(content, &metadata_var_regex);
 
         let mod_id = find_mod_id(content);
 
@@ -377,7 +381,7 @@ mod content {
     /// if it exists at all. The abstract flag is not required.
     fn check_abstract_flag(content: &str) -> Option<IssueReport> {
         let abstract_regex = Regex::new(r#"^\[role="_abstract"\]"#).unwrap();
-        let abstract_flag = find_first_occurrence(content, abstract_regex);
+        let abstract_flag = find_first_occurrence(content, &abstract_regex);
 
         // If the file contains an abstract flag, test for the following paragraph
         if let Some((line_no, _line)) = abstract_flag {
@@ -621,7 +625,7 @@ mod additional_resources {
         )
         .unwrap();
 
-        find_first_occurrence(content, add_res_regex)
+        find_first_occurrence(content, &add_res_regex)
     }
 
     /// See if the additional resources heading is missing the additional resources flag,
@@ -750,11 +754,11 @@ mod additional_resources {
 fn find_mod_id(content: &str) -> Option<(usize, &str)> {
     let id_regex = Regex::new(r"^\[id=\S+\]").unwrap();
 
-    find_first_occurrence(content, id_regex)
+    find_first_occurrence(content, &id_regex)
 }
 
 /// Search for a predefined regex in a file. If found, return the line number and the line text.
-fn find_first_occurrence(content: &str, regex: Regex) -> Option<(usize, &str)> {
+fn find_first_occurrence<'a>(content: &'a str, regex: &Regex) -> Option<(usize, &'a str)> {
     for (index, line) in content.lines().enumerate() {
         if let Some(_occurrence) = regex.find(line) {
             return Some((index, line));

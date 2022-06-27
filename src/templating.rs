@@ -1,7 +1,7 @@
 use askama::Template;
 use regex::{Regex, RegexBuilder};
 
-use crate::module::{Input, ModuleType};
+use crate::module::{ContentType, Input};
 
 // A note on the structure of this file:
 // This file repeats a lot of code when it configures the Askama templates.
@@ -78,34 +78,35 @@ impl Input {
 
     /// Perform string replacements in the modular template that matches the `ModuleType`.
     /// Return the template text with all replacements.
+    #[must_use]
     pub fn text(&self) -> String {
         let mut document = match self.mod_type {
-            ModuleType::Assembly => AssemblyTemplate {
+            ContentType::Assembly => AssemblyTemplate {
                 module_id: &self.id(),
                 module_title: &self.title,
                 include_statements: &self.includes_block(),
                 examples: self.options.examples,
             }
             .render(),
-            ModuleType::Concept => ConceptTemplate {
+            ContentType::Concept => ConceptTemplate {
                 module_id: &self.id(),
                 module_title: &self.title,
                 examples: self.options.examples,
             }
             .render(),
-            ModuleType::Procedure => ProcedureTemplate {
+            ContentType::Procedure => ProcedureTemplate {
                 module_id: &self.id(),
                 module_title: &self.title,
                 examples: self.options.examples,
             }
             .render(),
-            ModuleType::Reference => ReferenceTemplate {
+            ContentType::Reference => ReferenceTemplate {
                 module_id: &self.id(),
                 module_title: &self.title,
                 examples: self.options.examples,
             }
             .render(),
-            ModuleType::Snippet => SnippetTemplate {
+            ContentType::Snippet => SnippetTemplate {
                 module_title: &self.title,
                 examples: self.options.examples,
             }

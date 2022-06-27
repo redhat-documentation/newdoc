@@ -3,6 +3,7 @@
 use clap::{command, Arg, ArgGroup, ArgMatches};
 
 /// Define the command-line arguments and return them as the `clap::ArgMatches` struct.
+#[must_use]
 pub fn get_args() -> ArgMatches {
     // Define command-line options
     let matches = command!()

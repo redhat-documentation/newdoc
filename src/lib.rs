@@ -8,7 +8,7 @@ mod templating;
 mod validation;
 mod write;
 
-pub use module::{Input, Module, ModuleType};
+pub use module::{ContentType, Input, Module};
 
 /// This struct stores options based on the command-line arguments,
 /// and is passed to various functions across the program.
@@ -23,6 +23,7 @@ pub struct Options {
 
 impl Options {
     /// Set current options based on the command-line options
+    #[must_use]
     pub fn new(args: &ArgMatches) -> Self {
         // Determine the configured verbosity level.
         // The clap configuration ensures that verbose and quiet
@@ -60,7 +61,7 @@ pub enum Verbosity {
     Quiet,
 }
 
-pub fn run(options: Options, cmdline_args: ArgMatches) -> Result<()> {
+pub fn run(options: &Options, cmdline_args: &ArgMatches) -> Result<()> {
     // Initialize the logging system based on the set verbosity
     logging::initialize_logger(options.verbosity)?;
 
@@ -74,7 +75,7 @@ pub fn run(options: Options, cmdline_args: ArgMatches) -> Result<()> {
     for module_type_str in ["assembly", "concept", "procedure", "reference", "snippet"] {
         // Check if the given module type occurs on the command line
         if let Some(titles_iterator) = cmdline_args.values_of(module_type_str) {
-            let mut modules = process_module_type(titles_iterator, module_type_str, &options);
+            let mut modules = process_module_type(titles_iterator, module_type_str, options);
 
             // Move all the newly created modules into the common Vec
             non_populated.append(&mut modules);
@@ -83,7 +84,7 @@ pub fn run(options: Options, cmdline_args: ArgMatches) -> Result<()> {
 
     // Write all non-populated modules to the disk
     for module in &non_populated {
-        module.write_file(&options)?;
+        module.write_file(options)?;
     }
 
     // Treat the populated assembly module as a special case:
@@ -100,11 +101,11 @@ pub fn run(options: Options, cmdline_args: ArgMatches) -> Result<()> {
         assert!(!include_statements.is_empty());
 
         // Generate the populated assembly module
-        let populated: Module = Input::new(ModuleType::Assembly, title, &options)
+        let populated: Module = Input::new(ContentType::Assembly, title, options)
             .include(include_statements)
             .into();
 
-        populated.write_file(&options)?;
+        populated.write_file(options)?;
     }
 
     // Validate all file names specified on the command line
@@ -125,11 +126,11 @@ fn process_module_type(
     options: &Options,
 ) -> Vec<Module> {
     let module_type = match module_type_str {
-        "assembly" | "include-in" => ModuleType::Assembly,
-        "concept" => ModuleType::Concept,
-        "procedure" => ModuleType::Procedure,
-        "reference" => ModuleType::Reference,
-        "snippet" => ModuleType::Snippet,
+        "assembly" | "include-in" => ContentType::Assembly,
+        "concept" => ContentType::Concept,
+        "procedure" => ContentType::Procedure,
+        "reference" => ContentType::Reference,
+        "snippet" => ContentType::Snippet,
         _ => unimplemented!(),
     };
 
