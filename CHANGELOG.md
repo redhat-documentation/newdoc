@@ -2,6 +2,12 @@
 
 The following is a summary of changes in each `newdoc` release, which is also a Git tag by the same name in this repository.
 
+## v2.10.3
+
+* Validation: Jupiter now supports attributes in titles.
+* Remove the `--detect-directory` option, which has been the default behavior.
+* Minor internal changes.
+
 ## v2.10.2
 
 * Sanitize non-ASCII characters in the module ID ([#33](https://github.com/redhat-documentation/newdoc/issues/33)).
