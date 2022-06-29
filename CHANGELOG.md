@@ -123,7 +123,6 @@ The following is a summary of changes in each `newdoc` release, which is also a 
 
 ## v2.3.4
 
-* Update the version to v2.3.4
 * Updated README
 * New packaging options
 * Enabled CI
@@ -140,31 +139,11 @@ The following is a summary of changes in each `newdoc` release, which is also a 
 
 * Use colors instead of emoji for highlighting in the output
 
-## v2.3.0
+## v2.3.0 and earlier
 
-* Update the version
-
-## v2.2.2
-
-* Delete a print statement left in by mistake. Update the version
-
-## v2.2.1
-
-* Update the version
-
-## v2.2.0
-
-* New release
-
-## v2.1.1
-
-* Update the version
-
-## v2.1.0
-
-* Update the version
+No changelog. See the commit messages between the Git tags. 
 
 ## v2.0.0
 
-* Version updated in the lock file
+Initial release of `newdoc` rewritten in the Rust language.
 
