@@ -3,6 +3,9 @@ use color_eyre::eyre::Result;
 use newdoc::{cmd_line, Options};
 
 fn main() -> Result<()> {
+    // Enable full-featured error logging.
+    color_eyre::install()?;
+
     // Parse the command-line options
     let cmdline_args = cmd_line::get_args();
 
