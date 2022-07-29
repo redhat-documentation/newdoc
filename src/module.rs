@@ -1,6 +1,6 @@
 /// This module defines the `Module` struct, its builder struct, and methods on both structs.
 use std::fmt;
-use std::path::{Path, PathBuf};
+use std::path::{Component, Path, PathBuf};
 
 use crate::Options;
 
@@ -228,7 +228,7 @@ impl Input {
         let component_vec: Vec<_> = target_path
             .as_path()
             .components()
-            .map(|c| c.as_os_str())
+            .map(Component::as_os_str)
             .collect();
 
         // Find the position of the component that matches the root element,

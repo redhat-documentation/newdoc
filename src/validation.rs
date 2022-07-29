@@ -1,10 +1,11 @@
 /// This module provides functionality to validate (lint) existing module and assembly files,
 /// to check if the files meet the template structure and other requirements.
+use std::ffi::OsStr;
 use std::fmt;
 use std::fs;
 use std::path::Path;
 
-use color_eyre::eyre::{Context, Result};
+use color_eyre::eyre::{eyre, Context, Result};
 use regex::{Regex, RegexBuilder};
 
 use crate::module::ContentType;
@@ -102,7 +103,9 @@ pub fn validate(file_name: &str) -> Result<()> {
     log::debug!("Validating file `{}`", file_name);
 
     let path = Path::new(file_name);
-    let base_name = path.file_name().unwrap().to_str().unwrap();
+    let base_name: &OsStr = path
+        .file_name()
+        .ok_or_else(|| eyre!("Invalid file name: {:?}", path))?;
 
     let content =
         fs::read_to_string(path).context(format!("Error reading file `{}`.", file_name))?;
@@ -156,7 +159,7 @@ enum ModTypeOrReport {
 }
 
 /// Try to determine the module type of a file, using the file name and the file content.
-fn determine_mod_type(base_name: &str, content: &str) -> ModTypeOrReport {
+fn determine_mod_type(base_name: &OsStr, content: &str) -> ModTypeOrReport {
     let mod_patterns = [
         (
             "assembly",
@@ -167,8 +170,14 @@ fn determine_mod_type(base_name: &str, content: &str) -> ModTypeOrReport {
         ("proc", ":_content-type: PROCEDURE", ContentType::Procedure),
         ("ref", ":_content-type: REFERENCE", ContentType::Reference),
     ];
+
+    // Convert the OS file name to a string, replacing characters that aren't valid Unicode
+    // with `�` placeholders.
+    // OsStr itself is missing the `starts_with` method that we need here.
+    let lossy_name = base_name.to_string_lossy();
+
     for pattern in &mod_patterns {
-        if base_name.starts_with(pattern.0) || content.contains(pattern.1) {
+        if lossy_name.starts_with(pattern.0) || content.contains(pattern.1) {
             return ModTypeOrReport::Type(pattern.2);
         }
     }
@@ -201,7 +210,10 @@ fn check_common(content: &str) -> Vec<IssueReport> {
 
 // This section groups all title requirements
 mod title {
-    use super::*;
+    use super::{
+        find_first_occurrence, find_mod_id, perform_simple_tests, IssueDefinition, IssueReport,
+        IssueSeverity, Regex, REGEX_ERROR,
+    };
 
     const SIMPLE_TITLE_TESTS: [IssueDefinition; 1] = [
         // Test that there are no inline anchors in the title
@@ -295,7 +307,10 @@ mod title {
 
 // This section groups all content requirements
 mod content {
-    use super::*;
+    use super::{
+        find_first_occurrence, find_mod_id, perform_simple_tests, IssueDefinition, IssueReport,
+        IssueSeverity, Regex, REGEX_ERROR,
+    };
 
     const SIMPLE_CONTENT_TESTS: [IssueDefinition; 2] = [
         IssueDefinition {
@@ -412,7 +427,10 @@ mod content {
 // This section groups all module requirements;
 // they depend on title and content, and additional resources requirements
 mod module {
-    use super::*;
+    use super::{
+        check_common, perform_simple_tests, IssueDefinition, IssueReport, IssueSeverity, Regex,
+        REGEX_ERROR,
+    };
 
     const SIMPLE_MODULE_TESTS: [IssueDefinition; 2] = [
         // Ensure the correct syntax for Additional resources
@@ -480,7 +498,10 @@ mod module {
 // This section groups all assembly requirements;
 // they depend on title and content, and additional resources requirements
 mod assembly {
-    use super::*;
+    use super::{
+        check_common, perform_simple_tests, IssueDefinition, IssueReport, IssueSeverity, Regex,
+        REGEX_ERROR,
+    };
 
     const SIMPLE_ASSEMBLY_TESTS: [IssueDefinition; 3] = [
         // Test that an assembly includes no other assemblies
@@ -559,7 +580,10 @@ mod assembly {
 }
 
 mod additional_resources {
-    use super::*;
+    use super::{
+        find_first_occurrence, perform_simple_tests, IssueDefinition, IssueReport, IssueSeverity,
+        Regex, REGEX_ERROR,
+    };
 
     const SIMPLE_ADDITIONAL_RESOURCES_TESTS: [IssueDefinition; 0] = [
         // No simple tests at this point.
