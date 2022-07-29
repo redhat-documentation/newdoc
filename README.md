@@ -175,6 +175,14 @@ Note: The configuration files for a container image are still usable in the repo
 2. Rewrite the placeholders in the generated file with your docs.
 
 
+## Overwriting existing files
+
+When generating a new file, `newdoc` warns you if a file by that name already exists in this directory. It prompts you to choose an action:
+
+* Overwrite the existing file with the new file.
+* Preserve the existing file and cancel the newly generated file.
+
+
 ## Validating a file for Red Hat requirements
 
 You can use the `--validate` (`-l`) option to check an existing file for Red Hat publishing requirements. For example:
