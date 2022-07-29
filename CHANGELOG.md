@@ -2,6 +2,10 @@
 
 The following is a summary of changes in each `newdoc` release, which is also a Git tag by the same name in this repository.
 
+## v2.10.5
+
+* Update the modular templates to the latest upstream version.
+
 ## v2.10.4
 
 * Improvements to error handling and reporting.
