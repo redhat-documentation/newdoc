@@ -8,6 +8,7 @@ use color_eyre::eyre::{Context, Result};
 use regex::{Regex, RegexBuilder};
 
 use crate::module::ContentType;
+use crate::REGEX_ERROR;
 
 #[derive(Clone, Copy, Debug)]
 struct IssueDefinition {
@@ -43,7 +44,7 @@ impl IssueDefinition {
             let regex = RegexBuilder::new(self.pattern)
                 .multi_line(true)
                 .build()
-                .unwrap();
+                .expect(REGEX_ERROR);
             let findings = regex.find_iter(content);
 
             findings
@@ -55,7 +56,7 @@ impl IssueDefinition {
                 .collect()
         // If single-line:
         } else {
-            let regex = Regex::new(self.pattern).unwrap();
+            let regex = Regex::new(self.pattern).expect(REGEX_ERROR);
             let findings = content
                 .lines()
                 .enumerate()
@@ -200,13 +201,7 @@ fn check_common(content: &str) -> Vec<IssueReport> {
 
 // This section groups all title requirements
 mod title {
-    use crate::validation::find_first_occurrence;
-    use crate::validation::find_mod_id;
-    use crate::validation::perform_simple_tests;
-    use crate::validation::IssueDefinition;
-    use crate::validation::IssueReport;
-    use crate::validation::IssueSeverity;
-    use regex::Regex;
+    use super::*;
 
     const SIMPLE_TITLE_TESTS: [IssueDefinition; 1] = [
         // Test that there are no inline anchors in the title
@@ -237,14 +232,14 @@ mod title {
     /// Find the first occurence of any heading in the file.
     /// Returns the line number of the occurence and the line.
     fn find_first_heading(content: &str) -> Option<(usize, &str)> {
-        let any_heading_regex = Regex::new(r"^(\.|=+\s+)\S+.*").unwrap();
+        let any_heading_regex = Regex::new(r"^(\.|=+\s+)\S+.*").expect(REGEX_ERROR);
 
         find_first_occurrence(content, &any_heading_regex)
     }
 
     /// Check that the first heading found in the file is a title: a level-1, numbered heading
     fn check_title_level(content: &str) -> Option<IssueReport> {
-        let title_regex = Regex::new(r"^=\s+\S+.*").unwrap();
+        let title_regex = Regex::new(r"^=\s+\S+.*").expect(REGEX_ERROR);
 
         if let Some((line_no, heading)) = find_first_heading(content) {
             if let Some(_title) = title_regex.find(heading) {
@@ -282,7 +277,7 @@ mod title {
             }
         };
 
-        let attribute_regex = Regex::new(r"\{((?:[[:alnum:]]|[-_])+)\}").unwrap();
+        let attribute_regex = Regex::new(r"\{((?:[[:alnum:]]|[-_])+)\}").expect(REGEX_ERROR);
         let attribute = attribute_regex.captures(mod_id)?;
 
         if attribute.get(1).unwrap().as_str() == "context" {
@@ -300,13 +295,7 @@ mod title {
 
 // This section groups all content requirements
 mod content {
-    use crate::validation::find_first_occurrence;
-    use crate::validation::find_mod_id;
-    use crate::validation::perform_simple_tests;
-    use crate::validation::IssueDefinition;
-    use crate::validation::IssueReport;
-    use crate::validation::IssueSeverity;
-    use regex::Regex;
+    use super::*;
 
     const SIMPLE_CONTENT_TESTS: [IssueDefinition; 2] = [
         IssueDefinition {
@@ -343,7 +332,7 @@ mod content {
     fn check_metadata_variable(content: &str) -> Vec<IssueReport> {
         let metadata_var_pattern =
             r":_content-type:\s*(?:ASSEMBLY|PROCEDURE|CONCEPT|REFERENCE|SNIPPET)";
-        let metadata_var_regex = Regex::new(metadata_var_pattern).unwrap();
+        let metadata_var_regex = Regex::new(metadata_var_pattern).expect(REGEX_ERROR);
         let metadata_var = find_first_occurrence(content, &metadata_var_regex);
 
         let mod_id = find_mod_id(content);
@@ -380,7 +369,7 @@ mod content {
     /// Check that the abstract flag is followed by a paragraph,
     /// if it exists at all. The abstract flag is not required.
     fn check_abstract_flag(content: &str) -> Option<IssueReport> {
-        let abstract_regex = Regex::new(r#"^\[role="_abstract"\]"#).unwrap();
+        let abstract_regex = Regex::new(r#"^\[role="_abstract"\]"#).expect(REGEX_ERROR);
         let abstract_flag = find_first_occurrence(content, &abstract_regex);
 
         // If the file contains an abstract flag, test for the following paragraph
@@ -400,7 +389,7 @@ mod content {
                 // ⁠[systemitem]`firewalld` can be used to (...)
                 // Let's just check that the line starts with a non-whitespace character
                 // and that a letter appears at least somewhere.
-                let paragraph_regex = Regex::new(r"^\S+[[:alpha:]].*").unwrap();
+                let paragraph_regex = Regex::new(r"^\S+[[:alpha:]].*").expect(REGEX_ERROR);
                 // If a line follows the flag but it doesn't appear as a paragraph, report the issue
                 if paragraph_regex.find(next_line).is_none() {
                     log::debug!("The non-paragraph-line: {:?}", next_line);
@@ -423,12 +412,7 @@ mod content {
 // This section groups all module requirements;
 // they depend on title and content, and additional resources requirements
 mod module {
-    use crate::validation::check_common;
-    use crate::validation::perform_simple_tests;
-    use crate::validation::IssueDefinition;
-    use crate::validation::IssueReport;
-    use crate::validation::IssueSeverity;
-    use regex::Regex;
+    use super::*;
 
     const SIMPLE_MODULE_TESTS: [IssueDefinition; 2] = [
         // Ensure the correct syntax for Additional resources
@@ -460,10 +444,10 @@ mod module {
     /// Test that modules include no other modules, except for snippets
     fn check_include_except_snip(content: &str) -> Vec<IssueReport> {
         let any_include_pattern = r"^include::.*\.adoc";
-        let any_include_regex = Regex::new(any_include_pattern).unwrap();
+        let any_include_regex = Regex::new(any_include_pattern).expect(REGEX_ERROR);
 
         let snip_include_pattern = r"^include::((snip|.*/snip)[_-]|common-content/).*\.adoc";
-        let snip_include_regex = Regex::new(snip_include_pattern).unwrap();
+        let snip_include_regex = Regex::new(snip_include_pattern).expect(REGEX_ERROR);
 
         let mut reports: Vec<IssueReport> = Vec::new();
 
@@ -496,12 +480,7 @@ mod module {
 // This section groups all assembly requirements;
 // they depend on title and content, and additional resources requirements
 mod assembly {
-    use crate::validation::check_common;
-    use crate::validation::perform_simple_tests;
-    use crate::validation::IssueDefinition;
-    use crate::validation::IssueReport;
-    use crate::validation::IssueSeverity;
-    use regex::Regex;
+    use super::*;
 
     const SIMPLE_ASSEMBLY_TESTS: [IssueDefinition; 3] = [
         // Test that an assembly includes no other assemblies
@@ -547,10 +526,10 @@ mod assembly {
     /// * == Additional resources
     /// In addition, let's also assume that the legacy 'Related information' heading is fine. (TODO: Make sure.)
     fn check_headings_in_assembly(content: &str) -> Vec<IssueReport> {
-        let heading_regex = Regex::new(r"^={2,}\s+\S.*").unwrap();
+        let heading_regex = Regex::new(r"^={2,}\s+\S.*").expect(REGEX_ERROR);
         let standard_headings_pattern =
             r"^==\s+(?:Prerequisites|Additional resources|Related information)";
-        let standard_headings_regex = Regex::new(standard_headings_pattern).unwrap();
+        let standard_headings_regex = Regex::new(standard_headings_pattern).expect(REGEX_ERROR);
 
         let mut lines_with_heading: Vec<usize> = Vec::new();
 
@@ -580,12 +559,7 @@ mod assembly {
 }
 
 mod additional_resources {
-    use crate::validation::find_first_occurrence;
-    use crate::validation::perform_simple_tests;
-    use crate::validation::IssueDefinition;
-    use crate::validation::IssueReport;
-    use crate::validation::IssueSeverity;
-    use regex::Regex;
+    use super::*;
 
     const SIMPLE_ADDITIONAL_RESOURCES_TESTS: [IssueDefinition; 0] = [
         // No simple tests at this point.
@@ -623,7 +597,7 @@ mod additional_resources {
         let add_res_regex = Regex::new(
             r"^(?:==\s+|\.)(?:Additional resources|Related information|Additional information)\s*$",
         )
-        .unwrap();
+        .expect(REGEX_ERROR);
 
         find_first_occurrence(content, &add_res_regex)
     }
@@ -649,11 +623,13 @@ mod additional_resources {
     /// Check that the additional resources section is composed of list items, possibly with some ifdefs.
     fn check_paragraphs_in_add_res(lines: &[&str], heading_index: usize) -> Vec<IssueReport> {
         // This regex matches either a plain list item, or one that's embedded in an inline ifdef.
-        let bullet_point_regex = Regex::new(r"(?:^\*+\s+\S+|^ifdef::\S+\[\*+\s+\S+.*\])").unwrap();
+        let bullet_point_regex =
+            Regex::new(r"(?:^\*+\s+\S+|^ifdef::\S+\[\*+\s+\S+.*\])").expect(REGEX_ERROR);
         // A paragraph that isn't a list item is allowed if it's an ifdef or a comment.
-        let allowed_paragraph = Regex::new(r"^(?:ifdef::\S+\[.*]|endif::\[\]|//)").unwrap();
+        let allowed_paragraph =
+            Regex::new(r"^(?:ifdef::\S+\[.*]|endif::\[\]|//)").expect(REGEX_ERROR);
         // Let's try to use a loose definition of an empty paragraph as a whitespace paragraph.
-        let empty_line_regex = Regex::new(r"^\s*$").unwrap();
+        let empty_line_regex = Regex::new(r"^\s*$").expect(REGEX_ERROR);
 
         let mut issues = Vec::new();
 
@@ -694,7 +670,7 @@ mod additional_resources {
     /// Detect links with no labels after a certain point in the file,
     /// specifically after the additional resources heading.
     fn check_link_labels_in_add_res(lines: &[&str], heading_index: usize) -> Vec<IssueReport> {
-        let link_regex = Regex::new(r"link:\S+\[]").unwrap();
+        let link_regex = Regex::new(r"link:\S+\[]").expect(REGEX_ERROR);
 
         let mut issues = Vec::new();
 
@@ -716,7 +692,7 @@ mod additional_resources {
     fn check_additional_resource_length(lines: &[&str], heading_index: usize) -> Vec<IssueReport> {
         // This regex features capture groups to extract the content of the list item.
         let bullet_point_regex =
-            Regex::new(r"^(?:\*+\s+(\S+.*)|ifdef::\S+\[\*+\s+(\S+.*)\])").unwrap();
+            Regex::new(r"^(?:\*+\s+(\S+.*)|ifdef::\S+\[\*+\s+(\S+.*)\])").expect(REGEX_ERROR);
         // This is the number of words you need to write:
         // * The `program(1)` man page
         // Let's use that as the approximate upper limit.
@@ -752,7 +728,7 @@ mod additional_resources {
 /// Find the first occurence of an ID definition in the file.
 /// Returns the line number of the occurence and the line.
 fn find_mod_id(content: &str) -> Option<(usize, &str)> {
-    let id_regex = Regex::new(r"^\[id=\S+\]").unwrap();
+    let id_regex = Regex::new(r"^\[id=\S+\]").expect(REGEX_ERROR);
 
     find_first_occurrence(content, &id_regex)
 }

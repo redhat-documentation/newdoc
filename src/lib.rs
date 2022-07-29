@@ -22,6 +22,11 @@ mod write;
 
 pub use module::{ContentType, Input, Module};
 
+/// newdoc uses many regular expressions at several places. Constructing them should never fail,
+/// because the pattern doesn't change at runtime, but in case it does, present a unified
+/// error message through `expect`.
+const REGEX_ERROR: &str = "Failed to construct a regular expression. Please report this as a bug";
+
 /// This struct stores options based on the command-line arguments,
 /// and is passed to various functions across the program.
 #[derive(Debug, Clone)]

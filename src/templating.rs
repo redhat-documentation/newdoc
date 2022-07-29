@@ -2,6 +2,7 @@ use askama::Template;
 use regex::{Regex, RegexBuilder};
 
 use crate::module::{ContentType, Input};
+use crate::REGEX_ERROR;
 
 // A note on the structure of this file:
 // This file repeats a lot of code when it configures the Askama templates.
@@ -121,7 +122,7 @@ impl Input {
                 .multi_line(true)
                 .swap_greed(true)
                 .build()
-                .unwrap();
+                .expect(REGEX_ERROR);
             document = multi_comments.replace_all(&document, "").to_string();
 
             // Delete single-line comments
@@ -129,14 +130,14 @@ impl Input {
                 .multi_line(true)
                 .swap_greed(true)
                 .build()
-                .unwrap();
+                .expect(REGEX_ERROR);
             document = single_comments.replace_all(&document, "").to_string();
 
             // Delete leading white space left over by the deleted comments
             let leading_whitespace: Regex = RegexBuilder::new(r"^[\s\n]*")
                 .multi_line(true)
                 .build()
-                .unwrap();
+                .expect(REGEX_ERROR);
             document = leading_whitespace.replace(&document, "").to_string();
         }
 
