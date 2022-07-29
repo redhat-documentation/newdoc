@@ -2,6 +2,10 @@
 
 The following is a summary of changes in each `newdoc` release, which is also a Git tag by the same name in this repository.
 
+## v2.10.4
+
+* Improvements to error handling and reporting.
+
 ## v2.10.3
 
 * Validation: Jupiter now supports attributes in titles.
