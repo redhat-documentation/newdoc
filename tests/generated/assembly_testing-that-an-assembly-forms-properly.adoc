@@ -16,7 +16,7 @@ The ID is an anchor that links to the module. Avoid changing it after the module
 ////
 
 ////
-Indicate the module type in one of the following
+Indicate the content type in one of the following
 ways:
 Add the prefix assembly- or assembly_ to the file name.
 Add the following attribute before the module ID:
@@ -31,6 +31,8 @@ ifdef::context[]
 endif::[]
 = Testing that an assembly forms properly
 ////
+Be sure to include a line break between the title and the :context: variable and the :context: variable and the assembly introduction.
+
 If the assembly covers a task, start the title with a verb in the gerund form, such as Creating or Configuring.
 ////
 
@@ -62,6 +64,7 @@ Include modules here.
 [leveloffset=+1] ensures that when a module title is a level 1 heading (= Title), the heading will be interpreted as a level-2 heading (== Title) in the assembly. Use [leveloffset=+2] and [leveloffset=+3] to nest modules in an assembly.
 
 include::modules/TEMPLATE_PROCEDURE_doing_one_procedure.adoc[leveloffset=+2]
+// Add a blank line after each 'include::' statement.
 
 include::modules/TEMPLATE_PROCEDURE_reference-material.adoc[leveloffset=2]
 ////
