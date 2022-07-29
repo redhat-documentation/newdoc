@@ -2,7 +2,7 @@ use std::fs;
 use std::io;
 use std::path::PathBuf;
 
-use color_eyre::eyre::{Context, Result};
+use color_eyre::eyre::{eyre, Result, WrapErr};
 
 use crate::module::Module;
 use crate::Options;
@@ -26,7 +26,7 @@ impl Module {
 
             io::stdin()
                 .read_line(&mut answer)
-                .context("Failed to read your response")?;
+                .wrap_err_with(|| eyre!("Failed to read your response: {:?}", answer))?;
 
             match answer.trim().to_lowercase().as_str() {
                 "y" | "yes" => {
@@ -42,10 +42,8 @@ impl Module {
         }
 
         // If the target file doesn't exist, try to write to it
-        fs::write(full_path, &self.text).context(format!(
-            "Failed to write the `{}` file.",
-            &full_path.display()
-        ))?;
+        fs::write(full_path, &self.text)
+            .wrap_err_with(|| eyre!("Failed to write the `{}` file.", &full_path.display()))?;
 
         // If the write succeeds, print the include statement
         log::debug!("Successfully written file `{}`", &full_path.display());

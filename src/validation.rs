@@ -291,8 +291,12 @@ mod title {
 
         let attribute_regex = Regex::new(r"\{((?:[[:alnum:]]|[-_])+)\}").expect(REGEX_ERROR);
         let attribute = attribute_regex.captures(mod_id)?;
+        let attribute_name = attribute
+            .get(1)
+            .expect("Failed to extract an attribute name. Please report this as a bug")
+            .as_str();
 
-        if attribute.get(1).unwrap().as_str() == "context" {
+        if attribute_name == "context" {
             // The context attribute is allowed
             None
         } else {

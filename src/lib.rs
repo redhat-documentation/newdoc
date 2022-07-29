@@ -11,7 +11,7 @@
 #![forbid(unsafe_code)]
 
 use clap::ArgMatches;
-use color_eyre::eyre::Result;
+use color_eyre::eyre::{bail, eyre, Result, WrapErr};
 
 pub mod cmd_line;
 mod logging;
@@ -114,8 +114,11 @@ pub fn run(options: &Options, cmdline_args: &ArgMatches) -> Result<()> {
             .map(|module| module.include_statement)
             .collect();
 
-        // The include_statements should never be empty thanks to the required group in clap
-        assert!(!include_statements.is_empty());
+        // The include_statements should never be empty thanks to the required group in clap.
+        // Make sure once more, though.
+        if include_statements.is_empty() {
+            bail!("The populated assembly includes no other files.");
+        }
 
         // Generate the populated assembly module
         let populated: Module = Input::new(ContentType::Assembly, title, options)
@@ -128,7 +131,8 @@ pub fn run(options: &Options, cmdline_args: &ArgMatches) -> Result<()> {
     // Validate all file names specified on the command line
     if let Some(files_iterator) = cmdline_args.values_of("validate") {
         for file in files_iterator {
-            validation::validate(file)?;
+            validation::validate(file)
+                .wrap_err_with(|| eyre!("Failed to validate file {:?}", file))?;
         }
     }
 
