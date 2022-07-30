@@ -2,7 +2,6 @@ name: Rust Build
 
 on:
   push:
-    branches: [ main ]
     tags: [ v* ]
 
 env:
