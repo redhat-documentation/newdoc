@@ -1,10 +1,6 @@
 name: Rust Test
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+on: [ push ]
 
 env:
   CARGO_TERM_COLOR: always
@@ -15,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Check syntax
-      run: cargo check --verbose
+      run: cargo check
     - name: Run tests
-      run: cargo test --verbose
+      run: cargo test
     - name: Check lints
-      run: cargo clippy --verbose
+      run: cargo clippy
