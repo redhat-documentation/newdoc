@@ -17,13 +17,11 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Set up build tools
-      run: yum module install rust-toolset -y
+      run: yum module install rpm-build rust-toolset -y
     - name: Install cargo-rpm
       run: cargo install cargo-rpm
-    - name: Check syntax
-      run: cargo check --verbose
     - name: Build the RPM package
-      run: cargo rpm build
+      run: cargo rpm build --verbose
     - name: Store the built RPM as an artifact
       uses: actions/upload-artifact@v3
       with:
