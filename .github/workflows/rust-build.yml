@@ -1,4 +1,4 @@
-name: Rust
+name: Rust Build
 
 on:
   push:
@@ -17,6 +17,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Set up build tools
-      run: yum module install rust-toolset
+      run: yum module install rust-toolset --yes
     - name: Check syntax
       run: cargo check --verbose
