@@ -4,6 +4,7 @@
 [![Crates.io](https://img.shields.io/crates/d/newdoc)](https://crates.io/crates/newdoc)
 [![Crates.io](https://img.shields.io/crates/l/newdoc)](https://crates.io/crates/newdoc)
 
+[![Rust tests](https://github.com/redhat-documentation/newdoc/actions/workflows/rust-test.yml/badge.svg)](https://github.com/redhat-documentation/newdoc/actions/workflows/rust-test.yml)
 [![Copr build](https://copr.fedorainfracloud.org/coprs/mareksu/newdoc-rs/package/newdoc/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/mareksu/newdoc-rs/package/newdoc/)
 
 The `newdoc` tool generates pre-populated module and assembly files formatted with AsciiDoc, which are used in Red Hat and Fedora documentation. The generated files follow the Modular Documentation guidelines: <https://redhat-documentation.github.io/modular-docs/>.
