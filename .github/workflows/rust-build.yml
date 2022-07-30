@@ -11,12 +11,13 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    container: registry.access.redhat.com/ubi8/ubi-minimal
+    container: registry.access.redhat.com/ubi8/ubi
 
     steps:
     - name: Set up build tools
       run: |
-        microdnf install tar git rpm-build
+        yum install microdnf -y
+        microdnf install rpm-build
         microdnf module enable rust-toolset
         microdnf install rust-toolset
     - uses: actions/checkout@v3
