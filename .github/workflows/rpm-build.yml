@@ -16,12 +16,9 @@ jobs:
     steps:
     - name: Set up build tools
       run: |
-        yum install microdnf -y
-        microdnf install rpm-build
-        microdnf module enable rust-toolset
-        microdnf install rust-toolset
-    - name: Install cargo-rpm
-      run: cargo install cargo-rpm
+        dnf module enable rust-toolset -y
+        dnf copr enable mareksu/cargo-rpm -y
+        dnf install rpm-build rust-toolset cargo-rpm -y
     - uses: actions/checkout@v3
     - name: Build the RPM package
       run: cargo rpm build --verbose
