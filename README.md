@@ -52,6 +52,16 @@ The `newdoc` tool generates pre-populated module and assembly files formatted wi
         # zypper install --allow-vendor-change newdoc
         ```
 
+* To install `newdoc` on macOS, use the **Homebrew** package manager:
+
+    1. Install the **Homebrew** package manager as described on <https://brew.sh/>.
+
+    2. Install `newdoc`:
+
+        ```
+        $ brew install msuchane/repo/newdoc
+        ```
+
 * To install `newdoc` from source on a Linux distribution, on macOS, or on Microsoft Windows, use the `cargo` package manager:
 
     1. Install the Rust toolchain: see <https://rustup.rs/>.
@@ -109,6 +119,20 @@ Note: The configuration files for a container image are still usable in the repo
         ```
         # zypper update newdoc
         ```
+
+* To update `newdoc` installed on macOS using **Homebrew**:
+
+    1. Update the repository metadata:
+
+        ```
+        $ brew update
+        ```
+
+    2. Update `newdoc`:
+
+       ```
+       $ brew upgrade newdoc
+       ```
 
 * To update `newdoc` from source, use the `cargo` package manager:
 
