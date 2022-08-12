@@ -78,6 +78,25 @@ impl Input {
     /// * An AsciiDoc section ID
     /// * A DocBook section ID
     /// * A file name
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use newdoc::{ContentType, Input, Options, Verbosity};
+    ///
+    /// let mod_type = ContentType::Concept;
+    /// let title = "A test -- with #problematic ? characters";
+    /// let options = Options {
+    ///     comments: false,
+    ///     prefixes: true,
+    ///     examples: true,
+    ///     target_dir: ".".to_string(),
+    ///     verbosity: Verbosity::Default,
+    /// };
+    /// let input = Input::new(mod_type, title, &options);
+    ///
+    /// assert_eq!("con_a-test-with-problematic-characters", input.id());
+    /// ```
     #[must_use]
     pub fn id(&self) -> String {
         let title = &self.title;

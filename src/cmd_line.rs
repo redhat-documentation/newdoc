@@ -1,5 +1,7 @@
-/// This module defines the command-line arguments and behavior of `newdoc`.
-/// It relies on the `clap` crate.
+///! # `cmd_line.rs`
+///!
+///! This module defines the command-line arguments and behavior of `newdoc`.
+///! It relies on the `clap` crate.
 use clap::{command, Arg, ArgGroup, ArgMatches};
 
 /// Define the command-line arguments and return them as the `clap::ArgMatches` struct.

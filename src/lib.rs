@@ -10,6 +10,10 @@
 // Forbid unsafe code in this program.
 #![forbid(unsafe_code)]
 
+///! # newdoc
+///! The `newdoc` tool generates pre-populated module and assembly files formatted with AsciiDoc,
+///! which are used in Red Hat and Fedora documentation. The generated files follow
+///! the Modular Documentation guidelines: <https://redhat-documentation.github.io/modular-docs/>.
 use clap::ArgMatches;
 use color_eyre::eyre::{bail, eyre, Result, WrapErr};
 
