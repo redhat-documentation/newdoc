@@ -5,7 +5,7 @@ use std::path::{Component, Path, PathBuf};
 use crate::Options;
 
 /// All possible types of the AsciiDoc module
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ContentType {
     Assembly,
     Concept,
@@ -38,7 +38,7 @@ pub struct Input {
 }
 
 /// A representation of the module with all its metadata and the generated AsciiDoc content
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Module {
     mod_type: ContentType,
     title: String,
