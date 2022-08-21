@@ -23,6 +23,7 @@ simplelog = "0.12"
 askama = "0.11"
 # Disable support for tracing_error and SpanTrace in eyre
 color-eyre = { version = "0.6", default-features = false }
+dialoguer = "0.10"
 
 
 [package.metadata.rpm.cargo]

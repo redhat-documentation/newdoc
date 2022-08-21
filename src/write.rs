@@ -17,10 +17,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 use std::fs;
-use std::io;
 use std::path::PathBuf;
 
 use color_eyre::eyre::{eyre, Result, WrapErr};
+use dialoguer::{theme::ColorfulTheme, Confirm};
 
 use crate::module::Module;
 use crate::Options;
@@ -36,27 +36,24 @@ impl Module {
 
         // If the target file already exists, just print out an error
         if full_path.exists() {
-            // A prompt enabling the user to overwrite the existing file
             log::warn!("File already exists: {}", full_path.display());
-            log::warn!("Do you want to overwrite it? [y/N] ");
 
-            let mut answer = String::new();
+            // A prompt enabling the user to overwrite the existing file
+            let overwrite = Confirm::with_theme(&ColorfulTheme::default())
+                .with_prompt("Do you want to overwrite it?")
+                .wait_for_newline(true)
+                // The default selection is "false", that is, don't overwrite the file.
+                .default(false)
+                .interact()?;
 
-            io::stdin()
-                .read_line(&mut answer)
-                .wrap_err_with(|| eyre!("Failed to read your response: {:?}", answer))?;
-
-            match answer.trim().to_lowercase().as_str() {
-                "y" | "yes" => {
-                    log::warn!("→ Rewriting the file.");
-                }
-                _ => {
-                    log::info!("→ Preserving the existing file.");
-                    // Break from generating this particular module.
-                    // Other modules that might be in the queue will be generated on next iteration.
-                    return Ok(());
-                }
-            };
+            if overwrite {
+                log::warn!("→ Rewriting the file.");
+            } else {
+                log::info!("→ Preserving the existing file.");
+                // Break from generating this particular module.
+                // Other modules that might be in the queue will be generated on next iteration.
+                return Ok(());
+            }
         }
 
         // If the target file doesn't exist, try to write to it
