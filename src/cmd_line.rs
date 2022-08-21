@@ -16,10 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-///! # `cmd_line.rs`
-///!
-///! This module defines the command-line arguments and behavior of `newdoc`.
-///! It relies on the `clap` crate.
+//! # `cmd_line.rs`
+//!
+//! This module defines the command-line arguments and behavior of `newdoc`.
+//! It relies on the `clap` crate.
 use clap::{command, Arg, ArgGroup, ArgMatches};
 
 /// Define the command-line arguments and return them as the `clap::ArgMatches` struct.

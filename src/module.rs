@@ -16,7 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-/// This module defines the `Module` struct, its builder struct, and methods on both structs.
+//! This module defines the `Module` struct, its builder struct, and methods on both structs.
+
 use std::fmt;
 use std::path::{Component, Path, PathBuf};
 

@@ -16,8 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-/// This module provides functionality to validate (lint) existing module and assembly files,
-/// to check if the files meet the template structure and other requirements.
+//! This module provides functionality to validate (lint) existing module and assembly files,
+//! to check if the files meet the template structure and other requirements.
+
 use std::ffi::OsStr;
 use std::fmt;
 use std::fs;
