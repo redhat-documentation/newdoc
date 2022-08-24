@@ -25,7 +25,7 @@ askama = "0.11"
 color-eyre = { version = "0.6", default-features = false }
 dialoguer = "0.10"
 # Work around build issues with Copr:
-libc = "=0.2.129"
+libc = "=0.2.127"
 
 
 [package.metadata.rpm.cargo]
