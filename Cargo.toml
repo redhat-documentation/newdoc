@@ -6,7 +6,7 @@ authors = ["Marek Suchánek <msuchane@redhat.com>"]
 license = "GPL-3.0-or-later"
 edition = "2021"
 # Check the Rust version using `cargo msrv verify`.
-rust-version = "1.57"
+rust-version = "1.59"
 documentation = "https://docs.rs/newdoc"
 readme = "README.md"
 repository = "https://github.com/mrksu/newdoc"
