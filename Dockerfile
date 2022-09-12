@@ -11,13 +11,11 @@
 # # CMD ["newdoc"]
 # ENTRYPOINT ["newdoc"]
 
-## This configuration results in a small image based on Debian Bullseye without Rust tooling
-FROM rust:1.58 as builder
+FROM rust:latest as builder
 WORKDIR /usr/src/newdoc
 COPY . .
 RUN cargo install --path .
 
-FROM debian:bullseye-slim
-# RUN apt-get update && apt-get install -y extra-runtime-dependencies
+FROM registry.access.redhat.com/ubi9-micro:latest
 COPY --from=builder /usr/local/cargo/bin/newdoc /usr/local/bin/newdoc
 ENTRYPOINT ["newdoc"]
