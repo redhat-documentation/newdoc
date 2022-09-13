@@ -35,14 +35,14 @@ jobs:
       - name: Install asciidoctor
         run: sudo apt-get update && sudo apt-get --assume-yes install asciidoctor
       - name: Build documentation
-        run: asciidoctor --safe -vn docs/using-newdoc.adoc --out-file=index.html
+        run: asciidoctor --safe -vn docs/using-newdoc.adoc --out-file=docs/index.html
       - name: Setup Pages
         uses: actions/configure-pages@v2
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
           # Upload the generated HTML file
-          path: 'index.html'
+          path: 'docs'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
