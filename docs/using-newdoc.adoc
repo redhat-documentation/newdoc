@@ -65,6 +65,32 @@ To install `newdoc` on macOS, use the **Homebrew** package manager:
 $ brew install msuchane/repo/newdoc
 ----
 
+=== Container
+
+To install `newdoc` as a container, use Docker or Podman.
+
+On Fedora, RHEL, and CentOS, replace `docker` with `podman` in the following commands:
+
+. Download the image:
++
+----
+$ docker pull quay.io/msuchane/newdoc
+----
+
+. Configure a command alias. Save this line in your shell configuration file, such as in the `~/.bashrc` file:
++
+----
+alias newdoc="podman run -it -v .:/mnt/newdoc:Z msuchane/newdoc newdoc"
+----
+
+. Open a new terminal to reload the shell configuration.
+
+. Test that `newdoc` works:
++
+----
+$ newdoc
+----
+
 === From source on any platform
 
 To install `newdoc` from source on a Linux distribution, on macOS, or on Microsoft Windows, use the `cargo` package manager:
@@ -83,19 +109,6 @@ $ cargo install newdoc
 $ newdoc
 ----
 
-////
-Note: The configuration files for a container image are still usable in the repo, but Docker Hub no longer provides free builds, so I'm disabling this part of instructions.
-
-* To install `newdoc` as a Docker image, use the `docker` or `podman` tool. If you use `podman`, replace `docker` with `podman` in the following commands:
-+
-----
-$ docker pull mrksu/newdoc
-
-$ docker run mrksu/newdoc
-----
-+
-WARNING: The container currently does not generate files properly. For details and a workaround, see [Issue #17](https://github.com/redhat-documentation/newdoc/issues/17).
-////
 
 == Updating newdoc
 
@@ -147,6 +160,16 @@ $ brew update
 $ brew upgrade newdoc
 ----
 
+=== Container
+
+To update the `newdoc` container, use Docker or Podman.
+
+On Fedora, RHEL, and CentOS, replace `docker` with `podman` in the following command:
+
+----
+$ docker pull quay.io/msuchane/newdoc
+----
+
 === From source on any platform
 
 To update `newdoc` from source, use the `cargo` package manager:
@@ -163,15 +186,6 @@ $ rustup update
 $ cargo install newdoc
 ----
 
-////
-Note: The configuration files for a container image are still usable in the repo, but Docker Hub no longer provides free builds, so I'm disabling this part of instructions.
-
-* To update `newdoc` from Docker, use the `docker` or `podman` tool:
-+
-----
-$ docker pull mrksu/newdoc
-----
-////
 
 == Generating documentation files
 
