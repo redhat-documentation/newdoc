@@ -2,17 +2,23 @@
 
 = Using newdoc
 
+The `newdoc` tool generates pre-populated module and assembly files formatted with AsciiDoc, which are used in Red Hat and Fedora documentation. The generated files follow the Modular Documentation guidelines: link:https://redhat-documentation.github.io/modular-docs/[].
+
 == Installing newdoc
 
-* To install `newdoc` on current Fedora, RHEL 8 or later, or CentOS 8 or later, enable the Copr package repository:
+You can install `newdoc` on various operating systems using several package managers.
 
-.. Enable the repository:
+=== Fedora, RHEL, and CentOS
+
+To install `newdoc` on current Fedora, RHEL 8 or later, or CentOS 8 or later, enable the Copr package repository:
+
+. Enable the repository:
 +
 ----
 # dnf copr enable mareksu/newdoc-rs
 ----
 
-.. Install `newdoc`:
+. Install `newdoc`:
 +
 ----
 # dnf install newdoc
@@ -20,52 +26,58 @@
 +
 The Copr repository distributes packages only for *supported* releases of Fedora. If you have enabled the repository but the package fails to install, check if your Fedora is still supported.
 
-* To install `newdoc` on openSUSE:
+=== openSUSE
 
-.. Enable the Copr package repository:
+To install `newdoc` on openSUSE:
 
-*** On openSUSE Leap 15.3:
+. Enable the Copr package repository:
+
+** On openSUSE Leap 15.3:
 +
 ----
 # zypper addrepo \
          'https://copr.fedorainfracloud.org/coprs/mareksu/newdoc-rs/repo/opensuse-leap-15.3/mareksu-newdoc-rs-opensuse-leap-15.3.repo'
 ----
 
-*** On openSUSE Tumbleweed:
+** On openSUSE Tumbleweed:
 +
 ----
 # zypper addrepo \
          'https://copr.fedorainfracloud.org/coprs/mareksu/newdoc-rs/repo/opensuse-tumbleweed/mareksu-newdoc-rs-opensuse-tumbleweed.repo'
 ----
 
-.. Install `newdoc`:
+. Install `newdoc`:
 +
 ----
 # zypper refresh
 # zypper install --allow-vendor-change newdoc
 ----
 
-* To install `newdoc` on macOS, use the **Homebrew** package manager:
+=== macOS
 
-.. Install the **Homebrew** package manager as described on <https://brew.sh/>.
+To install `newdoc` on macOS, use the **Homebrew** package manager:
 
-.. Install `newdoc`:
+. Install the **Homebrew** package manager as described on <https://brew.sh/>.
+
+. Install `newdoc`:
 +
 ----
 $ brew install msuchane/repo/newdoc
 ----
 
-* To install `newdoc` from source on a Linux distribution, on macOS, or on Microsoft Windows, use the `cargo` package manager:
+=== From source on any platform
 
-.. Install the Rust toolchain: see <https://rustup.rs/>.
+To install `newdoc` from source on a Linux distribution, on macOS, or on Microsoft Windows, use the `cargo` package manager:
 
-.. Install `newdoc`:
+. Install the Rust toolchain: see <https://rustup.rs/>.
+
+. Install `newdoc`:
 +
 ----
 $ cargo install newdoc
 ----
 
-.. Test that `newdoc` works:
+. Test that `newdoc` works:
 +
 ----
 $ newdoc
@@ -87,55 +99,65 @@ WARNING: The container currently does not generate files properly. For details a
 
 == Updating newdoc
 
-* To update `newdoc` that is installed from RPM on Fedora, RHEL, or CentOS, use the DNF package manager:
+You can update `newdoc` with the package manager that you used to install it.
 
-.. Make sure that you are using a supported release of your Linux distribution. The Copr repository does not publish `newdoc` packages for unsupported distribution releases.
+=== Fedora, RHEL, and CentOS
 
-.. Refresh repository metadata and update the package:
+To update `newdoc` that is installed from RPM on Fedora, RHEL, or CentOS, use the DNF package manager:
+
+. Make sure that you are using a supported release of your Linux distribution. The Copr repository does not publish `newdoc` packages for unsupported distribution releases.
+
+. Refresh repository metadata and update the package:
 +
 ----
 # dnf --refresh upgrade newdoc
 ----
 
-* To update `newdoc` installed on openSUSE:
+=== openSUSE
 
-.. Make sure that you are using a supported release of your Linux distribution. The Copr repository does not publish `newdoc` packages for unsupported distribution releases.
+To update `newdoc` installed on openSUSE:
 
-.. Refresh repository metadata:
+. Make sure that you are using a supported release of your Linux distribution. The Copr repository does not publish `newdoc` packages for unsupported distribution releases.
+
+. Refresh repository metadata:
 +
 ----
 # zypper refresh
 ----
 
-.. Update the package:
+. Update the package:
 +
 ----
 # zypper update newdoc
 ----
 
-* To update `newdoc` installed on macOS using **Homebrew**:
+=== macOS
 
-.. Update the repository metadata:
+To update `newdoc` installed on macOS using **Homebrew**:
+
+. Update the repository metadata:
 +
 ----
 $ brew update
 ----
 
-.. Update `newdoc`:
+. Update `newdoc`:
 +
 ----
 $ brew upgrade newdoc
 ----
 
-* To update `newdoc` from source, use the `cargo` package manager:
+=== From source on any platform
 
-.. Update the Rust toolchain:
+To update `newdoc` from source, use the `cargo` package manager:
+
+. Update the Rust toolchain:
 +
 ----
 $ rustup update
 ----
 
-.. Update `newdoc`:
+. Update `newdoc`:
 +
 ----
 $ cargo install newdoc
@@ -152,6 +174,8 @@ $ docker pull mrksu/newdoc
 ////
 
 == Generating documentation files
+
+You can generate a documentation file outline that conforms to the modular templates.
 
 === Creating a new module
 
@@ -245,11 +269,6 @@ $ newdoc --include-in "An assembly for two modules" \
 +
 This creates the two modules and an assembly that features the include statements for the modules.
 
-For more options, see the output of the following command:
-
-```
-$ newdoc --help
-```
 
 == Additional resources
 
