@@ -18,4 +18,8 @@ RUN cargo install --path .
 
 FROM registry.access.redhat.com/ubi9-micro:latest
 COPY --from=builder /usr/local/cargo/bin/newdoc /usr/local/bin/newdoc
+# When running this container interactively, use `-v .:/mnt/newdoc:Z`
+# to mount the current directory in the host to the container working dir.
+VOLUME ["/mnt/newdoc"]
+WORKDIR "/mnt/newdoc"
 CMD ["newdoc"]
