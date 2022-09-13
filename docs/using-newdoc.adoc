@@ -89,7 +89,7 @@ $ docker pull quay.io/msuchane/newdoc
 . Configure a command alias. Save this line in your shell configuration file, such as in the `~/.bashrc` file:
 +
 ----
-alias newdoc="podman run -it -v .:/mnt/newdoc:Z msuchane/newdoc newdoc"
+alias newdoc="docker run -it -v .:/mnt/newdoc:Z msuchane/newdoc newdoc"
 ----
 
 . Open a new terminal to reload the shell configuration.
