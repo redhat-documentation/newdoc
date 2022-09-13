@@ -69,6 +69,15 @@ $ brew install msuchane/repo/newdoc
 
 To install `newdoc` as a container, use Docker or Podman.
 
+[WARNING]
+--
+The `newdoc` container needs to access files in your host file system. It mounts your current directory into the container.
+
+When the container runs, it relabels the SELinux configuration on all files in your current directory. This is necessary in order for the SELinux permissions system to enable file access on Fedora, RHEL, and CentOS.
+
+As a consequence, you cannot run the `newdoc` container in certain directories specially protected by SELinux, such as at the root of your home directory.
+--
+
 On Fedora, RHEL, and CentOS, replace `docker` with `podman` in the following commands:
 
 . Download the image:
@@ -85,10 +94,10 @@ alias newdoc="podman run -it -v .:/mnt/newdoc:Z msuchane/newdoc newdoc"
 
 . Open a new terminal to reload the shell configuration.
 
-. Test that `newdoc` works:
+. Test that `newdoc` works in a documentation directory:
 +
 ----
-$ newdoc
+documentation-directory]$ newdoc
 ----
 
 === From source on any platform
