@@ -273,5 +273,6 @@ This creates the two modules and an assembly that features the include statement
 == Additional resources
 
 * The `newdoc --help` command
+* link:https://github.com/redhat-documentation/newdoc[The `newdoc` Git repository]
 * link:https://redhat-documentation.github.io/modular-docs/[Modular Documentation Reference Guide]
 * link:https://redhat-documentation.github.io/asciidoc-markup-conventions/[AsciiDoc Mark-up Quick Reference for Red Hat Documentation]
