@@ -1,5 +1,5 @@
 # Deploy AsciiDoc documentation to GitHub Pages
-name: Deploy documentation content to Pages
+name: Deploy documentation to Pages
 
 on:
   # Runs on pushes targeting the default branch
