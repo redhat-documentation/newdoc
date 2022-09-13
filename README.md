@@ -12,7 +12,7 @@ The `newdoc` tool generates pre-populated module and assembly files formatted wi
 
 ## Using newdoc
 
-See the full documentation at [Using newdoc](docs/using-newdoc.adoc).
+See the full documentation at [Using newdoc](https://redhat-documentation.github.io/newdoc/).
 
 ## Release notes
 
