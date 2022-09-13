@@ -33,7 +33,7 @@ jobs:
       # We have to install asciidoctor on Ubuntu because the asciidoctor container
       # comes with limited coreutils that can't upload artifacts (tar limitation).
       - name: Install asciidoctor
-        run: apt-get update && apt-get --assume-yes install asciidoctor
+        run: sudo apt-get update && sudo apt-get --assume-yes install asciidoctor
       - name: Build documentation
         run: asciidoctor --safe -vn docs/using-newdoc.adoc --out-file=index.html
       - name: Setup Pages
