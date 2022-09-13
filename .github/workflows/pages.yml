@@ -21,21 +21,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Build the Asciidoc documentation
-  build:
-    runs-on: ubuntu-latest
-    container: asciidoctor/docker-asciidoctor:latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Build documentation
-        run: asciidoctor --safe -vn docs/using-newdoc.adoc --out-file=index.html
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
-        with:
-          # Upload the generated HTML file
-          path: 'index.html'
-  # Publish the built documentation
+  # Build and publish the documentation
   deploy:
     environment:
       name: github-pages
@@ -44,10 +30,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Dowload artifact
-        uses: actions/download-artifact@v1
-        with:
-          path: "index.html"
+      # We have to install asciidoctor on Ubuntu because the asciidoctor container
+      # comes with limited coreutils that can't upload artifacts (tar limitation).
+      - name: Install asciidoctor
+        run: apt-get update && apt-get --assume-yes install asciidoctor
+      - name: Build documentation
+        run: asciidoctor --safe -vn docs/using-newdoc.adoc --out-file=index.html
       - name: Setup Pages
         uses: actions/configure-pages@v2
       - name: Upload artifact
