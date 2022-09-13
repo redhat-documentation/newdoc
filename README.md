@@ -12,7 +12,7 @@ The `newdoc` tool generates pre-populated module and assembly files formatted wi
 
 ## Using newdoc
 
-TODO
+See the full documentation at [Using newdoc](docs/using-newdoc.adoc).
 
 ## Release notes
 
