@@ -18,4 +18,4 @@ RUN cargo install --path .
 
 FROM registry.access.redhat.com/ubi9-micro:latest
 COPY --from=builder /usr/local/cargo/bin/newdoc /usr/local/bin/newdoc
-ENTRYPOINT ["newdoc"]
+CMD ["newdoc"]
