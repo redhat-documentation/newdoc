@@ -27,13 +27,14 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    container: asciidoctor/docker-asciidoctor
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      # We have to install asciidoctor on Ubuntu because the asciidoctor container
-      # comes with limited coreutils that can't upload artifacts (tar limitation).
-      - name: Install asciidoctor
-        run: sudo apt-get update && sudo apt-get --assume-yes install asciidoctor
+      # The asciidoctor container is built on Alpine and contains only a Busybox tar.
+      # Github Actions need GNU tar for its options.
+      - name: Install tar
+        run: apk add tar
       - name: Build documentation
         run: asciidoctor --safe -vn docs/using-newdoc.adoc --out-file=docs/index.html
       - name: Setup Pages
