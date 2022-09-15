@@ -100,6 +100,8 @@ alias newdoc="docker run -it -v .:/mnt/newdoc:Z msuchane/newdoc newdoc"
 documentation-directory]$ newdoc
 ----
 
+NOTE: The default `newdoc` container is very limited. If you want to use the `newdoc` container in a continuous integration (CI) environment, or if you need to install more tools in it, you can use the `quay.io/msuchane/newdoc:distro` container variant. It is built on the RHEL 9 UBI Minimal base, and contains the `microdnf` package manager.
+
 === From source on any platform
 
 To install `newdoc` from source on a Linux distribution, on macOS, or on Microsoft Windows, use the `cargo` package manager:
