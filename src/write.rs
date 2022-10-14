@@ -17,7 +17,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 use std::fs;
-use std::path::PathBuf;
 
 use color_eyre::eyre::{eyre, Result, WrapErr};
 use dialoguer::{theme::ColorfulTheme, Confirm};
@@ -29,7 +28,7 @@ impl Module {
     /// Write the generated module content to the path specified in `options` with the set file name.
     pub fn write_file(&self, options: &Options) -> Result<()> {
         // Compose the full (but still relative) file path from the target directory and the file name
-        let full_path_buf: PathBuf = [&options.target_dir, &self.file_name].iter().collect();
+        let full_path_buf = &options.target_dir.join(&self.file_name);
         let full_path = full_path_buf.as_path();
 
         log::debug!("Writing file `{}`", &full_path.display());

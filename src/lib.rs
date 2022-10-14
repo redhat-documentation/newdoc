@@ -33,7 +33,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //! which are used in Red Hat and Fedora documentation. The generated files follow
 //! the Modular Documentation guidelines: <https://redhat-documentation.github.io/modular-docs/>.
 
-use clap::ArgMatches;
+use std::path::PathBuf;
+
 use color_eyre::eyre::{bail, eyre, Result, WrapErr};
 
 pub mod cmd_line;
@@ -43,6 +44,7 @@ mod templating;
 mod validation;
 mod write;
 
+use cmd_line::Cli;
 pub use module::{ContentType, Input, Module};
 
 /// newdoc uses many regular expressions at several places. Constructing them should never fail,
@@ -57,20 +59,20 @@ pub struct Options {
     pub comments: bool,
     pub prefixes: bool,
     pub examples: bool,
-    pub target_dir: String,
+    pub target_dir: PathBuf,
     pub verbosity: Verbosity,
 }
 
 impl Options {
     /// Set current options based on the command-line options
     #[must_use]
-    pub fn new(args: &ArgMatches) -> Self {
+    pub fn new(cli: &Cli) -> Self {
         // Determine the configured verbosity level.
         // The clap configuration ensures that verbose and quiet
         // are mutually exclusive.
-        let verbosity = if args.is_present("verbose") {
+        let verbosity = if cli.verbose {
             Verbosity::Verbose
-        } else if args.is_present("quiet") {
+        } else if cli.quiet {
             Verbosity::Quiet
         } else {
             Verbosity::Default
@@ -78,18 +80,26 @@ impl Options {
 
         Self {
             // Comments and prefixes are enabled (true) by default unless you disable them
-            // on the command line. If the no-comments or no-prefixes option is passed
-            // (occurences > 0), the feature is disabled, so the option is set to false.
-            comments: !args.is_present("no-comments"),
-            prefixes: !args.is_present("no-prefixes"),
-            examples: !args.is_present("no-examples"),
+            // on the command line. If the no-comments or no-prefixes option is passed,
+            // the feature is disabled, so the option is set to false.
+            comments: !cli.no_comments,
+            prefixes: !cli.no_prefixes,
+            examples: !cli.no_examples,
             // Set the target directory as specified or fall back on the current directory
-            target_dir: if let Some(dir) = args.value_of("target-dir") {
-                String::from(dir)
-            } else {
-                String::from(".")
-            },
+            target_dir: cli.target_dir.clone().unwrap_or_else(|| PathBuf::from(".")),
             verbosity,
+        }
+    }
+}
+
+impl Default for Options {
+    fn default() -> Self {
+        Self {
+            comments: true,
+            prefixes: true,
+            examples: true,
+            target_dir: PathBuf::from("."),
+            verbosity: Verbosity::Default,
         }
     }
 }
@@ -101,21 +111,29 @@ pub enum Verbosity {
     Quiet,
 }
 
-pub fn run(options: &Options, cmdline_args: &ArgMatches) -> Result<()> {
+pub fn run(options: &Options, cli: &Cli) -> Result<()> {
     // Initialize the logging system based on the set verbosity
     logging::initialize_logger(options.verbosity)?;
 
     log::debug!("Active options:\n{:#?}", &options);
 
+    // Attach titles from the CLI to content types.
+    let content_types = [
+        (ContentType::Assembly, cli.assembly.as_ref()),
+        (ContentType::Concept, cli.concept.as_ref()),
+        (ContentType::Procedure, cli.procedure.as_ref()),
+        (ContentType::Reference, cli.reference.as_ref()),
+        (ContentType::Snippet, cli.snippet.as_ref()),
+    ];
+
     // Store all modules except for the populated assembly that will be created in this Vec
     let mut non_populated: Vec<Module> = Vec::new();
 
-    // TODO: Maybe attach these strings to the ModuleType enum somehow
     // For each module type, see if it occurs on the command line and process it
-    for module_type_str in ["assembly", "concept", "procedure", "reference", "snippet"] {
+    for (content_type, titles) in content_types {
         // Check if the given module type occurs on the command line
-        if let Some(titles_iterator) = cmdline_args.values_of(module_type_str) {
-            let mut modules = process_module_type(titles_iterator, module_type_str, options);
+        if let Some(titles) = titles {
+            let mut modules = process_module_type(titles, content_type, options);
 
             // Move all the newly created modules into the common Vec
             non_populated.append(&mut modules);
@@ -130,7 +148,7 @@ pub fn run(options: &Options, cmdline_args: &ArgMatches) -> Result<()> {
     // Treat the populated assembly module as a special case:
     // * There can be only one populated assembly
     // * It must be generated after the other modules so that it can use their include statements
-    if let Some(title) = cmdline_args.value_of("include-in") {
+    if let Some(title) = &cli.include_in {
         // Gather all include statements for the other modules
         let include_statements: Vec<String> = non_populated
             .into_iter()
@@ -152,8 +170,8 @@ pub fn run(options: &Options, cmdline_args: &ArgMatches) -> Result<()> {
     }
 
     // Validate all file names specified on the command line
-    if let Some(files_iterator) = cmdline_args.values_of("validate") {
-        for file in files_iterator {
+    if let Some(files) = cli.validate.as_ref() {
+        for file in files {
             validation::validate(file)
                 .wrap_err_with(|| eyre!("Failed to validate file {:?}", file))?;
         }
@@ -165,20 +183,13 @@ pub fn run(options: &Options, cmdline_args: &ArgMatches) -> Result<()> {
 /// Process all titles that have been specified on the command line and that belong to a single
 /// module type.
 fn process_module_type(
-    titles: clap::Values,
-    module_type_str: &str,
+    titles: &[String],
+    content_type: ContentType,
     options: &Options,
 ) -> Vec<Module> {
-    let module_type = match module_type_str {
-        "assembly" | "include-in" => ContentType::Assembly,
-        "concept" => ContentType::Concept,
-        "procedure" => ContentType::Procedure,
-        "reference" => ContentType::Reference,
-        "snippet" => ContentType::Snippet,
-        _ => unimplemented!(),
-    };
-
-    let modules_from_type = titles.map(|title| Module::new(module_type, title, options));
+    let modules_from_type = titles
+        .iter()
+        .map(|title| Module::new(content_type, title, options));
 
     modules_from_type.collect()
 }

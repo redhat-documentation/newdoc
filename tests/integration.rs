@@ -1,6 +1,9 @@
-/// These are integration tests. They let the top-level functions generate
-/// each module type and then they compare the generated content with a pre-generated specimen
-/// to check that we introduce no changes unknowingly.
+//! These are integration tests. They let the top-level functions generate
+//! each module type and then they compare the generated content with a pre-generated specimen
+//! to check that we introduce no changes unknowingly.
+
+use std::path::PathBuf;
+
 use newdoc::*;
 
 // These values represent the default newdoc options.
@@ -9,7 +12,7 @@ fn basic_options() -> Options {
         comments: true,
         prefixes: true,
         examples: true,
-        target_dir: ".".to_string(),
+        target_dir: PathBuf::from("."),
         verbosity: Verbosity::Default,
     }
 }
@@ -86,7 +89,7 @@ fn minimal_options() -> Options {
         comments: false,
         prefixes: false,
         examples: false,
-        target_dir: ".".to_string(),
+        target_dir: PathBuf::from("."),
         verbosity: Verbosity::Default,
     }
 }

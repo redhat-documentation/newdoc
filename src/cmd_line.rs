@@ -20,82 +20,16 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //!
 //! This module defines the command-line arguments and behavior of `newdoc`.
 //! It relies on the `clap` crate.
-use clap::{command, Arg, ArgGroup, ArgMatches};
 
-/// Define the command-line arguments and return them as the `clap::ArgMatches` struct.
-#[must_use]
-pub fn get_args() -> ArgMatches {
-    // Define command-line options
-    let matches = command!()
-        // If no arguments are provided, print help
-        .arg_required_else_help(true)
-        .arg(
-            Arg::new("assembly")
-                .short('a')
-                .long("assembly")
-                .takes_value(true)
-                .value_name("title")
-                .multiple_occurrences(true)
-                .help("Create an assembly file"),
-        )
-        .arg(
-            Arg::new("include-in")
-                .short('i')
-                .long("include-in")
-                .takes_value(true)
-                .value_name("title")
-                .multiple_occurrences(false)
-                .help("Create an assembly that includes the other specified modules"),
-        )
-        .arg(
-            Arg::new("concept")
-                .short('c')
-                .long("concept")
-                .takes_value(true)
-                .value_name("title")
-                .multiple_occurrences(true)
-                .help("Create a concept module"),
-        )
-        .arg(
-            Arg::new("procedure")
-                .short('p')
-                .long("procedure")
-                .takes_value(true)
-                .value_name("title")
-                .multiple_occurrences(true)
-                .help("Create a procedure module"),
-        )
-        .arg(
-            Arg::new("reference")
-                .short('r')
-                .long("reference")
-                .takes_value(true)
-                .value_name("title")
-                .multiple_occurrences(true)
-                .help("Create a reference module"),
-        )
-        .arg(
-            Arg::new("snippet")
-                .short('s')
-                .long("snippet")
-                .takes_value(true)
-                .value_name("title")
-                .multiple_occurrences(true)
-                .help("Create a snippet file"),
-        )
-        .arg(
-            Arg::new("validate")
-                .short('l')
-                .long("validate")
-                .takes_value(true)
-                .value_name("file")
-                .multiple_values(true)
-                .help("Validate (lint) an existing module or assembly file"),
-        )
-        // This group specifies that you either generate modules or validate existing ones
-        .group(
-            ArgGroup::new("required")
-                .args(&[
+use std::path::PathBuf;
+
+use clap::{ArgGroup, Parser};
+
+#[derive(Parser)]
+#[command(author, version, about, long_about = None, arg_required_else_help(true))]
+#[command(group(
+    ArgGroup::new("required")
+                .args([
                     "assembly",
                     "concept",
                     "procedure",
@@ -104,50 +38,64 @@ pub fn get_args() -> ArgMatches {
                     "validate",
                 ])
                 .required(true)
-                .multiple(true),
-        )
-        .arg(
-            Arg::new("no-comments")
-                .short('C')
-                .long("no-comments")
-                .help("Generate the file without any comments"),
-        )
-        .arg(
-            Arg::new("no-examples")
-                .short('E')
-                .long("no-examples")
-                .alias("expert-mode")
-                .help("Generate the file without any example, placeholder content"),
-        )
-        .arg(
-            Arg::new("no-prefixes")
-                .short('P')
-                .long("no-prefixes")
-                .help("Do not use module type prefixes (such as `proc_`) in IDs and file names"),
-        )
-        .arg(
-            Arg::new("target-dir")
-                .short('T')
-                .long("target-dir")
-                .takes_value(true)
-                .value_name("directory")
-                .help("Save the generated files in this directory"),
-        )
-        .arg(
-            Arg::new("verbose")
-                .short('v')
-                .long("verbose")
-                .help("Display additional, debug messages")
-                .conflicts_with("quiet"),
-        )
-        .arg(
-            Arg::new("quiet")
-                .short('q')
-                .long("quiet")
-                .help("Hide info-level messages. Display only warnings and errors")
-                .conflicts_with("verbose"),
-        )
-        .get_matches();
+                .multiple(true)
+))]
+pub struct Cli {
+    /// Create an assembly file
+    #[arg(short, long, value_name = "TITLE")]
+    pub assembly: Option<Vec<String>>,
 
-    matches
+    /// Create an assembly that includes the other specified modules
+    #[arg(short, long = "include-in", value_name = "TITLE")]
+    pub include_in: Option<String>,
+
+    /// Create a concept module
+    #[arg(short, long, value_name = "TITLE")]
+    pub concept: Option<Vec<String>>,
+
+    /// Create a procedure module
+    #[arg(short, long, value_name = "TITLE")]
+    pub procedure: Option<Vec<String>>,
+
+    /// Create a reference module
+    #[arg(short, long, value_name = "TITLE")]
+    pub reference: Option<Vec<String>>,
+
+    /// Create a snippet file
+    #[arg(short, long, value_name = "TITLE")]
+    pub snippet: Option<Vec<String>>,
+
+    /// Validate (lint) an existing module or assembly file
+    #[arg(short = 'l', long, value_name = "FILE")]
+    pub validate: Option<Vec<PathBuf>>,
+
+    /// Generate the file without any comments
+    #[arg(short = 'C', long = "no-comments")]
+    pub no_comments: bool,
+
+    /// Generate the file without any example, placeholder content
+    #[arg(short = 'E', long = "no-examples", alias = "expert-mode")]
+    pub no_examples: bool,
+
+    /// Do not use module type prefixes (such as `proc_`) in IDs and file names
+    #[arg(short = 'P', long = "no-prefixes")]
+    pub no_prefixes: bool,
+
+    /// Save the generated files in this directory
+    #[arg(short = 'T', long = "target-dir", value_name = "DIRECTORY")]
+    pub target_dir: Option<PathBuf>,
+
+    /// Display additional, debug messages
+    #[arg(short, long, conflicts_with = "quiet")]
+    pub verbose: bool,
+
+    /// Hide info-level messages. Display only warnings and errors
+    #[arg(short, long, conflicts_with = "verbose")]
+    pub quiet: bool,
+}
+
+/// Get command-line arguments as the `Cli` struct.
+#[must_use]
+pub fn get_args() -> Cli {
+    Cli::parse()
 }

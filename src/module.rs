@@ -101,17 +101,11 @@ impl Input {
     /// # Examples
     ///
     /// ```
-    /// use newdoc::{ContentType, Input, Options, Verbosity};
+    /// use newdoc::{ContentType, Input, Options};
     ///
     /// let mod_type = ContentType::Concept;
     /// let title = "A test -- with #problematic ? characters";
-    /// let options = Options {
-    ///     comments: false,
-    ///     prefixes: true,
-    ///     examples: true,
-    ///     target_dir: ".".to_string(),
-    ///     verbosity: Verbosity::Default,
-    /// };
+    /// let options = Options::default();
     /// let input = Input::new(mod_type, title, &options);
     ///
     /// assert_eq!("con_a-test-with-problematic-characters", input.id());
@@ -336,7 +330,7 @@ mod tests {
             comments: false,
             prefixes: true,
             examples: true,
-            target_dir: ".".to_string(),
+            target_dir: PathBuf::from("."),
             verbosity: Verbosity::Default,
         }
     }
@@ -346,7 +340,7 @@ mod tests {
             comments: false,
             prefixes: true,
             examples: true,
-            target_dir: "repo/modules/topic/".to_string(),
+            target_dir: PathBuf::from("repo/modules/topic/"),
             verbosity: Verbosity::Default,
         }
     }

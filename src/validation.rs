@@ -118,16 +118,16 @@ impl fmt::Display for IssueReport {
 
 /// The main validation function. Checks all possible issues in a single file, loaded from a file name.
 /// Prints the issues to the standard output.
-pub fn validate(file_name: &str) -> Result<()> {
-    log::debug!("Validating file `{}`", file_name);
+pub fn validate(file_name: &Path) -> Result<()> {
+    log::debug!("Validating file `{}`", file_name.display());
 
     let path = Path::new(file_name);
     let base_name: &OsStr = path
         .file_name()
         .ok_or_else(|| eyre!("Invalid file name: {:?}", path))?;
 
-    let content =
-        fs::read_to_string(path).context(format!("Error reading file `{}`.", file_name))?;
+    let content = fs::read_to_string(path)
+        .context(format!("Error reading file `{}`.", file_name.display()))?;
 
     let mod_type = determine_mod_type(base_name, &content);
 
@@ -150,7 +150,7 @@ pub fn validate(file_name: &str) -> Result<()> {
 }
 
 /// Print a sorted, human-readable report about the issues found in the file
-fn report_issues(mut issues: Vec<IssueReport>, file_path: &str) {
+fn report_issues(mut issues: Vec<IssueReport>, file_path: &Path) {
     if issues.is_empty() {
         // If there are no issues in the file, report that as info to avoid confusion over a blank output.
         issues.push(IssueReport {
@@ -164,7 +164,7 @@ fn report_issues(mut issues: Vec<IssueReport>, file_path: &str) {
     issues.sort_by_key(|report| report.line_number);
 
     // Print the sorted reports for the file to the standard output
-    println!("💾 File: {}", file_path);
+    println!("💾 File: {}", file_path.display());
     for issue in issues {
         println!("    {}", issue);
     }
