@@ -13,7 +13,7 @@ Add the following attribute before the module ID:
 ////
 :_content-type: PROCEDURE
 
-[id="proc_testing-a-procedure_{context}"]
+[id="testing-a-procedure_{context}"]
 = Testing a procedure
 ////
 Start the title of a procedure module with a gerund, such as Creating, Installing, or Deploying.

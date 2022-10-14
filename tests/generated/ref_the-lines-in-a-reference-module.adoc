@@ -17,7 +17,7 @@ Add the following attribute before the module ID:
 ////
 :_content-type: REFERENCE
 
-[id="ref_the-lines-in-a-reference-module_{context}"]
+[id="the-lines-in-a-reference-module_{context}"]
 = The lines in a reference module
 ////
 In the title of a reference module, include nouns that are used in the body text. For example, "Keyboard shortcuts for ___" or "Command options for ___." This helps readers and search engines find the information quickly.
