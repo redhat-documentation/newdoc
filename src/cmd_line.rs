@@ -77,9 +77,13 @@ pub struct Cli {
     #[arg(short = 'E', long = "no-examples", alias = "expert-mode")]
     pub no_examples: bool,
 
-    /// Do not use module type prefixes (such as `proc_`) in IDs and file names
-    #[arg(short = 'P', long = "no-prefixes")]
-    pub no_prefixes: bool,
+    /// Do not use module type prefixes (such as `proc_`) in file names
+    #[arg(short = 'P', long = "no-file-prefixes", alias = "no-prefixes")]
+    pub no_file_prefixes: bool,
+
+    /// Add use module type prefixes (such as `proc_`) in IDs
+    #[arg(short = 'I', long = "id-prefixes")]
+    pub id_prefixes: bool,
 
     /// Save the generated files in this directory
     #[arg(short = 'T', long = "target-dir", value_name = "DIRECTORY")]

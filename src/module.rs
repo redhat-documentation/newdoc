@@ -203,9 +203,11 @@ impl Input {
         self.id() + suffix
     }
 
+    /// If prefixes are enabled, pick the right file prefix.
+    /// If prefixes are disabled, use an empty string for the prefix.
     fn prefix(&self) -> &'static str {
         if self.options.prefixes {
-            // If prefixes are enabled, pick the right file prefix
+            
             match self.mod_type {
                 ContentType::Assembly => "assembly_",
                 ContentType::Concept => "con_",
@@ -214,7 +216,6 @@ impl Input {
                 ContentType::Snippet => "snip_",
             }
         } else {
-            // If prefixes are disabled, use an empty string for the prefix
             ""
         }
     }
