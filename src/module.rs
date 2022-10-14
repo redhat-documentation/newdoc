@@ -61,7 +61,7 @@ pub struct Input {
 pub struct Module {
     mod_type: ContentType,
     title: String,
-    id: String,
+    anchor: String,
     pub file_name: String,
     pub include_statement: String,
     includes: Option<Vec<String>>,
@@ -108,7 +108,7 @@ impl Input {
     /// let options = Options::default();
     /// let input = Input::new(mod_type, title, &options);
     ///
-    /// assert_eq!("con_a-test-with-problematic-characters", input.id());
+    /// assert_eq!("a-test-with-problematic-characters", input.id());
     /// ```
     #[must_use]
     pub fn id(&self) -> String {
@@ -188,35 +188,54 @@ impl Input {
             title_with_replacements = title_with_replacements[..len - 1].to_string();
         }
 
-        let prefix = self.prefix();
-
-        format!("{}{}", prefix, title_with_replacements)
+        title_with_replacements
     }
 
     /// Prepare the file name for the generated file.
     ///
-    /// The file name is based on the module ID, with the `.adoc` extension.
+    /// The file name is based on the module ID,
+    /// with an optional prefix and the `.adoc` extension.
     #[must_use]
     pub fn file_name(&self) -> String {
-        let suffix = ".adoc";
-
-        self.id() + suffix
-    }
-
-    /// If prefixes are enabled, pick the right file prefix.
-    /// If prefixes are disabled, use an empty string for the prefix.
-    fn prefix(&self) -> &'static str {
-        if self.options.prefixes {
-            
-            match self.mod_type {
-                ContentType::Assembly => "assembly_",
-                ContentType::Concept => "con_",
-                ContentType::Procedure => "proc_",
-                ContentType::Reference => "ref_",
-                ContentType::Snippet => "snip_",
-            }
+        // Add a prefix only if they're enabled.
+        let prefix = if self.options.file_prefixes {
+            self.prefix()
         } else {
             ""
+        };
+
+        let id = self.id();
+
+        let suffix = ".adoc";
+
+        [prefix, &id, suffix].join("")
+    }
+
+    /// Prepare the AsciiDoc anchor or ID.
+    ///
+    /// The anchor is based on the module ID, with an optional prefix.
+    #[must_use]
+    pub fn anchor(&self) -> String {
+        // Add a prefix only if they're enabled.
+        let prefix = if self.options.anchor_prefixes {
+            self.prefix()
+        } else {
+            ""
+        };
+
+        let id = self.id();
+
+        [prefix, &id].join("")
+    }
+
+    /// Pick the right file and ID prefix depending on the content type.
+    fn prefix(&self) -> &'static str {
+        match self.mod_type {
+            ContentType::Assembly => "assembly_",
+            ContentType::Concept => "con_",
+            ContentType::Procedure => "proc_",
+            ContentType::Reference => "ref_",
+            ContentType::Snippet => "snip_",
         }
     }
 
@@ -286,7 +305,7 @@ impl From<Input> for Module {
         let module = Module {
             mod_type: input.mod_type,
             title: input.title.clone(),
-            id: input.id(),
+            anchor: input.anchor(),
             file_name: input.file_name(),
             include_statement: input.include_statement(),
             includes: input.includes.clone(),
@@ -295,7 +314,7 @@ impl From<Input> for Module {
 
         log::debug!("Generated module properties:");
         log::debug!("Type: {:?}", &module.mod_type);
-        log::debug!("ID: {}", &module.id);
+        log::debug!("Anchor: {}", &module.anchor);
         log::debug!("File name: {}", &module.file_name);
         log::debug!("Include statement: {}", &module.include_statement);
         log::debug!(
@@ -329,7 +348,8 @@ mod tests {
     fn basic_options() -> Options {
         Options {
             comments: false,
-            prefixes: true,
+            file_prefixes: true,
+            anchor_prefixes: false,
             examples: true,
             target_dir: PathBuf::from("."),
             verbosity: Verbosity::Default,
@@ -339,7 +359,8 @@ mod tests {
     fn path_options() -> Options {
         Options {
             comments: false,
-            prefixes: true,
+            file_prefixes: true,
+            anchor_prefixes: false,
             examples: true,
             target_dir: PathBuf::from("repo/modules/topic/"),
             verbosity: Verbosity::Default,
@@ -361,8 +382,8 @@ mod tests {
             "A testing assembly with /special-characters*"
         );
         assert_eq!(
-            assembly.id,
-            "assembly_a-testing-assembly-with-special-characters"
+            assembly.anchor,
+            "a-testing-assembly-with-special-characters"
         );
         assert_eq!(
             assembly.file_name,

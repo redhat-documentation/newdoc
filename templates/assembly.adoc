@@ -4,7 +4,7 @@ For more information about nesting assemblies, see: https://redhat-documentation
 See also the complementary step on the last line of this file.
 ////
 
-ifdef::context[:parent-context-of-{{module_id}}: {context}]
+ifdef::context[:parent-context-of-{{module_anchor}}: {context}]
 
 ////
 Base the file name and the ID on the assembly title. For example:
@@ -24,10 +24,10 @@ Add the following attribute before the module ID:
 :_content-type: ASSEMBLY
 
 ifndef::context[]
-[id="{{module_id}}"]
+[id="{{module_anchor}}"]
 endif::[]
 ifdef::context[]
-[id="{{module_id}}_{context}"]
+[id="{{module_anchor}}_{context}"]
 endif::[]
 = {{module_title}}
 ////
@@ -36,7 +36,7 @@ Be sure to include a line break between the title and the :context: variable and
 If the assembly covers a task, start the title with a verb in the gerund form, such as Creating or Configuring.
 ////
 
-:context: {{module_id}}
+:context: {{module_anchor}}
 
 ////
 The `context` attribute enables module reuse. Every module ID includes {context}, which ensures that the module has a unique ID so you can include it multiple times in the same guide.
@@ -87,5 +87,5 @@ Optional. Delete if not used.
 ////
 Restore the context to what it was before this assembly.
 ////
-ifdef::parent-context-of-{{module_id}}[:context: {parent-context-of-{{module_id}}}]
-ifndef::parent-context-of-{{module_id}}[:!context:]
+ifdef::parent-context-of-{{module_anchor}}[:context: {parent-context-of-{{module_anchor}}}]
+ifndef::parent-context-of-{{module_anchor}}[:!context:]

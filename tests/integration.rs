@@ -10,7 +10,8 @@ use newdoc::*;
 fn basic_options() -> Options {
     Options {
         comments: true,
-        prefixes: true,
+        file_prefixes: true,
+        anchor_prefixes: false,
         examples: true,
         target_dir: PathBuf::from("."),
         verbosity: Verbosity::Default,
@@ -87,7 +88,8 @@ fn test_snippet_file() {
 fn minimal_options() -> Options {
     Options {
         comments: false,
-        prefixes: false,
+        file_prefixes: true,
+        anchor_prefixes: false,
         examples: false,
         target_dir: PathBuf::from("."),
         verbosity: Verbosity::Default,

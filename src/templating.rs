@@ -37,7 +37,7 @@ use crate::REGEX_ERROR;
 #[template(path = "assembly.adoc", escape = "none")]
 struct AssemblyTemplate<'a> {
     // The field name must match the variable name in the template
-    module_id: &'a str,
+    module_anchor: &'a str,
     module_title: &'a str,
     include_statements: &'a str,
     examples: bool,
@@ -46,7 +46,7 @@ struct AssemblyTemplate<'a> {
 #[derive(Template)]
 #[template(path = "concept.adoc", escape = "none")]
 struct ConceptTemplate<'a> {
-    module_id: &'a str,
+    module_anchor: &'a str,
     module_title: &'a str,
     examples: bool,
 }
@@ -54,7 +54,7 @@ struct ConceptTemplate<'a> {
 #[derive(Template)]
 #[template(path = "procedure.adoc", escape = "none")]
 struct ProcedureTemplate<'a> {
-    module_id: &'a str,
+    module_anchor: &'a str,
     module_title: &'a str,
     examples: bool,
 }
@@ -62,7 +62,7 @@ struct ProcedureTemplate<'a> {
 #[derive(Template)]
 #[template(path = "reference.adoc", escape = "none")]
 struct ReferenceTemplate<'a> {
-    module_id: &'a str,
+    module_anchor: &'a str,
     module_title: &'a str,
     examples: bool,
 }
@@ -101,26 +101,26 @@ impl Input {
     pub fn text(&self) -> String {
         let mut document = match self.mod_type {
             ContentType::Assembly => AssemblyTemplate {
-                module_id: &self.id(),
+                module_anchor: &self.anchor(),
                 module_title: &self.title,
                 include_statements: &self.includes_block(),
                 examples: self.options.examples,
             }
             .render(),
             ContentType::Concept => ConceptTemplate {
-                module_id: &self.id(),
+                module_anchor: &self.anchor(),
                 module_title: &self.title,
                 examples: self.options.examples,
             }
             .render(),
             ContentType::Procedure => ProcedureTemplate {
-                module_id: &self.id(),
+                module_anchor: &self.anchor(),
                 module_title: &self.title,
                 examples: self.options.examples,
             }
             .render(),
             ContentType::Reference => ReferenceTemplate {
-                module_id: &self.id(),
+                module_anchor: &self.anchor(),
                 module_title: &self.title,
                 examples: self.options.examples,
             }

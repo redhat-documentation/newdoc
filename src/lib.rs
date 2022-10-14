@@ -58,7 +58,7 @@ const REGEX_ERROR: &str = "Failed to construct a regular expression. Please repo
 pub struct Options {
     pub comments: bool,
     pub file_prefixes: bool,
-    pub id_prefixes: bool,
+    pub anchor_prefixes: bool,
     pub examples: bool,
     pub target_dir: PathBuf,
     pub verbosity: Verbosity,
@@ -85,7 +85,7 @@ impl Options {
             // the feature is disabled, so the option is set to false.
             comments: !cli.no_comments,
             file_prefixes: !cli.no_file_prefixes,
-            id_prefixes: cli.id_prefixes,
+            anchor_prefixes: cli.anchor_prefixes,
             examples: !cli.no_examples,
             // Set the target directory as specified or fall back on the current directory
             target_dir: cli.target_dir.clone().unwrap_or_else(|| PathBuf::from(".")),
@@ -99,7 +99,7 @@ impl Default for Options {
         Self {
             comments: true,
             file_prefixes: true,
-            id_prefixes: false,
+            anchor_prefixes: false,
             examples: true,
             target_dir: PathBuf::from("."),
             verbosity: Verbosity::Default,
