@@ -95,7 +95,7 @@ impl Input {
         }
     }
 
-    /// Perform string replacements in the modular template that matches the `ModuleType`.
+    /// Perform string replacements in the modular template that matches the `ContentType`.
     /// Return the template text with all replacements.
     #[must_use]
     pub fn text(&self) -> String {
