@@ -2,6 +2,10 @@
 
 The following is a summary of changes in each `newdoc` release, which is also a Git tag by the same name in this repository.
 
+## v2.11.0
+
+* Separate options for the module type prefix in IDs (anchors) and file names.
+
 ## v2.10.6
 
 * A prettier confirmation prompt when overwriting a file.

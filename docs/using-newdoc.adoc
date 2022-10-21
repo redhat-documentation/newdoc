@@ -280,7 +280,10 @@ $ newdoc --validate modules/con_proper-module.adoc
 
 * To generate the file without the example, placeholder content, add the `--no-examples` or `-E` option when creating documents.
 
-* To create the file without the module type prefix in the ID and the file name, add the `--no-prefixes` or `-P` option.
+* By default, the content type prefix appears in the generated file name and not in the ID (anchor). To change this behavior, use the following options:
++
+`--no-file-prefixes` or `-P`:: Disables the file-name prefix.
+`--anchor-prefixes` or `-A`:: Enables the ID (anchor) prefix.
 
 * To specify the directory where `newdoc` saves the generated file, add the `--target-dir=<directory>` or `-T <directory>` option.
 

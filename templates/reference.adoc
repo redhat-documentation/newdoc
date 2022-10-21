@@ -17,7 +17,7 @@ Add the following attribute before the module ID:
 ////
 :_content-type: REFERENCE
 
-[id="{{module_id}}_{context}"]
+[id="{{module_anchor}}_{context}"]
 = {{module_title}}
 ////
 In the title of a reference module, include nouns that are used in the body text. For example, "Keyboard shortcuts for ___" or "Command options for ___." This helps readers and search engines find the information quickly.

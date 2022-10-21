@@ -13,7 +13,7 @@ Add the following attribute before the module ID:
 ////
 :_content-type: PROCEDURE
 
-[id="{{module_id}}_{context}"]
+[id="{{module_anchor}}_{context}"]
 = {{module_title}}
 ////
 Start the title of a procedure module with a gerund, such as Creating, Installing, or Deploying.
