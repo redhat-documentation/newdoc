@@ -195,6 +195,29 @@ impl Input {
     ///
     /// The file name is based on the module ID,
     /// with an optional prefix and the `.adoc` extension.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use newdoc::{ContentType, Input, Options};
+    ///
+    /// let mod_type = ContentType::Concept;
+    /// let title = "Default file name configuration";
+    /// let options = Options::default();
+    /// let input = Input::new(mod_type, title, &options);
+    ///
+    /// assert_eq!("con_default-file-name-configuration.adoc", input.file_name());
+    ///
+    /// let mod_type = ContentType::Concept;
+    /// let title = "No prefix file name configuration";
+    /// let options = Options {
+    ///     file_prefixes: false,
+    ///     ..Default::default()
+    /// };
+    /// let input = Input::new(mod_type, title, &options);
+    ///
+    /// assert_eq!("no-prefix-file-name-configuration.adoc", input.file_name());
+    /// ```
     #[must_use]
     pub fn file_name(&self) -> String {
         // Add a prefix only if they're enabled.
@@ -214,6 +237,28 @@ impl Input {
     /// Prepare the AsciiDoc anchor or ID.
     ///
     /// The anchor is based on the module ID, with an optional prefix.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use newdoc::{ContentType, Input, Options};
+    ///
+    /// let mod_type = ContentType::Concept;
+    /// let title = "Default anchor configuration";
+    /// let options = Options::default();
+    /// let input = Input::new(mod_type, title, &options);
+    ///
+    /// assert_eq!("default-anchor-configuration", input.anchor());
+    ///
+    /// let mod_type = ContentType::Concept;
+    /// let title = "Prefix anchor configuration";
+    /// let options = Options {
+    ///     anchor_prefixes: true,
+    ///     ..Default::default()
+    /// };
+    /// let input = Input::new(mod_type, title, &options);
+    ///
+    /// assert_eq!("con_prefix-anchor-configuration", input.anchor());
     #[must_use]
     pub fn anchor(&self) -> String {
         // Add a prefix only if they're enabled.
