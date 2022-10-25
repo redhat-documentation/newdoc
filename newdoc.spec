@@ -6,7 +6,7 @@ License: GPLv3+
 URL: https://github.com/redhat-documentation/newdoc
 Group: Applications/Text
 Obsoletes: python3-newdoc, python2-newdoc
-Source0: https://github.com/redhat-documentation/%{name}/archive/refs/tags/clap3-%{version}-1.tar.gz
+Source0: https://github.com/redhat-documentation/%{name}/archive/refs/tags/clap3-%{version}-2.tar.gz
 
 ExclusiveArch: %{rust_arches}
 
@@ -19,7 +19,7 @@ The newdoc tool generates pre-populated module and assembly files formatted with
 %global debug_package %{nil}
 
 %prep
-%setup -q -n clap3-%{name}-%{version}-1
+%setup -q -n %{name}-clap3-%{version}-2
 
 %build
 cargo build --release
