@@ -1,5 +1,8 @@
 srpm:
-	dnf install cargo -y
-	cargo install cargo-rpm --profile=dev
-	cargo rpm build
-	mv target/release/rpmbuild/SRPMS/* $(outdir)
+	dnf install -y rpmdevtools cargo
+	rpmdev-setuptree
+	cargo package
+	mv target/package/*.crate ~/rpmbuild/SOURCES/
+	cp newdoc.spec ~/rpmbuild/SPECS/
+	rpmbuild -bs ~/rpmbuild/SPECS/newdoc.spec
+	cp ~/rpmbuild/SRPMS/newdoc-*.src.rpm $(outdir)
