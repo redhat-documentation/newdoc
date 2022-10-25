@@ -26,14 +26,3 @@ color-eyre = { version = "0.6", default-features = false }
 dialoguer = "0.10"
 # Temporary to keep MSRV at 1.57
 time = "=0.3.13"
-
-
-[package.metadata.rpm.cargo]
-buildflags = ["--release"]
-
-[package.metadata.rpm.targets]
-newdoc = { path = "/usr/bin/newdoc" }
-
-[package.metadata.generate-rpm]
-assets = [ { source = "target/release/newdoc", dest = "/usr/bin/newdoc", mode = "755" } ]
-
