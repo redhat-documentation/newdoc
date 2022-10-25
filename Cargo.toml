@@ -6,7 +6,7 @@ authors = ["Marek Suchánek <msuchane@redhat.com>"]
 license = "GPL-3.0-or-later"
 edition = "2021"
 # Check the Rust version using `cargo msrv verify`.
-rust-version = "1.60"
+rust-version = "1.58"
 documentation = "https://docs.rs/newdoc"
 readme = "README.md"
 repository = "https://github.com/mrksu/newdoc"
@@ -16,7 +16,7 @@ keywords = ["asciidoc", "documentation", "RedHat"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-clap = { version = "4.0", features = ["cargo", "derive"] }
+clap = { version = "3", features = ["cargo", "derive"] }
 regex = "1.6"
 log = "0.4"
 simplelog = "0.12"

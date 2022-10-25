@@ -26,10 +26,10 @@ use std::path::PathBuf;
 use clap::{ArgGroup, Parser};
 
 #[derive(Parser)]
-#[command(author, version, about, long_about = None, arg_required_else_help(true))]
-#[command(group(
+#[clap(author, version, about, long_about = None, arg_required_else_help(true))]
+#[clap(group(
     ArgGroup::new("required")
-                .args([
+                .args(&[
                     "assembly",
                     "concept",
                     "procedure",
@@ -42,59 +42,59 @@ use clap::{ArgGroup, Parser};
 ))]
 pub struct Cli {
     /// Create an assembly file
-    #[arg(short, long, value_name = "TITLE")]
+    #[clap(short, long, value_name = "TITLE")]
     pub assembly: Option<Vec<String>>,
 
     /// Create an assembly that includes the other specified modules
-    #[arg(short, long = "include-in", value_name = "TITLE")]
+    #[clap(short, long = "include-in", value_name = "TITLE")]
     pub include_in: Option<String>,
 
     /// Create a concept module
-    #[arg(short, long, value_name = "TITLE")]
+    #[clap(short, long, value_name = "TITLE")]
     pub concept: Option<Vec<String>>,
 
     /// Create a procedure module
-    #[arg(short, long, value_name = "TITLE")]
+    #[clap(short, long, value_name = "TITLE")]
     pub procedure: Option<Vec<String>>,
 
     /// Create a reference module
-    #[arg(short, long, value_name = "TITLE")]
+    #[clap(short, long, value_name = "TITLE")]
     pub reference: Option<Vec<String>>,
 
     /// Create a snippet file
-    #[arg(short, long, value_name = "TITLE")]
+    #[clap(short, long, value_name = "TITLE")]
     pub snippet: Option<Vec<String>>,
 
     /// Validate (lint) an existing module or assembly file
-    #[arg(short = 'l', long, value_name = "FILE")]
+    #[clap(short = 'l', long, value_name = "FILE")]
     pub validate: Option<Vec<PathBuf>>,
 
     /// Generate the file without any comments
-    #[arg(short = 'C', long = "no-comments")]
+    #[clap(short = 'C', long = "no-comments")]
     pub no_comments: bool,
 
     /// Generate the file without any example, placeholder content
-    #[arg(short = 'E', long = "no-examples", alias = "expert-mode")]
+    #[clap(short = 'E', long = "no-examples", alias = "expert-mode")]
     pub no_examples: bool,
 
     /// Do not use module type prefixes (such as `proc_`) in file names
-    #[arg(short = 'P', long, alias = "no-prefixes")]
+    #[clap(short = 'P', long, alias = "no-prefixes")]
     pub no_file_prefixes: bool,
 
     /// Add use module type prefixes (such as `proc_`) in AsciiDoc anchors
-    #[arg(short = 'A', long)]
+    #[clap(short = 'A', long)]
     pub anchor_prefixes: bool,
 
     /// Save the generated files in this directory
-    #[arg(short = 'T', long = "target-dir", value_name = "DIRECTORY")]
+    #[clap(short = 'T', long = "target-dir", value_name = "DIRECTORY")]
     pub target_dir: Option<PathBuf>,
 
     /// Display additional, debug messages
-    #[arg(short, long, conflicts_with = "quiet")]
+    #[clap(short, long, conflicts_with = "quiet")]
     pub verbose: bool,
 
     /// Hide info-level messages. Display only warnings and errors
-    #[arg(short, long, conflicts_with = "verbose")]
+    #[clap(short, long, conflicts_with = "verbose")]
     pub quiet: bool,
 }
 
