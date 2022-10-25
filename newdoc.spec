@@ -1,13 +1,12 @@
 Name: newdoc
 Summary: Generate an AsciiDoc file using a modular template
 Version: 2.11.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: GPLv3+
 URL: https://github.com/redhat-documentation/newdoc
 Group: Applications/Text
 Obsoletes: python3-newdoc, python2-newdoc
-Source0: https://static.crates.io/crates/%{name}/%{name}-%{version}.crate
-#Source1: https://github.com/redhat-documentation/%{name}/archive/refs/tags/v%{version}.tar.gz
+Source0: https://github.com/redhat-documentation/%{name}/archive/refs/tags/clap3-%{version}.tar.gz
 
 ExclusiveArch: %{rust_arches}
 
