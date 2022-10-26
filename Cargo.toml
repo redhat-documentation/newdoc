@@ -35,3 +35,6 @@ newdoc = { path = "/usr/bin/newdoc" }
 [package.metadata.generate-rpm]
 assets = [ { source = "target/release/newdoc", dest = "/usr/bin/newdoc", mode = "755" } ]
 
+[build-dependencies]
+clap = { version = "4.0", features = ["derive", "cargo"] }
+clap_mangen = "0.2"

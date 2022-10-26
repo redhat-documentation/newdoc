@@ -162,6 +162,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "clap_mangen"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6cb68fb090907789b55ddfcf42f03490cd9b94a6da519b75d871cf3a0963735c"
+dependencies = [
+ "clap",
+ "roff",
+]
+
+[[package]]
 name = "color-eyre"
 version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -336,6 +346,7 @@ version = "2.11.0"
 dependencies = [
  "askama",
  "clap",
+ "clap_mangen",
  "color-eyre",
  "dialoguer",
  "log",
@@ -480,6 +491,12 @@ checksum = "3acd125665422973a33ac9d3dd2df85edad0f4ae9b00dafb1a05e43a9f5ef8e7"
 dependencies = [
  "winapi",
 ]
+
+[[package]]
+name = "roff"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b833d8d034ea094b1ea68aa6d5c740e0d04bad9d16568d08ba6f76823a114316"
 
 [[package]]
 name = "rustc-demangle"
