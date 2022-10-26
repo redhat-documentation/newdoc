@@ -1,3 +1,9 @@
+//! This script auto-generates a man page from the clap configuration.
+//! It creates the `newdoc.1` file in the current directory, which is
+//! ignored by git.
+//!
+//! The code comes from the sample at <https://rust-cli.github.io/book/in-depth/docs.html>.
+
 use clap::CommandFactory;
 
 // We're reusing the module just for the Cli struct. Ignore the rest of the code
@@ -9,8 +15,6 @@ use cmd_line::Cli;
 
 fn main() -> std::io::Result<()> {
     let cmd: clap::Command = Cli::command();
-
-    println!("{:?}", cmd);
 
     let man = clap_mangen::Man::new(cmd);
     let mut buffer: Vec<u8> = Default::default();
