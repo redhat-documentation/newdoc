@@ -25,16 +25,6 @@ askama = "0.11"
 color-eyre = { version = "0.6", default-features = false }
 dialoguer = "0.10"
 
-
-[package.metadata.rpm.cargo]
-buildflags = ["--release"]
-
-[package.metadata.rpm.targets]
-newdoc = { path = "/usr/bin/newdoc" }
-
-[package.metadata.generate-rpm]
-assets = [ { source = "target/release/newdoc", dest = "/usr/bin/newdoc", mode = "755" } ]
-
 [build-dependencies]
 clap = { version = "4.0", features = ["derive", "cargo"] }
 clap_mangen = "0.2"
