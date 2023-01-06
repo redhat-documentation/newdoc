@@ -17,7 +17,7 @@ keywords = ["asciidoc", "documentation", "RedHat"]
 
 [dependencies]
 clap = { version = "4.0", features = ["cargo", "derive"] }
-regex = "1.6"
+regex = "1.7"
 log = "0.4"
 simplelog = "0.12"
 askama = "0.11"
