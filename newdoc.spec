@@ -41,7 +41,7 @@ install -m 0755 target/release/%{name} %{buildroot}%{_bindir}/%{name}
 # An alternative way to install the binary using cargo.
 # cargo install --path . --root %{buildroot}/usr
 # Compress the man page
-gzip %{name}.1
+gzip -c target/release/build/%{name}-*/out/%{name}.1 > %{name}.1.gz
 # Install the man page into the chroot environment.
 install -m 0644 %{name}.1.gz %{buildroot}%{_mandir}/man1/%{name}.1.gz
 
