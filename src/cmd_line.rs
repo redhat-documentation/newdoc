@@ -26,21 +26,6 @@ use bpaf::Bpaf;
 
 #[derive(Clone, Debug, Bpaf)]
 #[bpaf(options, version)]
-/*
-#[command(group(
-    ArgGroup::new("required")
-                .args([
-                    "assembly",
-                    "concept",
-                    "procedure",
-                    "reference",
-                    "snippet",
-                    "validate",
-                ])
-                .required(true)
-                .multiple(true)
-))]
-*/
 pub struct Cli {
     /// Generate the file without any comments
     #[bpaf(short('C'), long)]
@@ -76,33 +61,36 @@ pub struct Cli {
 #[derive(Clone, Debug, Bpaf)]
 pub struct Action {
     /// Create an assembly file
-    #[bpaf(short, long, argument("TITLE"), many)]
+    #[bpaf(short, long, argument("TITLE"))]
     pub assembly: Vec<String>,
 
     /// Create a concept module
-    #[bpaf(short, long, argument("TITLE"), many)]
+    #[bpaf(short, long, argument("TITLE"))]
     pub concept: Vec<String>,
 
     /// Create a procedure module
-    #[bpaf(short, long, argument("TITLE"), many)]
+    #[bpaf(short, long, argument("TITLE"))]
     pub procedure: Vec<String>,
 
     /// Create a reference module
-    #[bpaf(short, long, argument("TITLE"), many)]
+    #[bpaf(short, long, argument("TITLE"))]
     pub reference: Vec<String>,
 
     /// Create a snippet file
-    #[bpaf(short, long, argument("TITLE"), many)]
+    #[bpaf(short, long, argument("TITLE"))]
     pub snippet: Vec<String>,
 
     /// Create an assembly that includes the other specified modules
     #[bpaf(short, long, argument("TITLE"))]
     pub include_in: Option<String>,
+
     /// Validate (lint) an existing module or assembly file
     #[bpaf(short('l'), long, argument("FILE"))]
     pub validate: Vec<PathBuf>,
 }
 
+/// The verbosity level set on the command line.
+/// The default option is invisible as a command-line argument.
 #[derive(Clone, Copy, Debug, Bpaf)]
 pub enum Verbosity {
     /// Display additional, debug messages
