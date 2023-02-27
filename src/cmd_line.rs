@@ -27,6 +27,19 @@ use bpaf::Bpaf;
 #[derive(Clone, Debug, Bpaf)]
 #[bpaf(options, version)]
 pub struct Cli {
+    #[bpaf(
+        external,
+        group_help("Generate or validate files:"),
+        guard(at_least_one_file, SOME_FILES)
+    )]
+    pub action: Action,
+
+    #[bpaf(external, group_help("Common options:"))]
+    pub common_options: CommonOptions,
+}
+
+#[derive(Clone, Debug, Bpaf)]
+pub struct CommonOptions {
     /// Generate the file without any comments
     #[bpaf(short('C'), long)]
     pub no_comments: bool,
@@ -44,18 +57,11 @@ pub struct Cli {
     pub anchor_prefixes: bool,
 
     /// Save the generated files in this directory
-    #[bpaf(short('T'), long, argument("DIRECTORY"))]
-    pub target_dir: Option<PathBuf>,
+    #[bpaf(short('T'), long, argument("DIRECTORY"), fallback(".".into()))]
+    pub target_dir: PathBuf,
 
     #[bpaf(external, fallback(Verbosity::Default))]
     pub verbosity: Verbosity,
-
-    #[bpaf(
-        external,
-        group_help("Generate or validate files"),
-        guard(at_least_one_file, SOME_FILES)
-    )]
-    pub action: Action,
 }
 
 #[derive(Clone, Debug, Bpaf)]

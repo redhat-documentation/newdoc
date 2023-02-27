@@ -72,13 +72,13 @@ impl Options {
             // Comments and prefixes are enabled (true) by default unless you disable them
             // on the command line. If the no-comments or no-prefixes option is passed,
             // the feature is disabled, so the option is set to false.
-            comments: !cli.no_comments,
-            file_prefixes: !cli.no_file_prefixes,
-            anchor_prefixes: cli.anchor_prefixes,
-            examples: !cli.no_examples,
+            comments: !cli.common_options.no_comments,
+            file_prefixes: !cli.common_options.no_file_prefixes,
+            anchor_prefixes: cli.common_options.anchor_prefixes,
+            examples: !cli.common_options.no_examples,
             // Set the target directory as specified or fall back on the current directory
-            target_dir: cli.target_dir.clone().unwrap_or_else(|| PathBuf::from(".")),
-            verbosity: cli.verbosity,
+            target_dir: cli.common_options.target_dir.clone(),
+            verbosity: cli.common_options.verbosity,
         }
     }
 }
