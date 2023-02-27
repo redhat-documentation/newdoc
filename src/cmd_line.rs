@@ -24,6 +24,7 @@ use std::path::PathBuf;
 
 use bpaf::Bpaf;
 
+/// Generate pre-populated module files formatted with AsciiDoc that are used in Red Hat and Fedora documentation.
 #[derive(Clone, Debug, Bpaf)]
 #[bpaf(options, version)]
 pub struct Cli {
