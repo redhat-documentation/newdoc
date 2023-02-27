@@ -4,6 +4,7 @@
 //!
 //! The code comes from the sample at <https://rust-cli.github.io/book/in-depth/docs.html>.
 
+/*
 use clap::CommandFactory;
 
 // We're reusing the module just for the Cli struct. Ignore the rest of the code
@@ -27,3 +28,6 @@ fn main() -> std::io::Result<()> {
 
     Ok(())
 }
+*/
+
+fn main() {}

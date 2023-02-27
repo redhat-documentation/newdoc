@@ -44,7 +44,7 @@ mod templating;
 mod validation;
 mod write;
 
-use cmd_line::Cli;
+use cmd_line::{Cli, Verbosity};
 pub use module::{ContentType, Input, Module};
 
 /// newdoc uses many regular expressions at several places. Constructing them should never fail,
@@ -68,17 +68,6 @@ impl Options {
     /// Set current options based on the command-line options
     #[must_use]
     pub fn new(cli: &Cli) -> Self {
-        // Determine the configured verbosity level.
-        // The clap configuration ensures that verbose and quiet
-        // are mutually exclusive.
-        let verbosity = if cli.verbose {
-            Verbosity::Verbose
-        } else if cli.quiet {
-            Verbosity::Quiet
-        } else {
-            Verbosity::Default
-        };
-
         Self {
             // Comments and prefixes are enabled (true) by default unless you disable them
             // on the command line. If the no-comments or no-prefixes option is passed,
@@ -89,7 +78,7 @@ impl Options {
             examples: !cli.no_examples,
             // Set the target directory as specified or fall back on the current directory
             target_dir: cli.target_dir.clone().unwrap_or_else(|| PathBuf::from(".")),
-            verbosity,
+            verbosity: cli.verbosity,
         }
     }
 }
@@ -107,13 +96,6 @@ impl Default for Options {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
-pub enum Verbosity {
-    Verbose,
-    Default,
-    Quiet,
-}
-
 pub fn run(options: &Options, cli: &Cli) -> Result<()> {
     // Initialize the logging system based on the set verbosity
     logging::initialize_logger(options.verbosity)?;
@@ -122,11 +104,11 @@ pub fn run(options: &Options, cli: &Cli) -> Result<()> {
 
     // Attach titles from the CLI to content types.
     let content_types = [
-        (ContentType::Assembly, cli.assembly.as_ref()),
-        (ContentType::Concept, cli.concept.as_ref()),
-        (ContentType::Procedure, cli.procedure.as_ref()),
-        (ContentType::Reference, cli.reference.as_ref()),
-        (ContentType::Snippet, cli.snippet.as_ref()),
+        (ContentType::Assembly, &cli.action.assembly),
+        (ContentType::Concept, &cli.action.concept),
+        (ContentType::Procedure, &cli.action.procedure),
+        (ContentType::Reference, &cli.action.reference),
+        (ContentType::Snippet, &cli.action.snippet),
     ];
 
     // Store all modules except for the populated assembly that will be created in this Vec
@@ -135,12 +117,10 @@ pub fn run(options: &Options, cli: &Cli) -> Result<()> {
     // For each module type, see if it occurs on the command line and process it
     for (content_type, titles) in content_types {
         // Check if the given module type occurs on the command line
-        if let Some(titles) = titles {
-            let mut modules = process_module_type(titles, content_type, options);
+        let mut modules = process_module_type(titles, content_type, options);
 
-            // Move all the newly created modules into the common Vec
-            non_populated.append(&mut modules);
-        }
+        // Move all the newly created modules into the common Vec
+        non_populated.append(&mut modules);
     }
 
     // Write all non-populated modules to the disk
@@ -151,7 +131,7 @@ pub fn run(options: &Options, cli: &Cli) -> Result<()> {
     // Treat the populated assembly module as a special case:
     // * There can be only one populated assembly
     // * It must be generated after the other modules so that it can use their include statements
-    if let Some(title) = &cli.include_in {
+    if let Some(title) = &cli.action.include_in {
         // Gather all include statements for the other modules
         let include_statements: Vec<String> = non_populated
             .into_iter()
@@ -171,13 +151,9 @@ pub fn run(options: &Options, cli: &Cli) -> Result<()> {
 
         populated.write_file(options)?;
     }
-
     // Validate all file names specified on the command line
-    if let Some(files) = cli.validate.as_ref() {
-        for file in files {
-            validation::validate(file)
-                .wrap_err_with(|| eyre!("Failed to validate file {:?}", file))?;
-        }
+    for file in &cli.action.validate {
+        validation::validate(file).wrap_err_with(|| eyre!("Failed to validate file {:?}", file))?;
     }
 
     Ok(())
