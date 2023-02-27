@@ -4,31 +4,19 @@ The following are instructions for the maintainers of `newdoc` to package and di
 
 ## Packaging and distributing newdoc as an RPM package
 
-1. Install the  `cargo` package manager. For details, see <https://rustup.rs/>.
+1. Log into the Copr repository administration: <https://copr.fedorainfracloud.org/coprs/mareksu/newdoc-rs/>.
 
-2. Install the `cargo-rpm` extension:
+2. Go to the **Builds** tab.
 
-    ```
-    $ cargo install cargo-rpm
-    ```
+3. Click **New Build**.
 
-3. In the `newdoc` project directory, build RPM packages:
+4. Select **SCM**.
 
-    ```
-    $ cargo rpm build
-    ```
+5. In the **Clone url** field, paste `https://github.com/redhat-documentation/newdoc`.
 
-    This command build packages in the `target/release/rpmbuild/` directory.
+6. In the **Spec File** field, use `newdoc.spec`.
 
-4. Log into the Copr repository administration: <https://copr.fedorainfracloud.org/coprs/mareksu/newdoc-rs/>.
-
-5. Go to the **Builds** tab.
-
-6. Click **New Build** and select **Upload**.
-
-7. In the **Provide the source** section, upload the most recent SRPM package from the `target/release/rpmbuild/SRPMS/` directory.
-
-8. Click **Build**.
+7. Click **Build**.
 
 ## Packaging and distributing newdoc on Crates.io
 

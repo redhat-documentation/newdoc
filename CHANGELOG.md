@@ -2,6 +2,11 @@
 
 The following is a summary of changes in each `newdoc` release, which is also a Git tag by the same name in this repository.
 
+## v2.12.0
+
+* Deprecate the `--validate` (`-l`) option. Please use `enki` instead: <https://github.com/Levi-Leah/enki/>.
+* Switch to the `bpaf` command-line argument parser.
+
 ## v2.11.0
 
 * Separate options for the module type prefix in IDs (anchors) and file names.

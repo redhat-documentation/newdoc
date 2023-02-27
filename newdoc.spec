@@ -1,6 +1,6 @@
 Name: newdoc
 Summary: Generate an AsciiDoc file using a modular template
-Version: 2.11.0
+Version: 2.12.0
 Release: 1%{?dist}
 License: GPLv3+
 URL: https://github.com/redhat-documentation/newdoc
@@ -44,9 +44,6 @@ install -m 0755 target/release/%{name} %{buildroot}%{_bindir}/%{name}
 gzip -c target/release/build/%{name}-*/out/%{name}.1 > %{name}.1.gz
 # Install the man page into the chroot environment.
 install -m 0644 %{name}.1.gz %{buildroot}%{_mandir}/man1/%{name}.1.gz
-
-%clean
-rm -rf %{buildroot}
 
 %files
 # Pick documentation and license files from the source directory.

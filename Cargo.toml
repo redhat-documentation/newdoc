@@ -1,12 +1,12 @@
 [package]
 name = "newdoc"
-version = "2.11.0"
+version = "2.12.0"
 description = "Generate pre-populated module files formatted with AsciiDoc that are used in Red Hat and Fedora documentation."
 authors = ["Marek Suchánek <msuchane@redhat.com>"]
 license = "GPL-3.0-or-later"
 edition = "2021"
 # Check the Rust version using `cargo msrv verify`.
-rust-version = "1.60"
+rust-version = "1.62"
 documentation = "https://docs.rs/newdoc"
 readme = "README.md"
 repository = "https://github.com/redhat-documentation/newdoc/"
@@ -25,6 +25,8 @@ askama = "0.11"
 # Disable support for tracing_error and SpanTrace in eyre
 color-eyre = { version = "0.6", default-features = false }
 dialoguer = "0.10"
+# Preserve MSRV at 1.62:
+time = "=0.3.19"
 
 [build-dependencies]
 bpaf = { version = "0.7", features = ["derive", "manpage"]}
