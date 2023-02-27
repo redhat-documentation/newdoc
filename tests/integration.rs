@@ -4,6 +4,7 @@
 
 use std::path::PathBuf;
 
+use cmd_line::Verbosity;
 use newdoc::*;
 
 // These values represent the default newdoc options.

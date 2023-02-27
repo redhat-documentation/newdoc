@@ -19,87 +19,112 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //! # `cmd_line.rs`
 //!
 //! This module defines the command-line arguments and behavior of `newdoc`.
-//! It relies on the `clap` crate.
 
 use std::path::PathBuf;
 
-use clap::{ArgGroup, Parser};
+use bpaf::Bpaf;
 
-#[derive(Parser)]
-#[command(author, version, about, long_about = None, arg_required_else_help(true))]
-#[command(group(
-    ArgGroup::new("required")
-                .args([
-                    "assembly",
-                    "concept",
-                    "procedure",
-                    "reference",
-                    "snippet",
-                    "validate",
-                ])
-                .required(true)
-                .multiple(true)
-))]
+#[derive(Clone, Debug, Bpaf)]
+#[bpaf(options, version)]
 pub struct Cli {
-    /// Create an assembly file
-    #[arg(short, long, value_name = "TITLE")]
-    pub assembly: Option<Vec<String>>,
+    #[bpaf(
+        external,
+        group_help("Generate or validate files:"),
+        guard(at_least_one_file, SOME_FILES)
+    )]
+    pub action: Action,
 
-    /// Create an assembly that includes the other specified modules
-    #[arg(short, long = "include-in", value_name = "TITLE")]
-    pub include_in: Option<String>,
+    #[bpaf(external, group_help("Common options:"))]
+    pub common_options: CommonOptions,
+}
 
-    /// Create a concept module
-    #[arg(short, long, value_name = "TITLE")]
-    pub concept: Option<Vec<String>>,
-
-    /// Create a procedure module
-    #[arg(short, long, value_name = "TITLE")]
-    pub procedure: Option<Vec<String>>,
-
-    /// Create a reference module
-    #[arg(short, long, value_name = "TITLE")]
-    pub reference: Option<Vec<String>>,
-
-    /// Create a snippet file
-    #[arg(short, long, value_name = "TITLE")]
-    pub snippet: Option<Vec<String>>,
-
-    /// Validate (lint) an existing module or assembly file
-    #[arg(short = 'l', long, value_name = "FILE")]
-    pub validate: Option<Vec<PathBuf>>,
-
+#[derive(Clone, Debug, Bpaf)]
+pub struct CommonOptions {
     /// Generate the file without any comments
-    #[arg(short = 'C', long = "no-comments")]
+    #[bpaf(short('C'), long)]
     pub no_comments: bool,
 
     /// Generate the file without any example, placeholder content
-    #[arg(short = 'E', long = "no-examples", alias = "expert-mode")]
+    #[bpaf(short('E'), long, long("expert-mode"))]
     pub no_examples: bool,
 
     /// Do not use module type prefixes (such as `proc_`) in file names
-    #[arg(short = 'P', long, alias = "no-prefixes")]
+    #[bpaf(short('P'), long, long("no-prefixes"))]
     pub no_file_prefixes: bool,
 
     /// Add use module type prefixes (such as `proc_`) in AsciiDoc anchors
-    #[arg(short = 'A', long)]
+    #[bpaf(short('A'), long)]
     pub anchor_prefixes: bool,
 
     /// Save the generated files in this directory
-    #[arg(short = 'T', long = "target-dir", value_name = "DIRECTORY")]
-    pub target_dir: Option<PathBuf>,
+    #[bpaf(short('T'), long, argument("DIRECTORY"), fallback(".".into()))]
+    pub target_dir: PathBuf,
 
-    /// Display additional, debug messages
-    #[arg(short, long, conflicts_with = "quiet")]
-    pub verbose: bool,
-
-    /// Hide info-level messages. Display only warnings and errors
-    #[arg(short, long, conflicts_with = "verbose")]
-    pub quiet: bool,
+    #[bpaf(external, fallback(Verbosity::Default))]
+    pub verbosity: Verbosity,
 }
+
+#[derive(Clone, Debug, Bpaf)]
+pub struct Action {
+    /// Create an assembly file
+    #[bpaf(short, long, argument("TITLE"))]
+    pub assembly: Vec<String>,
+
+    /// Create a concept module
+    #[bpaf(short, long, argument("TITLE"))]
+    pub concept: Vec<String>,
+
+    /// Create a procedure module
+    #[bpaf(short, long, argument("TITLE"))]
+    pub procedure: Vec<String>,
+
+    /// Create a reference module
+    #[bpaf(short, long, argument("TITLE"))]
+    pub reference: Vec<String>,
+
+    /// Create a snippet file
+    #[bpaf(short, long, argument("TITLE"))]
+    pub snippet: Vec<String>,
+
+    /// Create an assembly that includes the other specified modules
+    #[bpaf(short, long, argument("TITLE"))]
+    pub include_in: Option<String>,
+
+    /// Validate (lint) an existing module or assembly file
+    #[bpaf(short('l'), long, argument("FILE"))]
+    pub validate: Vec<PathBuf>,
+}
+
+/// The verbosity level set on the command line.
+/// The default option is invisible as a command-line argument.
+#[derive(Clone, Copy, Debug, Bpaf)]
+pub enum Verbosity {
+    /// Display additional, debug messages
+    #[bpaf(short, long)]
+    Verbose,
+    /// Hide info-level messages. Display only warnings and errors
+    #[bpaf(short, long)]
+    Quiet,
+    #[bpaf(hide)]
+    Default,
+}
+
+/// Check that the current command generates or validates at least one file.
+fn at_least_one_file(action: &Action) -> bool {
+    !action.assembly.is_empty()
+        || !action.concept.is_empty()
+        || !action.procedure.is_empty()
+        || !action.reference.is_empty()
+        || !action.validate.is_empty()
+        || action.include_in.is_some()
+}
+
+/// The error message if the command does not generate or validate files.
+const SOME_FILES: &str = "Specify at least one file to generate or validate.";
 
 /// Get command-line arguments as the `Cli` struct.
 #[must_use]
 pub fn get_args() -> Cli {
-    Cli::parse()
+    let usage_prefix = "Usage: newdoc {usage}";
+    cli().usage(usage_prefix).run()
 }

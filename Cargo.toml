@@ -9,14 +9,15 @@ edition = "2021"
 rust-version = "1.60"
 documentation = "https://docs.rs/newdoc"
 readme = "README.md"
-repository = "https://github.com/mrksu/newdoc"
+repository = "https://github.com/redhat-documentation/newdoc/"
+homepage = "https://redhat-documentation.github.io/newdoc/"
 categories = ["command-line-utilities", "text-processing"]
 keywords = ["asciidoc", "documentation", "RedHat"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-clap = { version = "4.0", features = ["cargo", "derive"] }
+bpaf = { version = "0.7", features = ["derive", "bright-color"]}
 regex = "1.7"
 log = "0.4"
 simplelog = "0.12"
@@ -26,5 +27,4 @@ color-eyre = { version = "0.6", default-features = false }
 dialoguer = "0.10"
 
 [build-dependencies]
-clap = { version = "4.0", features = ["derive", "cargo"] }
-clap_mangen = "0.2"
+bpaf = { version = "0.7", features = ["derive", "manpage"]}
