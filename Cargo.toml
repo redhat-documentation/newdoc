@@ -9,7 +9,8 @@ edition = "2021"
 rust-version = "1.60"
 documentation = "https://docs.rs/newdoc"
 readme = "README.md"
-repository = "https://github.com/mrksu/newdoc"
+repository = "https://github.com/redhat-documentation/newdoc/"
+homepage = "https://redhat-documentation.github.io/newdoc/"
 categories = ["command-line-utilities", "text-processing"]
 keywords = ["asciidoc", "documentation", "RedHat"]
 
