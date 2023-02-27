@@ -151,6 +151,12 @@ pub fn run(options: &Options, cli: &Cli) -> Result<()> {
 
         populated.write_file(options)?;
     }
+
+    // If the validate option is active, report the deprecation.
+    if !cli.action.validate.is_empty() {
+        log::warn!("The validation feature is deprecated and will be removed in a later version. \
+                   Please switch to the `enki` validation tool: <https://github.com/Levi-Leah/enki/>.");
+    }
     // Validate all file names specified on the command line
     for file in &cli.action.validate {
         validation::validate(file).wrap_err_with(|| eyre!("Failed to validate file {:?}", file))?;
