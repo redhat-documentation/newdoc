@@ -276,7 +276,7 @@ $ newdoc --validate modules/con_proper-module.adoc
 
 == Options
 
-* To generate the file without the explanatory comments, add the `--no-comments` or `-C` option when creating documents.
+* To generate the file with explanatory comments, add the `--comments` or `-M` option when creating documents.
 
 * To generate the file without the example, placeholder content, add the `--no-examples` or `-E` option when creating documents.
 
