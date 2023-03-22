@@ -252,7 +252,7 @@ When generating a new file, `newdoc` warns you if a file by that name already ex
 * Preserve the existing file and cancel the newly generated file.
 
 
-== Validating a file for Red Hat requirements
+== (Deprecated) Validating a file for Red Hat requirements
 
 You can use the `--validate` (`-l`) option to check an existing file for Red Hat publishing requirements. For example:
 
