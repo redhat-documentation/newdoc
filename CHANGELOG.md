@@ -2,6 +2,10 @@
 
 The following is a summary of changes in each `newdoc` release, which is also a Git tag by the same name in this repository.
 
+## v2.13.0
+
+* By default, the generated files do not contain any comments. The `--no-comments` (`-C`) option is now deprecated and has no effect. You can use the new `--comments` (`-M`) option to generate files with the comments that were previously the default.
+
 ## v2.12.0
 
 * Deprecate the `--validate` (`-l`) option. Please use `enki` instead: <https://github.com/Levi-Leah/enki/>.
