@@ -41,9 +41,16 @@ pub struct Cli {
 
 #[derive(Clone, Debug, Bpaf)]
 pub struct CommonOptions {
-    /// Generate the file without any comments
-    #[bpaf(short('C'), long)]
+    /// Generate the file without any comments.
+    /// This option is now the default.
+    /// The option is hidden, has no effect, and exists only for compatibility
+    /// with previous releases.
+    #[bpaf(short('C'), long, hide)]
     pub no_comments: bool,
+
+    /// Generate the file with explanatory comments
+    #[bpaf(short('M'), long)]
+    pub comments: bool,
 
     /// Generate the file without any example, placeholder content
     #[bpaf(short('E'), long, long("expert-mode"))]
