@@ -2,6 +2,10 @@
 
 The following is a summary of changes in each `newdoc` release, which is also a Git tag by the same name in this repository.
 
+## v2.13.1
+
+* The help message and the man page now specify that the validation feature is deprecated. See [#36](https://github.com/redhat-documentation/newdoc/issues/36).
+
 ## v2.13.0
 
 * By default, the generated files do not contain any comments. The `--no-comments` (`-C`) option is now deprecated and has no effect. You can use the new `--comments` (`-M`) option to generate files with the comments that were previously the default.
