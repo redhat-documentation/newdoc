@@ -98,7 +98,7 @@ pub struct Action {
     #[bpaf(short, long, argument("TITLE"))]
     pub include_in: Option<String>,
 
-    /// Validate (lint) an existing module or assembly file
+    /// DEPRECATED: Validate (lint) an existing module or assembly file
     #[bpaf(short('l'), long, argument("FILE"))]
     pub validate: Vec<PathBuf>,
 }
