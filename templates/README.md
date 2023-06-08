@@ -11,13 +11,13 @@ For more information on the Askama templating syntax, see [Template Syntax](http
 The assembly template features a complicated configuration of the context attribute. In the order of appearance, as found at the time of commit `8b7fed5e370e6448928d95d68447e444e82c397c`:
 
 
-- ```asciidoc
+- ```
   ifdef::context[:parent-context-of-{{module_anchor}}: {context}]
   ```
 
     If context is already defined before this assembly starts, save the original context value to a new attribute. The assembly will restore the original context at the end of the file.
 
-- ```asciidoc
+- ```
   ifndef::context[]
   [id="{{module_anchor}}"]
   endif::[]
@@ -37,13 +37,13 @@ The assembly template features a complicated configuration of the context attrib
 
     - A: For the same reason as a module: So that you can reuse the assembly several times at different places of a guide.
 
-- ```asciidoc
+- ```
   :context: {{module_anchor}}
   ```
 
     Set a context attribute that modules inside of this assembly pick up and use in their IDs.
 
-- ```asciidoc
+- ```
   ifdef::parent-context-of-{{module_anchor}}[:context: {parent-context-of-{{module_anchor}}}]
   ifndef::parent-context-of-{{module_anchor}}[:!context:]
   ```
