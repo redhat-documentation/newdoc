@@ -1,7 +1,7 @@
 //! This script auto-generates a man page from the CLI configuration.
 
 use bpaf::doc::Section;
-use time;
+use time::OffsetDateTime;
 
 // We're reusing the module just for the Cli struct. Ignore the rest of the code
 // and don't report it as "never used" in this build script.
@@ -41,7 +41,7 @@ fn main() -> std::io::Result<()> {
 /// Generate the current date to mark the last update of the man page.
 /// The format is "Month Year".
 fn current_date() -> String {
-    let now = time::OffsetDateTime::now_utc();
+    let now = OffsetDateTime::now_utc();
     let month = now.month();
     let year = now.year();
 

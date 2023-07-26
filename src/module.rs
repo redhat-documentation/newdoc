@@ -43,7 +43,7 @@ impl fmt::Display for ContentType {
             Self::Reference => "reference",
             Self::Snippet => "snippet",
         };
-        write!(f, "{}", name)
+        write!(f, "{name}")
     }
 }
 
