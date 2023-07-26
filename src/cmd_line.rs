@@ -123,6 +123,7 @@ fn at_least_one_file(action: &Action) -> bool {
         || !action.concept.is_empty()
         || !action.procedure.is_empty()
         || !action.reference.is_empty()
+        || !action.snippet.is_empty()
         || !action.validate.is_empty()
         || action.include_in.is_some()
 }
