@@ -1,7 +1,7 @@
 //! This script auto-generates a man page from the CLI configuration.
 
 use bpaf::doc::Section;
-use chrono::prelude::*;
+use time;
 
 // We're reusing the module just for the Cli struct. Ignore the rest of the code
 // and don't report it as "never used" in this build script.
@@ -41,11 +41,9 @@ fn main() -> std::io::Result<()> {
 /// Generate the current date to mark the last update of the man page.
 /// The format is "Month Year".
 fn current_date() -> String {
-    let utc: DateTime<Utc> = Utc::now();
-    let year = utc.year();
-    let month = Month::try_from(utc.month() as u8)
-        .expect("The current month is out of range.")
-        .name();
+    let now = time::OffsetDateTime::now_utc();
+    let month = now.month();
+    let year = now.year();
 
     format!("{month} {year}")
 }
