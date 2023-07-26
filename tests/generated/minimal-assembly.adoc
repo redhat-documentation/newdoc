@@ -12,10 +12,15 @@ endif::[]
 
 :context: minimal-assembly
 
+[role="_abstract"]
+
 == Prerequisites
 
 [role="_additional-resources"]
-== Additional resources (or Next steps)
+== Next steps
+
+[role="_additional-resources"]
+== Additional resources
 
 ifdef::parent-context-of-minimal-assembly[:context: {parent-context-of-minimal-assembly}]
 ifndef::parent-context-of-minimal-assembly[:!context:]
