@@ -1,7 +1,7 @@
 ////
 Base the file name and the ID on the module title. For example:
-* file name: con-my-concept-module-a.adoc
-* ID: [id="con-my-concept-module-a_{context}"]
+* file name: con_my-concept-module-a.adoc
+* ID: [id="my-concept-module-a_{context}"]
 * Title: = My concept module A
 ////
 
@@ -27,6 +27,7 @@ In the title of concept modules, include nouns or noun phrases that are used in 
 Be sure to include a line break between the title and the module introduction.
 ////
 
+[role="_abstract"]
 {% if examples -%}
 Write a short introductory paragraph that provides an overview of the module.
 
@@ -43,8 +44,8 @@ Images should never be the sole means of conveying information and should only s
 Avoid screenshots or other images that might quickly go out of date and that create a maintenance burden on documentation.
 Provide text equivalents for every diagram, image, or other non-text element. Avoid using images of text instead of actual text.
 ////
-.Image title
-image::image-file.png[A textual representation of the essential information conveyed by the image.]
+//.Image title
+//image::image-file.png[A textual representation of the essential information conveyed by the image.]
 {%- endif %}
 
 [role="_additional-resources"]
