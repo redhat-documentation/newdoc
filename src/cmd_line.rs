@@ -134,6 +134,5 @@ const SOME_FILES: &str = "Specify at least one file to generate or validate.";
 /// Get command-line arguments as the `Cli` struct.
 #[must_use]
 pub fn get_args() -> Cli {
-    let usage_prefix = "Usage: newdoc {usage}";
-    cli().usage(usage_prefix).run()
+    cli().run()
 }
