@@ -98,8 +98,10 @@ pub struct Action {
     #[bpaf(short, long, argument("TITLE"))]
     pub include_in: Option<String>,
 
-    /// DEPRECATED: Validate (lint) an existing module or assembly file
-    #[bpaf(short('l'), long, argument("FILE"))]
+    /// REMOVED: Validate (lint) an existing module or assembly file
+    /// The option is hidden, has no effect, and exists only for compatibility
+    /// with previous releases.
+    #[bpaf(short('l'), long, argument("FILE"), hide)]
     pub validate: Vec<PathBuf>,
 }
 

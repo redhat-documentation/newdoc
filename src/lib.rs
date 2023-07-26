@@ -35,13 +35,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use std::path::PathBuf;
 
-use color_eyre::eyre::{bail, eyre, Result, WrapErr};
+use color_eyre::eyre::{bail, Result};
 
 pub mod cmd_line;
 mod logging;
 mod module;
 mod templating;
-mod validation;
 mod write;
 
 use cmd_line::{Cli, Verbosity};
@@ -104,8 +103,8 @@ pub fn run(options: &Options, cli: &Cli) -> Result<()> {
 
     // Report any deprecated options.
     if !cli.action.validate.is_empty() {
-        log::warn!("The validation feature is deprecated and will be removed in a later version.\n\
-                   Please switch to the `enki` validation tool: <https://github.com/Levi-Leah/enki/>.");
+        log::warn!("The validation feature has been removed. \
+                   Please switch to the Enki validation tool: <https://github.com/Levi-Leah/enki/>.");
     }
     if cli.common_options.no_comments {
         log::warn!(
@@ -163,11 +162,6 @@ pub fn run(options: &Options, cli: &Cli) -> Result<()> {
             .into();
 
         populated.write_file(options)?;
-    }
-
-    // Validate all file names specified on the command line
-    for file in &cli.action.validate {
-        validation::validate(file).wrap_err_with(|| eyre!("Failed to validate file {:?}", file))?;
     }
 
     Ok(())
