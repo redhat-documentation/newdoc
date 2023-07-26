@@ -7,6 +7,8 @@
 FROM rust:alpine as builder
 WORKDIR /usr/src/newdoc
 COPY . .
+RUN apk update
+RUN apk add musl-dev
 RUN cargo install --path .
 
 FROM alpine:latest
