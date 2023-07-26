@@ -2,6 +2,14 @@
 
 The following is a summary of changes in each `newdoc` release, which is also a Git tag by the same name in this repository.
 
+## v2.14.0
+
+* Update modular templates to synchronize with [modular-docs/pull/208](https://github.com/redhat-documentation/modular-docs/pull/208/).
+* Remove the legacy, deprecated `--validate` (`-l`) option. Please use Enki instead: <https://github.com/Levi-Leah/enki/>.
+* The command-line options parser previously disabled snippets by mistake. Fix and re-enable them.
+* Switch the main container to the Alpine base from UBI Micro.
+* Update various dependencies.
+
 ## v2.13.1
 
 * The help message and the man page now specify that the validation feature is deprecated. See [#36](https://github.com/redhat-documentation/newdoc/issues/36).

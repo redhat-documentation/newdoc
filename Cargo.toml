@@ -1,6 +1,6 @@
 [package]
 name = "newdoc"
-version = "2.13.1"
+version = "2.14.0"
 description = "Generate pre-populated module files formatted with AsciiDoc that are used in Red Hat and Fedora documentation."
 authors = ["Marek Suchánek <msuchane@redhat.com>"]
 license = "GPL-3.0-or-later"
@@ -25,8 +25,6 @@ askama = "0.12"
 # Disable support for tracing_error and SpanTrace in eyre
 color-eyre = { version = "0.6", default-features = false }
 dialoguer = "0.10"
-# Preserve MSRV at 1.62:
-#time = "=0.3.19"
 
 [build-dependencies]
 bpaf = { version = "0.9", features = ["derive", "docgen"]}
