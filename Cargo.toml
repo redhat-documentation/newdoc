@@ -6,7 +6,7 @@ authors = ["Marek Suchánek <msuchane@redhat.com>"]
 license = "GPL-3.0-or-later"
 edition = "2021"
 # Check the Rust version using `cargo msrv verify`.
-rust-version = "1.62"
+rust-version = "1.63"
 documentation = "https://docs.rs/newdoc"
 readme = "README.md"
 repository = "https://github.com/redhat-documentation/newdoc/"
@@ -17,8 +17,8 @@ keywords = ["asciidoc", "documentation", "RedHat"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bpaf = { version = "0.7", features = ["derive", "bright-color"]}
-regex = "1.7"
+bpaf = { version = "0.9", features = ["derive", "bright-color"]}
+regex = "1.9"
 log = "0.4"
 simplelog = "0.12"
 askama = "0.12"
@@ -26,7 +26,8 @@ askama = "0.12"
 color-eyre = { version = "0.6", default-features = false }
 dialoguer = "0.10"
 # Preserve MSRV at 1.62:
-time = "=0.3.19"
+#time = "=0.3.19"
 
 [build-dependencies]
-bpaf = { version = "0.7", features = ["derive", "manpage"]}
+bpaf = { version = "0.9", features = ["derive", "docgen"]}
+chrono = "0.4"
