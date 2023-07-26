@@ -26,20 +26,11 @@ To install `newdoc` on current Fedora, RHEL 8 or later, or CentOS 8 or later, en
 +
 The Copr repository distributes packages only for *supported* releases of Fedora. If you have enabled the repository but the package fails to install, check if your Fedora is still supported.
 
-=== openSUSE
+=== openSUSE Tumbleweed
 
-To install `newdoc` on openSUSE:
+To install `newdoc` on openSUSE Tumbleweed:
 
 . Enable the Copr package repository:
-
-** On openSUSE Leap 15.3:
-+
-----
-# zypper addrepo \
-         'https://copr.fedorainfracloud.org/coprs/mareksu/newdoc-rs/repo/opensuse-leap-15.3/mareksu-newdoc-rs-opensuse-leap-15.3.repo'
-----
-
-** On openSUSE Tumbleweed:
 +
 ----
 # zypper addrepo \
