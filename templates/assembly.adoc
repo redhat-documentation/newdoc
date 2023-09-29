@@ -21,7 +21,7 @@ ways:
 Add the prefix assembly- or assembly_ to the file name.
 Add the following attribute before the module ID:
 ////
-:_content-type: ASSEMBLY
+:_mod-docs-content-type: ASSEMBLY
 
 ifndef::context[]
 [id="{{module_anchor}}"]

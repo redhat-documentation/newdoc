@@ -8,7 +8,7 @@ A snippet is not a module. Consider storing snippet files in a separate snippets
 Indicate the content type in one of the following ways:
 Add the prefix snip- or snip_ to the file name.
 Add the following attribute before the title:
-:_content-type: SNIPPET
+:_mod-docs-content-type: SNIPPET
 ////
 
 .{{module_title}}

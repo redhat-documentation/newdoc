@@ -11,7 +11,7 @@ ways:
 Add the prefix proc- or proc_ to the file name.
 Add the following attribute before the module ID:
 ////
-:_content-type: PROCEDURE
+:_mod-docs-content-type: PROCEDURE
 
 [id="testing-a-procedure_{context}"]
 = Testing a procedure
