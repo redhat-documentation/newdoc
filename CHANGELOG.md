@@ -2,6 +2,10 @@
 
 The following is a summary of changes in each `newdoc` release, which is also a Git tag by the same name in this repository.
 
+## v2.14.1
+
+* Rename `_content-type` to `_mod-docs-content-type`. See [issue #37](https://github.com/redhat-documentation/newdoc/issues/37).
+
 ## v2.14.0
 
 * Update modular templates to synchronize with [modular-docs/pull/208](https://github.com/redhat-documentation/modular-docs/pull/208/).
