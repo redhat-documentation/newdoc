@@ -25,6 +25,7 @@ askama = "0.12"
 # Disable support for tracing_error and SpanTrace in eyre
 color-eyre = { version = "0.6", default-features = false }
 dialoguer = "0.11"
+time = "0.3"
 
 [build-dependencies]
 bpaf = { version = "0.9", features = ["derive", "docgen"]}

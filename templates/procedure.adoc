@@ -81,3 +81,5 @@ NOTE: Do not use *Next steps* to provide a second list of instructions.
 * Provide a bulleted list of links to other closely-related material. These links can include `link:` and `xref:` macros.
 * Use an unnumbered bullet (*) if the list includes only one step.
 {%- endif %}
+
+// {{generator_version}}

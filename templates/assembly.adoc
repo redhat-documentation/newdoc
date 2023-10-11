@@ -97,3 +97,5 @@ Restore the context to what it was before this assembly.
 ////
 ifdef::parent-context-of-{{module_anchor}}[:context: {parent-context-of-{{module_anchor}}}]
 ifndef::parent-context-of-{{module_anchor}}[:!context:]
+
+// {{generator_version}}
