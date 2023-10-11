@@ -33,7 +33,7 @@ The newdoc tool generates pre-populated module and assembly files formatted with
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable --component cargo rust-std rustc
 
 # Build the binary.
-cargo build --release
+~/.cargo/bin/cargo build --release
 
 %install
 # Clean up previous artifacts.
