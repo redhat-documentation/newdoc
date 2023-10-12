@@ -12,6 +12,8 @@ Add the prefix proc- or proc_ to the file name.
 Add the following attribute before the module ID:
 ////
 :_mod-docs-content-type: PROCEDURE
+:_newdoc-version: {{generator_version}}
+:_template-generated: {{current_day}}
 
 [id="testing-a-procedure_{context}"]
 = Testing a procedure

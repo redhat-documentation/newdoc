@@ -1,4 +1,6 @@
 :_mod-docs-content-type: PROCEDURE
+:_newdoc-version: {{generator_version}}
+:_template-generated: {{current_day}}
 
 [id="minimal-procedure_{context}"]
 = Minimal procedure

@@ -1,4 +1,6 @@
 :_mod-docs-content-type: CONCEPT
+:_newdoc-version: {{generator_version}}
+:_template-generated: {{current_day}}
 
 [id="minimal-concept_{context}"]
 = Minimal concept

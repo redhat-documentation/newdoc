@@ -16,6 +16,8 @@ Add the prefix ref- or ref_ to the file name.
 Add the following attribute before the module ID:
 ////
 :_mod-docs-content-type: REFERENCE
+:_newdoc-version: {{generator_version}}
+:_template-generated: {{current_day}}
 
 [id="the-lines-in-a-reference-module_{context}"]
 = The lines in a reference module

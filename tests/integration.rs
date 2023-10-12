@@ -3,6 +3,7 @@
 //! to check that we introduce no changes unknowingly.
 
 use std::path::PathBuf;
+use time::OffsetDateTime;
 
 use cmd_line::Verbosity;
 use newdoc::*;
@@ -19,6 +20,21 @@ fn basic_options() -> Options {
     }
 }
 
+/// The version of this build of newdoc (such as 2.14.1).
+fn generator_version() -> &'static str {
+    env!("CARGO_PKG_VERSION")
+}
+
+/// Format the current date as YYYY-MM-DD (such as 2023-10-12).
+fn current_day() -> String {
+    let now = OffsetDateTime::now_utc();
+    let year = now.year();
+    let month: u8 = now.month().into();
+    let day = now.day();
+
+    format!("{year}-{month}-{day}")
+}
+
 /// Test that we generate the assembly that we expect.
 #[test]
 fn test_assembly() {
@@ -29,6 +45,9 @@ fn test_assembly() {
 
     let pre_generated =
         include_str!("./generated/assembly_testing-that-an-assembly-forms-properly.adoc");
+    // Replace the version and date placeholders:
+    let pre_generated = pre_generated.replace("{{generator_version}}", generator_version());
+    let pre_generated = pre_generated.replace("{{current_day}}", &current_day());
 
     assert_eq!(assembly.text, pre_generated);
 }
@@ -42,6 +61,9 @@ fn test_concept_module() {
     let concept = Module::new(mod_type, mod_title, &options);
 
     let pre_generated = include_str!("./generated/con_a-title-that-tests-a-concept.adoc");
+    // Replace the version and date placeholders:
+    let pre_generated = pre_generated.replace("{{generator_version}}", generator_version());
+    let pre_generated = pre_generated.replace("{{current_day}}", &current_day());
 
     assert_eq!(concept.text, pre_generated);
 }
@@ -55,6 +77,9 @@ fn test_procedure_module() {
     let procedure = Module::new(mod_type, mod_title, &options);
 
     let pre_generated = include_str!("./generated/proc_testing-a-procedure.adoc");
+    // Replace the version and date placeholders:
+    let pre_generated = pre_generated.replace("{{generator_version}}", generator_version());
+    let pre_generated = pre_generated.replace("{{current_day}}", &current_day());
 
     assert_eq!(procedure.text, pre_generated);
 }
@@ -68,6 +93,9 @@ fn test_reference_module() {
     let reference = Module::new(mod_type, mod_title, &options);
 
     let pre_generated = include_str!("./generated/ref_the-lines-in-a-reference-module.adoc");
+    // Replace the version and date placeholders:
+    let pre_generated = pre_generated.replace("{{generator_version}}", generator_version());
+    let pre_generated = pre_generated.replace("{{current_day}}", &current_day());
 
     assert_eq!(reference.text, pre_generated);
 }
@@ -81,6 +109,9 @@ fn test_snippet_file() {
     let snippet = Module::new(mod_type, mod_title, &options);
 
     let pre_generated = include_str!("./generated/snip_some-notes-in-a-snippet-file.adoc");
+    // Replace the version and date placeholders:
+    let pre_generated = pre_generated.replace("{{generator_version}}", generator_version());
+    let pre_generated = pre_generated.replace("{{current_day}}", &current_day());
 
     assert_eq!(snippet.text, pre_generated);
 }
@@ -106,6 +137,9 @@ fn test_minimal_assembly() {
     let assembly = Module::new(mod_type, mod_title, &options);
 
     let pre_generated = include_str!("./generated/minimal-assembly.adoc");
+    // Replace the version and date placeholders:
+    let pre_generated = pre_generated.replace("{{generator_version}}", generator_version());
+    let pre_generated = pre_generated.replace("{{current_day}}", &current_day());
 
     assert_eq!(assembly.text, pre_generated);
 }
@@ -119,6 +153,9 @@ fn test_minimal_concept() {
     let concept = Module::new(mod_type, mod_title, &options);
 
     let pre_generated = include_str!("./generated/minimal-concept.adoc");
+    // Replace the version and date placeholders:
+    let pre_generated = pre_generated.replace("{{generator_version}}", generator_version());
+    let pre_generated = pre_generated.replace("{{current_day}}", &current_day());
 
     assert_eq!(concept.text, pre_generated);
 }
@@ -132,6 +169,9 @@ fn test_minimal_procedure() {
     let procedure = Module::new(mod_type, mod_title, &options);
 
     let pre_generated = include_str!("./generated/minimal-procedure.adoc");
+    // Replace the version and date placeholders:
+    let pre_generated = pre_generated.replace("{{generator_version}}", generator_version());
+    let pre_generated = pre_generated.replace("{{current_day}}", &current_day());
 
     assert_eq!(procedure.text, pre_generated);
 }
@@ -145,6 +185,9 @@ fn test_minimal_reference() {
     let reference = Module::new(mod_type, mod_title, &options);
 
     let pre_generated = include_str!("./generated/minimal-reference.adoc");
+    // Replace the version and date placeholders:
+    let pre_generated = pre_generated.replace("{{generator_version}}", generator_version());
+    let pre_generated = pre_generated.replace("{{current_day}}", &current_day());
 
     assert_eq!(reference.text, pre_generated);
 }
@@ -158,6 +201,9 @@ fn test_minimal_snippet() {
     let snippet = Module::new(mod_type, mod_title, &options);
 
     let pre_generated = include_str!("./generated/minimal-snippet.adoc");
+    // Replace the version and date placeholders:
+    let pre_generated = pre_generated.replace("{{generator_version}}", generator_version());
+    let pre_generated = pre_generated.replace("{{current_day}}", &current_day());
 
     assert_eq!(snippet.text, pre_generated);
 }

@@ -1,3 +1,7 @@
+:_mod-docs-content-type: SNIPPET
+:_newdoc-version: {{generator_version}}
+:_template-generated: {{current_day}}
+
 .Minimal snippet
 
 

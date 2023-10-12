@@ -11,6 +11,10 @@ Add the following attribute before the title:
 :_mod-docs-content-type: SNIPPET
 ////
 
+:_mod-docs-content-type: SNIPPET
+:_newdoc-version: {{generator_version}}
+:_template-generated: {{current_day}}
+
 .Some notes in a snippet file
 ////
 The title is optional in a snippet. Use the block title syntax, such as .My snippet A, rather than a numbered heading, such as = My snippet A.
