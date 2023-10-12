@@ -1,8 +1,9 @@
+:_newdoc-version: {{generator_version}}
+:_template-generated: {{current_day}}
+
 ifdef::context[:parent-context-of-minimal-assembly: {context}]
 
 :_mod-docs-content-type: ASSEMBLY
-:_newdoc-version: {{generator_version}}
-:_template-generated: {{current_day}}
 
 ifndef::context[]
 [id="minimal-assembly"]

@@ -1,3 +1,5 @@
+:_newdoc-version: {{generator_version}}
+:_template-generated: {{current_day}}
 ////
 Base the file name and the ID on the module title. For example:
 * file name: proc_doing-procedure-a.adoc
@@ -12,8 +14,6 @@ Add the prefix proc- or proc_ to the file name.
 Add the following attribute before the module ID:
 ////
 :_mod-docs-content-type: PROCEDURE
-:_newdoc-version: {{generator_version}}
-:_template-generated: {{current_day}}
 
 [id="{{module_anchor}}_{context}"]
 = {{module_title}}

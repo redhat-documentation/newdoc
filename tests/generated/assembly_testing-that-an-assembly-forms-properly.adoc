@@ -1,3 +1,5 @@
+:_newdoc-version: {{generator_version}}
+:_template-generated: {{current_day}}
 ////
 Retains the context of the parent assembly if this assembly is nested within another assembly.
 For more information about nesting assemblies, see: https://redhat-documentation.github.io/modular-docs/#nesting-assemblies
@@ -22,8 +24,6 @@ Add the prefix assembly- or assembly_ to the file name.
 Add the following attribute before the module ID:
 ////
 :_mod-docs-content-type: ASSEMBLY
-:_newdoc-version: {{generator_version}}
-:_template-generated: {{current_day}}
 
 ifndef::context[]
 [id="testing-that-an-assembly-forms-properly"]

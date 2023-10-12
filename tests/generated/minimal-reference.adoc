@@ -1,6 +1,7 @@
-:_mod-docs-content-type: REFERENCE
 :_newdoc-version: {{generator_version}}
 :_template-generated: {{current_day}}
+
+:_mod-docs-content-type: REFERENCE
 
 [id="minimal-reference_{context}"]
 = Minimal reference
