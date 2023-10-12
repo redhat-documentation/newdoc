@@ -11,6 +11,10 @@ Add the following attribute before the title:
 :_mod-docs-content-type: SNIPPET
 ////
 
+:_mod-docs-content-type: SNIPPET
+:_newdoc-version: {{generator_version}}
+:_template-generated: {{current_day}}
+
 .{{module_title}}
 ////
 The title is optional in a snippet. Use the block title syntax, such as .My snippet A, rather than a numbered heading, such as = My snippet A.
@@ -41,5 +45,3 @@ Advisory information essential to the completion of a task. Users must not disre
 Information about potential system damage, data loss, or a support-related issue if the user disregards this admonition. Explain the problem, cause, and offer a solution that works. If available, offer information to avoid the problem in the future or state where to find more information.
 --
 {%- endif %}
-
-// {{generator_version}}

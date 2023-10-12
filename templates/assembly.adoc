@@ -22,6 +22,8 @@ Add the prefix assembly- or assembly_ to the file name.
 Add the following attribute before the module ID:
 ////
 :_mod-docs-content-type: ASSEMBLY
+:_newdoc-version: {{generator_version}}
+:_template-generated: {{current_day}}
 
 ifndef::context[]
 [id="{{module_anchor}}"]
@@ -97,5 +99,3 @@ Restore the context to what it was before this assembly.
 ////
 ifdef::parent-context-of-{{module_anchor}}[:context: {parent-context-of-{{module_anchor}}}]
 ifndef::parent-context-of-{{module_anchor}}[:!context:]
-
-// {{generator_version}}
