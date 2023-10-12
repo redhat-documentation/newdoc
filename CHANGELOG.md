@@ -2,6 +2,11 @@
 
 The following is a summary of changes in each `newdoc` release, which is also a Git tag by the same name in this repository.
 
+## v2.15.0
+
+* Add metadata in the generated files that specify which newdoc version generated the document and the date that it was generated.
+* Build the RPM using rustup to work around the outdated toolchain on RHEL.
+
 ## v2.14.1
 
 * Rename `_content-type` to `_mod-docs-content-type`. See [issue #37](https://github.com/redhat-documentation/newdoc/issues/37).
