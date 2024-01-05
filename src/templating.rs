@@ -211,5 +211,8 @@ fn current_day() -> String {
     let month: u8 = now.month().into();
     let day = now.day();
 
-    format!("{year}-{month}-{day}")
+    // The `:02` formatting options ensure that month and day numbers are always
+    // two digits, padded with a zero if necessary.
+    // E.g. `2024-01-05` instead of `2024-1-5`.
+    format!("{year}-{month:02}-{day:02}")
 }
