@@ -1,6 +1,6 @@
 Name: newdoc
 Summary: Generate an AsciiDoc file using a modular template
-Version: 2.15.0
+Version: 2.15.1
 Release: 1%{?dist}
 License: GPLv3+
 URL: https://github.com/redhat-documentation/newdoc
