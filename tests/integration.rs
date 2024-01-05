@@ -32,7 +32,7 @@ fn current_day() -> String {
     let month: u8 = now.month().into();
     let day = now.day();
 
-    format!("{year}-{month}-{day}")
+    format!("{year}-{month:02}-{day:02}")
 }
 
 /// Test that we generate the assembly that we expect.

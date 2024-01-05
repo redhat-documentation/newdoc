@@ -183,7 +183,7 @@ impl Input {
             document = leading_whitespace.replace(&document, "").to_string();
         }
 
-        // Remove excess blank lines that might have been left by the verious
+        // Remove excess blank lines that might have been left by the various
         // replacement stages. Make sure that the result contains no more than one
         // consecutive blank line.
         let two_blanks = "\n\n\n";
