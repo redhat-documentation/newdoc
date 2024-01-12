@@ -60,7 +60,7 @@ pub struct CommonOptions {
     #[bpaf(short('P'), long, long("no-prefixes"))]
     pub no_file_prefixes: bool,
 
-    /// Add use module type prefixes (such as `proc_`) in AsciiDoc anchors
+    /// Add module type prefixes (such as `proc_`) in AsciiDoc anchors
     #[bpaf(short('A'), long)]
     pub anchor_prefixes: bool,
 
