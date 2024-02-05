@@ -1,19 +1,10 @@
 :_newdoc-version: {{generator_version}}
 :_template-generated: {{current_day}}
 
-ifdef::context[:parent-context-of-minimal-assembly: {context}]
-
 :_mod-docs-content-type: ASSEMBLY
 
-ifndef::context[]
 [id="minimal-assembly"]
-endif::[]
-ifdef::context[]
-[id="minimal-assembly_{context}"]
-endif::[]
 = Minimal assembly
-
-:context: minimal-assembly
 
 [role="_abstract"]
 
@@ -25,6 +16,5 @@ endif::[]
 [role="_additional-resources"]
 == Additional resources
 
-ifdef::parent-context-of-minimal-assembly[:context: {parent-context-of-minimal-assembly}]
-ifndef::parent-context-of-minimal-assembly[:!context:]
+
 
