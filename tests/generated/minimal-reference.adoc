@@ -3,7 +3,7 @@
 
 :_mod-docs-content-type: REFERENCE
 
-[id="minimal-reference_{context}"]
+[id="minimal-reference"]
 = Minimal reference
 
 [role="_abstract"]

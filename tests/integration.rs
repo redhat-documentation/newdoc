@@ -17,6 +17,7 @@ fn basic_options() -> Options {
         examples: true,
         target_dir: PathBuf::from("."),
         verbosity: Verbosity::Default,
+        ..Default::default()
     }
 }
 
@@ -125,6 +126,7 @@ fn minimal_options() -> Options {
         examples: false,
         target_dir: PathBuf::from("."),
         verbosity: Verbosity::Default,
+        simplified: true,
     }
 }
 

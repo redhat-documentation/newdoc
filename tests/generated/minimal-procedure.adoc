@@ -2,7 +2,7 @@
 :_template-generated: {{current_day}}
 :_mod-docs-content-type: PROCEDURE
 
-[id="minimal-procedure_{context}"]
+[id="minimal-procedure"]
 = Minimal procedure
 
 [role="_abstract"]

@@ -44,6 +44,7 @@ struct AssemblyTemplate<'a> {
     examples: bool,
     generator_version: &'a str,
     current_day: &'a str,
+    simplified: bool,
 }
 
 #[derive(Template)]
@@ -54,6 +55,7 @@ struct ConceptTemplate<'a> {
     examples: bool,
     generator_version: &'a str,
     current_day: &'a str,
+    simplified: bool,
 }
 
 #[derive(Template)]
@@ -64,6 +66,7 @@ struct ProcedureTemplate<'a> {
     examples: bool,
     generator_version: &'a str,
     current_day: &'a str,
+    simplified: bool,
 }
 
 #[derive(Template)]
@@ -74,6 +77,7 @@ struct ReferenceTemplate<'a> {
     examples: bool,
     generator_version: &'a str,
     current_day: &'a str,
+    simplified: bool,
 }
 
 #[derive(Template)]
@@ -83,6 +87,7 @@ struct SnippetTemplate<'a> {
     examples: bool,
     generator_version: &'a str,
     current_day: &'a str,
+    simplified: bool,
 }
 
 // We're implementing the template functions on the Input struct, not on Module,
@@ -121,6 +126,7 @@ impl Input {
                 examples: self.options.examples,
                 generator_version,
                 current_day: &current_day,
+                simplified: self.options.simplified,
             }
             .render(),
             ContentType::Concept => ConceptTemplate {
@@ -129,6 +135,7 @@ impl Input {
                 examples: self.options.examples,
                 generator_version,
                 current_day: &current_day,
+                simplified: self.options.simplified,
             }
             .render(),
             ContentType::Procedure => ProcedureTemplate {
@@ -137,6 +144,7 @@ impl Input {
                 examples: self.options.examples,
                 generator_version,
                 current_day: &current_day,
+                simplified: self.options.simplified,
             }
             .render(),
             ContentType::Reference => ReferenceTemplate {
@@ -145,6 +153,7 @@ impl Input {
                 examples: self.options.examples,
                 generator_version,
                 current_day: &current_day,
+                simplified: self.options.simplified,
             }
             .render(),
             ContentType::Snippet => SnippetTemplate {
@@ -152,6 +161,7 @@ impl Input {
                 examples: self.options.examples,
                 generator_version,
                 current_day: &current_day,
+                simplified: self.options.simplified,
             }
             .render(),
         }

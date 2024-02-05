@@ -60,6 +60,7 @@ pub struct Options {
     pub anchor_prefixes: bool,
     pub examples: bool,
     pub target_dir: PathBuf,
+    pub simplified: bool,
     pub verbosity: Verbosity,
 }
 
@@ -77,6 +78,7 @@ impl Options {
             examples: !cli.common_options.no_examples,
             // Set the target directory as specified or fall back on the current directory
             target_dir: cli.common_options.target_dir.clone(),
+            simplified: cli.common_options.simplified,
             verbosity: cli.common_options.verbosity,
         }
     }
@@ -90,6 +92,7 @@ impl Default for Options {
             anchor_prefixes: false,
             examples: true,
             target_dir: PathBuf::from("."),
+            simplified: false,
             verbosity: Verbosity::Default,
         }
     }

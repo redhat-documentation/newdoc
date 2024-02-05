@@ -41,6 +41,10 @@ pub struct Cli {
 
 #[derive(Clone, Debug, Bpaf)]
 pub struct CommonOptions {
+    /// Add module type prefixes (such as `proc_`) in AsciiDoc anchors
+    #[bpaf(short('A'), long)]
+    pub anchor_prefixes: bool,
+
     /// Generate the file without any comments.
     /// This option is now the default.
     /// The option is hidden, has no effect, and exists only for compatibility
@@ -48,21 +52,21 @@ pub struct CommonOptions {
     #[bpaf(short('C'), long, hide)]
     pub no_comments: bool,
 
-    /// Generate the file with explanatory comments
-    #[bpaf(short('M'), long)]
-    pub comments: bool,
-
     /// Generate the file without any example, placeholder content
     #[bpaf(short('E'), long, long("expert-mode"))]
     pub no_examples: bool,
+
+    /// Generate the file with explanatory comments
+    #[bpaf(short('M'), long)]
+    pub comments: bool,
 
     /// Do not use module type prefixes (such as `proc_`) in file names
     #[bpaf(short('P'), long, long("no-prefixes"))]
     pub no_file_prefixes: bool,
 
-    /// Add module type prefixes (such as `proc_`) in AsciiDoc anchors
-    #[bpaf(short('A'), long)]
-    pub anchor_prefixes: bool,
+    /// Generate the file without conditionals for the Red Hat documentation pipeline. Suitable for upstream.
+    #[bpaf(short('S'), long)]
+    pub simplified: bool,
 
     /// Save the generated files in this directory
     #[bpaf(short('T'), long, argument("DIRECTORY"), fallback(".".into()))]

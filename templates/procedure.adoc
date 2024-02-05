@@ -15,7 +15,11 @@ Add the following attribute before the module ID:
 ////
 :_mod-docs-content-type: PROCEDURE
 
+{% if simplified -%}
+[id="{{module_anchor}}"]
+{%- else -%}
 [id="{{module_anchor}}_{context}"]
+{%- endif %}
 = {{module_title}}
 ////
 Start the title of a procedure module with a gerund, such as Creating, Installing, or Deploying.

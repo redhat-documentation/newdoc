@@ -3,7 +3,7 @@
 
 :_mod-docs-content-type: CONCEPT
 
-[id="minimal-concept_{context}"]
+[id="minimal-concept"]
 = Minimal concept
 
 [role="_abstract"]

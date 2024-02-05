@@ -398,6 +398,7 @@ mod tests {
             examples: true,
             target_dir: PathBuf::from("."),
             verbosity: Verbosity::Default,
+            ..Default::default()
         }
     }
 
@@ -409,6 +410,7 @@ mod tests {
             examples: true,
             target_dir: PathBuf::from("repo/modules/topic/"),
             verbosity: Verbosity::Default,
+            ..Default::default()
         }
     }
 
