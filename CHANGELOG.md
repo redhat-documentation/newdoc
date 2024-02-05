@@ -2,6 +2,11 @@
 
 The following is a summary of changes in each `newdoc` release, which is also a Git tag by the same name in this repository.
 
+## v2.16.0
+
+* Enable the `--simplified` option to generate files without the `context` attribute. See [issue #31](https://github.com/redhat-documentation/newdoc/issues/31).
+* Update various dependencies.
+
 ## v2.15.1
 
 * Properly follow the `YYYY-MM-DD` date format. Fixes [issue #39](https://github.com/redhat-documentation/newdoc/issues/39).
