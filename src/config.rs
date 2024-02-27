@@ -113,11 +113,24 @@ impl Default for Options {
     }
 }
 
+/// Provides the base name of the configuration file:
+/// The `hidden` option controls whether this is a hidden file
+/// with a dot at the start, such as `.newdoc.toml`, or
+/// a regular, visible file, such as `newdoc.toml`.
+fn config_file_name(hidden: bool) -> String {
+    let prefix = if hidden {
+        "."
+    } else {
+        ""
+    };
+    format!("{prefix}{PKG_NAME}.toml")
+}
+
 /// Try to locale the appropriate per-user configuration file on this platform.
 fn home_conf_file() -> Option<PathBuf> {
     let proj_dirs = ProjectDirs::from("com", "Red Hat", PKG_NAME)?;
     let conf_dir = proj_dirs.config_dir();
-    let conf_file = conf_dir.join(format!("{PKG_NAME}.toml"));
+    let conf_file = conf_dir.join(config_file_name(false));
 
     Some(conf_file)
 }
@@ -135,11 +148,13 @@ fn git_conf_file(cli_options: &Options) -> Option<PathBuf> {
         git_dir.is_dir()
     })?;
 
-    let git_proj_config = git_root.join(format!(".{PKG_NAME}.toml"));
+    let git_proj_config = git_root.join(config_file_name(true));
 
     Some(git_proj_config)
 }
 
+/// Combine the configuration found on the command line, in configuration files,
+/// and in the defaults. Follows the standard hierarchy.
 pub fn merge_configs(cli_options: Options) -> Result<Options> {
     let default_options = Options::default();
     let mut figment = Figment::from(Serialized::defaults(default_options));
