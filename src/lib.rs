@@ -51,7 +51,6 @@ pub use module::{ContentType, Input, Module};
 /// error message through `expect`.
 const REGEX_ERROR: &str = "Failed to construct a regular expression. Please report this as a bug";
 
-
 pub fn run(options: &Options, cli: &Cli) -> Result<()> {
     log::debug!("Active options:\n{:#?}", &options);
 

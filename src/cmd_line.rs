@@ -23,7 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 use std::path::PathBuf;
 
 use bpaf::Bpaf;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 /// Generate pre-populated module files formatted with AsciiDoc that are used in Red Hat and Fedora documentation.
 #[derive(Clone, Debug, Bpaf, Default)]

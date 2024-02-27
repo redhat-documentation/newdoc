@@ -25,8 +25,11 @@ use std::path::PathBuf;
 
 use color_eyre::eyre::{Result, WrapErr};
 use directories::ProjectDirs;
-use figment::{Figment, providers::{Format, Toml, Serialized}};
-use serde::{Serialize, Deserialize};
+use figment::{
+    providers::{Format, Serialized, Toml},
+    Figment,
+};
+use serde::{Deserialize, Serialize};
 
 use crate::cmd_line::{Cli, Comments, Verbosity};
 
@@ -118,11 +121,7 @@ impl Default for Options {
 /// with a dot at the start, such as `.newdoc.toml`, or
 /// a regular, visible file, such as `newdoc.toml`.
 fn config_file_name(hidden: bool) -> String {
-    let prefix = if hidden {
-        "."
-    } else {
-        ""
-    };
+    let prefix = if hidden { "." } else { "" };
     format!("{prefix}{PKG_NAME}.toml")
 }
 
@@ -170,12 +169,14 @@ pub fn merge_configs(cli_options: Options) -> Result<Options> {
 
     if let Some(git_conf_file) = git_conf_file(&cli_options) {
         log::info!("Git repo configuration file: {}", git_conf_file.display());
-        figment =  figment.merge(Toml::file(git_conf_file));
+        figment = figment.merge(Toml::file(git_conf_file));
     }
 
     log::debug!("Figment configuration: {figment:#?}");
 
-    let mut conf_options: Options = figment.extract().wrap_err("Failed to load configuration files.")?;
+    let mut conf_options: Options = figment
+        .extract()
+        .wrap_err("Failed to load configuration files.")?;
 
     conf_options.update_from_non_default(&cli_options);
 
