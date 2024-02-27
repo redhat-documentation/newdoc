@@ -63,13 +63,6 @@ pub fn run(options: &Options, cli: &Cli) -> Result<()> {
         log::warn!("The validation feature has been removed. \
                    Please switch to the Enki validation tool: <https://github.com/Levi-Leah/enki/>.");
     }
-    if cli.common_options.no_comments {
-        log::warn!(
-            "The --no-comments (-C) option is deprecated and has no effect anymore.\n\
-                    By default, generated modules do not contain any comments.\n\
-                    If you want to include comments, use the --comments (-M) option."
-        );
-    }
 
     // Attach titles from the CLI to content types.
     let content_types = [

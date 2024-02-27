@@ -4,7 +4,7 @@ use directories::ProjectDirs;
 use figment::{Figment, providers::{Format, Toml, Serialized}};
 use serde::{Serialize, Deserialize};
 
-use crate::cmd_line::{Cli, Verbosity};
+use crate::cmd_line::{Cli, Comments, Verbosity};
 
 const PKG_NAME: &str = env!("CARGO_PKG_NAME");
 
@@ -29,7 +29,10 @@ impl Options {
             // Comments and prefixes are enabled (true) by default unless you disable them
             // on the command line. If the no-comments or no-prefixes option is passed,
             // the feature is disabled, so the option is set to false.
-            comments: cli.common_options.comments,
+            comments: match cli.common_options.comments {
+                Comments::Comments => true,
+                Comments::NoComments => false,
+            },
             file_prefixes: !cli.common_options.no_file_prefixes,
             anchor_prefixes: cli.common_options.anchor_prefixes,
             examples: !cli.common_options.no_examples,

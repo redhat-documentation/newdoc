@@ -46,20 +46,9 @@ pub struct CommonOptions {
     #[bpaf(short('A'), long)]
     pub anchor_prefixes: bool,
 
-    /// Generate the file without any comments.
-    /// This option is now the default.
-    /// The option is hidden, has no effect, and exists only for compatibility
-    /// with previous releases.
-    #[bpaf(short('C'), long, hide)]
-    pub no_comments: bool,
-
     /// Generate the file without any example, placeholder content
     #[bpaf(short('E'), long, long("expert-mode"))]
     pub no_examples: bool,
-
-    /// Generate the file with explanatory comments
-    #[bpaf(short('M'), long)]
-    pub comments: bool,
 
     /// Do not use module type prefixes (such as `proc_`) in file names
     #[bpaf(short('P'), long, long("no-prefixes"))]
@@ -73,8 +62,11 @@ pub struct CommonOptions {
     #[bpaf(short('T'), long, argument("DIRECTORY"), fallback(".".into()))]
     pub target_dir: PathBuf,
 
-    #[bpaf(external, fallback(Verbosity::Default))]
+    #[bpaf(external, fallback(Verbosity::default()))]
     pub verbosity: Verbosity,
+
+    #[bpaf(external, fallback(Comments::default()))]
+    pub comments: Comments,
 }
 
 #[derive(Clone, Debug, Bpaf)]
@@ -123,6 +115,18 @@ pub enum Verbosity {
     #[default]
     #[bpaf(hide)]
     Default,
+}
+
+#[derive(Clone, Copy, Debug, Bpaf, Serialize, Deserialize, Default, PartialEq)]
+pub enum Comments {
+    /// Generate the file without any comments.
+    /// This option is now the default.
+    #[default]
+    #[bpaf(short('C'), long)]
+    NoComments,
+    /// Generate the file with explanatory comments
+    #[bpaf(short('M'), long)]
+    Comments,
 }
 
 /// Check that the current command generates or validates at least one file.
