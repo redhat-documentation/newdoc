@@ -38,6 +38,7 @@ use std::path::PathBuf;
 use color_eyre::eyre::{bail, Result};
 
 pub mod cmd_line;
+pub mod config;
 mod logging;
 mod module;
 mod templating;
