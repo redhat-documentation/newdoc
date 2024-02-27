@@ -154,7 +154,7 @@ fn git_conf_file(cli_options: &Options) -> Option<PathBuf> {
 
 /// Combine the configuration found on the command line, in configuration files,
 /// and in the defaults. Follows the standard hierarchy.
-pub fn merge_configs(cli_options: Options) -> Result<Options> {
+pub fn merge_configs(cli_options: &Options) -> Result<Options> {
     let default_options = Options::default();
     let mut figment = Figment::from(Serialized::defaults(default_options));
 
@@ -167,7 +167,7 @@ pub fn merge_configs(cli_options: Options) -> Result<Options> {
         log::warn!("Failed to locate a home directory. Skipping home configuration.");
     };
 
-    if let Some(git_conf_file) = git_conf_file(&cli_options) {
+    if let Some(git_conf_file) = git_conf_file(cli_options) {
         log::info!("Git repo configuration file: {}", git_conf_file.display());
         figment = figment.merge(Toml::file(git_conf_file));
     }
@@ -178,7 +178,7 @@ pub fn merge_configs(cli_options: Options) -> Result<Options> {
         .extract()
         .wrap_err("Failed to load configuration files.")?;
 
-    conf_options.update_from_non_default(&cli_options);
+    conf_options.update_from_non_default(cli_options);
 
     Ok(conf_options)
 }

@@ -33,7 +33,7 @@ fn main() -> Result<()> {
     // Set current options based on the command-line options
     let cli_options = Options::new(&cmdline_args);
 
-    let options = config::merge_configs(cli_options)?;
+    let options = config::merge_configs(&cli_options)?;
 
     // Run the main functionality
     newdoc::run(&options, &cmdline_args)?;
