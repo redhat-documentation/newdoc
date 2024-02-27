@@ -55,17 +55,31 @@ impl Default for Options {
     }
 }
 
-pub fn todo() {
+pub fn todo(cli_options: &Options) {
     let proj_dirs = ProjectDirs::from("com", "Red Hat", PKG_NAME)
         .expect("Failed to find a home directory.");
     let conf_dir = proj_dirs.config_dir();
     let conf_file = conf_dir.join(format!("{PKG_NAME}.toml"));
     println!("Configuration file:  {}", conf_file.display());
 
+    let target_dir = &cli_options.target_dir;
+
     let default_options = Options::default();
 
-    let figment = Figment::from(Serialized::defaults(default_options))
+    let mut figment = Figment::from(Serialized::defaults(default_options))
         .merge(Toml::file(conf_file));
+
+    // Find the earliest ancestor directory that appears to be the root of a Git repo.
+    let git_root = target_dir.ancestors().find(|dir| {
+        let git_dir = dir.join(".git");
+        git_dir.is_dir()
+    });
+
+    if let Some(git_root) = git_root {
+        let git_proj_config = git_root.join(format!(".{PKG_NAME}.toml"));
+        println!("git project config: {}", git_proj_config.display());
+        figment =  figment.merge(Toml::file(git_proj_config));
+    }
 
     println!("figment: {:#?}", figment);
 }
