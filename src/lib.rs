@@ -87,7 +87,7 @@ impl Options {
 impl Default for Options {
     fn default() -> Self {
         Self {
-            comments: true,
+            comments: false,
             file_prefixes: true,
             anchor_prefixes: false,
             examples: true,
