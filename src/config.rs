@@ -91,7 +91,7 @@ impl Default for Options {
     }
 }
 
-pub fn todo(cli_options: &Options) {
+pub fn merge_configs(cli_options: Options) -> Options {
     let proj_dirs = ProjectDirs::from("com", "Red Hat", PKG_NAME)
         .expect("Failed to find a home directory.");
     let conf_dir = proj_dirs.config_dir();
@@ -121,7 +121,9 @@ pub fn todo(cli_options: &Options) {
 
     let mut conf_options: Options = figment.extract().unwrap();
 
-    conf_options.update_from_non_default(cli_options);
+    conf_options.update_from_non_default(&cli_options);
 
     println!("complete options: {:#?}", conf_options);
+
+    conf_options
 }

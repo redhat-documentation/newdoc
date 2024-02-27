@@ -30,10 +30,10 @@ fn main() -> Result<()> {
     // Set current options based on the command-line options
     let cli_options = Options::new(&cmdline_args);
 
-    config::todo(&cli_options);
+    let options = config::merge_configs(cli_options);
 
     // Run the main functionality
-    newdoc::run(&cli_options, &cmdline_args)?;
+    newdoc::run(&options, &cmdline_args)?;
 
     Ok(())
 }
