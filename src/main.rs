@@ -18,7 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use color_eyre::eyre::Result;
 
-use newdoc::{cmd_line, config, Options};
+use newdoc::{cmd_line, config, logging, Options};
 
 fn main() -> Result<()> {
     // Enable full-featured error logging.
@@ -27,10 +27,13 @@ fn main() -> Result<()> {
     // Parse the command-line options
     let cmdline_args = cmd_line::get_args();
 
+    // Initialize the logging system based on the set verbosity
+    logging::initialize_logger(cmdline_args.common_options.verbosity)?;
+
     // Set current options based on the command-line options
     let cli_options = Options::new(&cmdline_args);
 
-    let options = config::merge_configs(cli_options);
+    let options = config::merge_configs(cli_options)?;
 
     // Run the main functionality
     newdoc::run(&options, &cmdline_args)?;

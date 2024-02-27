@@ -37,7 +37,7 @@ use color_eyre::eyre::{bail, Result};
 
 pub mod cmd_line;
 pub mod config;
-mod logging;
+pub mod logging;
 mod module;
 mod templating;
 mod write;
@@ -53,9 +53,6 @@ const REGEX_ERROR: &str = "Failed to construct a regular expression. Please repo
 
 
 pub fn run(options: &Options, cli: &Cli) -> Result<()> {
-    // Initialize the logging system based on the set verbosity
-    logging::initialize_logger(options.verbosity)?;
-
     log::debug!("Active options:\n{:#?}", &options);
 
     // Report any deprecated options.

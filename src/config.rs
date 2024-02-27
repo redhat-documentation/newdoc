@@ -1,5 +1,29 @@
+/*
+newdoc: Generate pre-populated documentation modules formatted with AsciiDoc.
+Copyright (C) 2024  Marek Suchánek  <msuchane@redhat.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+//! # `config.rs`
+//!
+//! This module defines the global options merged from the command line,
+//! the configuration files, and the defaults.
+
 use std::path::PathBuf;
 
+use color_eyre::eyre::{Result, WrapErr};
 use directories::ProjectDirs;
 use figment::{Figment, providers::{Format, Toml, Serialized}};
 use serde::{Serialize, Deserialize};
@@ -89,39 +113,56 @@ impl Default for Options {
     }
 }
 
-pub fn merge_configs(cli_options: Options) -> Options {
-    let proj_dirs = ProjectDirs::from("com", "Red Hat", PKG_NAME)
-        .expect("Failed to find a home directory.");
+/// Try to locale the appropriate per-user configuration file on this platform.
+fn home_conf_file() -> Option<PathBuf> {
+    let proj_dirs = ProjectDirs::from("com", "Red Hat", PKG_NAME)?;
     let conf_dir = proj_dirs.config_dir();
     let conf_file = conf_dir.join(format!("{PKG_NAME}.toml"));
-    println!("Configuration file:  {}", conf_file.display());
 
+    Some(conf_file)
+}
+
+/// If the target location is in a Git repository, construct the path
+/// to a configuration file at the repository's root.
+fn git_conf_file(cli_options: &Options) -> Option<PathBuf> {
     let target_dir = &cli_options.target_dir;
-
-    let default_options = Options::default();
-
-    let mut figment = Figment::from(Serialized::defaults(default_options))
-        .merge(Toml::file(conf_file));
 
     // Find the earliest ancestor directory that appears to be the root of a Git repo.
     let git_root = target_dir.ancestors().find(|dir| {
+        // The simple heuristic is that the directory is the Git root if it contains
+        // the `.git/` sub-directory.
         let git_dir = dir.join(".git");
         git_dir.is_dir()
-    });
+    })?;
 
-    if let Some(git_root) = git_root {
-        let git_proj_config = git_root.join(format!(".{PKG_NAME}.toml"));
-        println!("git project config: {}", git_proj_config.display());
-        figment =  figment.merge(Toml::file(git_proj_config));
+    let git_proj_config = git_root.join(format!(".{PKG_NAME}.toml"));
+
+    Some(git_proj_config)
+}
+
+pub fn merge_configs(cli_options: Options) -> Result<Options> {
+    let default_options = Options::default();
+    let mut figment = Figment::from(Serialized::defaults(default_options));
+
+    if let Some(home_conf_file) = home_conf_file() {
+        log::info!("Home configuration file: {}", home_conf_file.display());
+        figment = figment.merge(Toml::file(home_conf_file));
+    } else {
+        // If the directory lookup fails because there's no home directory,
+        // skip the processing of the home configuration file.
+        log::warn!("Failed to locate a home directory. Skipping home configuration.");
+    };
+
+    if let Some(git_conf_file) = git_conf_file(&cli_options) {
+        log::info!("Git repo configuration file: {}", git_conf_file.display());
+        figment =  figment.merge(Toml::file(git_conf_file));
     }
 
-    println!("figment: {:#?}", figment);
+    log::debug!("Figment configuration: {figment:#?}");
 
-    let mut conf_options: Options = figment.extract().unwrap();
+    let mut conf_options: Options = figment.extract().wrap_err("Failed to load configuration files.")?;
 
     conf_options.update_from_non_default(&cli_options);
 
-    println!("complete options: {:#?}", conf_options);
-
-    conf_options
+    Ok(conf_options)
 }
