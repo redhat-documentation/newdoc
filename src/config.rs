@@ -82,15 +82,10 @@ impl Options {
 
 impl Default for Options {
     fn default() -> Self {
-        Self {
-            comments: false,
-            file_prefixes: true,
-            anchor_prefixes: false,
-            examples: true,
-            target_dir: PathBuf::from("."),
-            simplified: false,
-            verbosity: Verbosity::Default,
-        }
+        // Synchronize the `Options` defaults with the default command-line arguments.
+        let default_cli_args = Cli::default();
+
+        Self::new(&default_cli_args)
     }
 }
 

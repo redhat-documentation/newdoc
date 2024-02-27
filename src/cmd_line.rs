@@ -26,7 +26,7 @@ use bpaf::Bpaf;
 use serde::{Serialize, Deserialize};
 
 /// Generate pre-populated module files formatted with AsciiDoc that are used in Red Hat and Fedora documentation.
-#[derive(Clone, Debug, Bpaf)]
+#[derive(Clone, Debug, Bpaf, Default)]
 #[bpaf(options, version)]
 pub struct Cli {
     #[bpaf(
@@ -40,7 +40,7 @@ pub struct Cli {
     pub common_options: CommonOptions,
 }
 
-#[derive(Clone, Debug, Bpaf)]
+#[derive(Clone, Debug, Bpaf, Default)]
 pub struct CommonOptions {
     /// Add module type prefixes (such as `proc_`) in AsciiDoc anchors
     #[bpaf(short('A'), long)]
@@ -69,7 +69,7 @@ pub struct CommonOptions {
     pub comments: Comments,
 }
 
-#[derive(Clone, Debug, Bpaf)]
+#[derive(Clone, Debug, Bpaf, Default)]
 pub struct Action {
     /// Create an assembly file
     #[bpaf(short, long, argument("TITLE"))]
@@ -146,5 +146,7 @@ const SOME_FILES: &str = "Specify at least one file to generate or validate.";
 /// Get command-line arguments as the `Cli` struct.
 #[must_use]
 pub fn get_args() -> Cli {
+    let def = Cli::default();
+    println!("default args: {:#?}", def);
     cli().run()
 }
