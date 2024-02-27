@@ -448,6 +448,7 @@ dependencies = [
  "figment",
  "log",
  "regex",
+ "serde",
  "simplelog",
  "time",
 ]
