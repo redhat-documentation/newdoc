@@ -39,6 +39,42 @@ impl Options {
             verbosity: cli.common_options.verbosity,
         }
     }
+
+    /// Update the values in this instance from another instance, but only in cases
+    /// where the other instance's values are non-default.
+    /// Where the other instance keeps default values, preserve the value in self.
+    fn update_from_non_default(&mut self, cli_options: &Self) {
+        let default = Self::default();
+
+        // This code is kinda ugly and could be solved by figment merging:
+        // https://steezeburger.com/2023/03/rust-hierarchical-configuration/
+        // However, given how few options there are and how special the figment
+        // solution is, I prefer this more explicit approach that gives manual control.
+
+        // Update the non-default values:
+        if cli_options.comments != default.comments {
+            self.comments = cli_options.comments;
+        }
+        if cli_options.file_prefixes != default.file_prefixes {
+            self.file_prefixes = cli_options.file_prefixes;
+        }
+        if cli_options.anchor_prefixes != default.anchor_prefixes {
+            self.anchor_prefixes = cli_options.anchor_prefixes;
+        }
+        if cli_options.examples != default.examples {
+            self.examples = cli_options.examples;
+        }
+        if cli_options.simplified != default.simplified {
+            self.simplified = cli_options.simplified;
+        }
+        if cli_options.verbosity != default.verbosity {
+            self.verbosity = cli_options.verbosity;
+        }
+
+        // These options only exist on the command line, not in config files.
+        // Always use the non-default value from CLI arguments.
+        self.target_dir = cli_options.target_dir.clone();
+    }
 }
 
 impl Default for Options {
@@ -82,4 +118,10 @@ pub fn todo(cli_options: &Options) {
     }
 
     println!("figment: {:#?}", figment);
+
+    let mut conf_options: Options = figment.extract().unwrap();
+
+    conf_options.update_from_non_default(cli_options);
+
+    println!("complete options: {:#?}", conf_options);
 }

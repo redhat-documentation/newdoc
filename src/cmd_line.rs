@@ -112,7 +112,7 @@ pub struct Action {
 
 /// The verbosity level set on the command line.
 /// The default option is invisible as a command-line argument.
-#[derive(Clone, Copy, Debug, Bpaf, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Bpaf, Serialize, Deserialize, Default, PartialEq)]
 pub enum Verbosity {
     /// Display additional, debug messages
     #[bpaf(short, long)]
@@ -120,6 +120,7 @@ pub enum Verbosity {
     /// Hide info-level messages. Display only warnings and errors
     #[bpaf(short, long)]
     Quiet,
+    #[default]
     #[bpaf(hide)]
     Default,
 }

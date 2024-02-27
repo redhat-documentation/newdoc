@@ -28,12 +28,12 @@ fn main() -> Result<()> {
     let cmdline_args = cmd_line::get_args();
 
     // Set current options based on the command-line options
-    let options = Options::new(&cmdline_args);
+    let cli_options = Options::new(&cmdline_args);
 
-    config::todo(&options);
+    config::todo(&cli_options);
 
     // Run the main functionality
-    newdoc::run(&options, &cmdline_args)?;
+    newdoc::run(&cli_options, &cmdline_args)?;
 
     Ok(())
 }
