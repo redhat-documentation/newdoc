@@ -31,7 +31,7 @@ use figment::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::cmd_line::{Cli, Comments, Verbosity};
+use crate::cmd_line::{Cli, Comments, Simplified, Verbosity};
 
 const PKG_NAME: &str = env!("CARGO_PKG_NAME");
 
@@ -65,7 +65,10 @@ impl Options {
             examples: !cli.common_options.no_examples,
             // Set the target directory as specified or fall back on the current directory
             target_dir: cli.common_options.target_dir.clone(),
-            simplified: cli.common_options.simplified,
+            simplified: match cli.common_options.simplified {
+                Simplified::Simplified => true,
+                Simplified::NotSimplified => false,
+            },
             verbosity: cli.common_options.verbosity,
         }
     }

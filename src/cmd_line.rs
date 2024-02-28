@@ -54,19 +54,18 @@ pub struct CommonOptions {
     #[bpaf(short('P'), long, long("no-prefixes"))]
     pub no_file_prefixes: bool,
 
-    /// Generate the file without conditionals for the Red Hat documentation pipeline. Suitable for upstream.
-    #[bpaf(short('S'), long)]
-    pub simplified: bool,
-
     /// Save the generated files in this directory
     #[bpaf(short('T'), long, argument("DIRECTORY"), fallback(".".into()))]
     pub target_dir: PathBuf,
 
-    #[bpaf(external, fallback(Verbosity::default()))]
-    pub verbosity: Verbosity,
-
     #[bpaf(external, fallback(Comments::default()))]
     pub comments: Comments,
+
+    #[bpaf(external, fallback(Simplified::default()))]
+    pub simplified: Simplified,
+
+    #[bpaf(external, fallback(Verbosity::default()))]
+    pub verbosity: Verbosity,
 }
 
 #[derive(Clone, Debug, Bpaf, Default)]
@@ -119,14 +118,24 @@ pub enum Verbosity {
 
 #[derive(Clone, Copy, Debug, Bpaf, Serialize, Deserialize, Default, PartialEq)]
 pub enum Comments {
-    /// Generate the file without any comments.
-    /// This option is now the default.
+    /// Generate the file without any comments. (Default)
     #[default]
     #[bpaf(short('C'), long)]
     NoComments,
     /// Generate the file with explanatory comments
     #[bpaf(short('M'), long)]
     Comments,
+}
+
+#[derive(Clone, Copy, Debug, Bpaf, Serialize, Deserialize, Default, PartialEq)]
+pub enum Simplified {
+    /// Generate the file without conditionals for the Red Hat documentation pipeline. Suitable for upstream.
+    #[bpaf(short('S'), long)]
+    Simplified,
+    /// Generate the file with conditionals for the Red Hat documentation pipeline. (Default)
+    #[default]
+    #[bpaf(long)]
+    NotSimplified,
 }
 
 /// Check that the current command generates or validates at least one file.
