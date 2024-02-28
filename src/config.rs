@@ -136,20 +136,23 @@ fn home_conf_file() -> Option<PathBuf> {
 
 /// If the target location is in a Git repository, construct the path
 /// to a configuration file at the repository's root.
-fn git_conf_file(cli_options: &Options) -> Option<PathBuf> {
+/// Find all such configuration files if the Git repository is nested.
+fn git_conf_files(cli_options: &Options) -> Vec<PathBuf> {
     let target_dir = &cli_options.target_dir;
 
-    // Find the earliest ancestor directory that appears to be the root of a Git repo.
-    let git_root = target_dir.ancestors().find(|dir| {
+    // Find all ancestor directories that appear to be the root of a Git repo.
+    let git_roots = target_dir.ancestors().filter(|dir| {
         // The simple heuristic is that the directory is the Git root if it contains
         // the `.git/` sub-directory.
         let git_dir = dir.join(".git");
         git_dir.is_dir()
-    })?;
+    });
 
-    let git_proj_config = git_root.join(config_file_name(true));
+    let config_files: Vec<_> = git_roots
+        .map(|root| root.join(config_file_name(true)))
+        .collect();
 
-    Some(git_proj_config)
+    config_files
 }
 
 /// Combine the configuration found on the command line, in configuration files,
@@ -158,8 +161,9 @@ pub fn merge_configs(cli_options: &Options) -> Result<Options> {
     let default_options = Options::default();
     let mut figment = Figment::from(Serialized::defaults(default_options));
 
+    // Load the home configuration file, if it exists:
     if let Some(home_conf_file) = home_conf_file() {
-        log::info!("Home configuration file: {}", home_conf_file.display());
+        log::debug!("Home configuration file: {}", home_conf_file.display());
         figment = figment.merge(Toml::file(home_conf_file));
     } else {
         // If the directory lookup fails because there's no home directory,
@@ -167,9 +171,14 @@ pub fn merge_configs(cli_options: &Options) -> Result<Options> {
         log::warn!("Failed to locate a home directory. Skipping home configuration.");
     };
 
-    if let Some(git_conf_file) = git_conf_file(cli_options) {
-        log::info!("Git repo configuration file: {}", git_conf_file.display());
-        figment = figment.merge(Toml::file(git_conf_file));
+    // All config files in Git repo roots:
+    let mut git_conf_files = git_conf_files(cli_options);
+    // Reverse their order so that the inner repo configuration takes precedence over outer:
+    git_conf_files.reverse();
+    // Load each Git repo configuration file:
+    for file in git_conf_files {
+        log::info!("Git repo configuration file: {}", file.display());
+        figment = figment.merge(Toml::file(file));
     }
 
     log::debug!("Figment configuration: {figment:#?}");
