@@ -31,7 +31,9 @@ use figment::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::cmd_line::{AnchorPrefixes, Cli, Comments, Examples, FilePrefixes, Simplified, Verbosity};
+use crate::cmd_line::{
+    AnchorPrefixes, Cli, Comments, Examples, FilePrefixes, Simplified, Verbosity,
+};
 
 const PKG_NAME: &str = env!("CARGO_PKG_NAME");
 
@@ -60,29 +62,49 @@ impl Options {
 
         // Update the manually specified values:
         match cli.common_options.comments {
-            Some(Comments::Comments) => { self.comments = true; },
-            Some(Comments::NoComments) => { self.comments = false; },
-            None => { /* Keep the existing value. */ },
+            Some(Comments::Comments) => {
+                self.comments = true;
+            }
+            Some(Comments::NoComments) => {
+                self.comments = false;
+            }
+            None => { /* Keep the existing value. */ }
         }
         match cli.common_options.file_prefixes {
-            Some(FilePrefixes::FilePrefixes) => { self.file_prefixes = true; },
-            Some(FilePrefixes::NoFilePrefixes) => { self.comments = false; },
-            None => { /* Keep the existing value. */ },
+            Some(FilePrefixes::FilePrefixes) => {
+                self.file_prefixes = true;
+            }
+            Some(FilePrefixes::NoFilePrefixes) => {
+                self.comments = false;
+            }
+            None => { /* Keep the existing value. */ }
         }
         match cli.common_options.anchor_prefixes {
-            Some(AnchorPrefixes::AnchorPrefixes) => { self.anchor_prefixes = true; },
-            Some(AnchorPrefixes::NoAnchorPrefixes) => { self.anchor_prefixes = false; },
-            None => { /* Keep the existing value. */ },
+            Some(AnchorPrefixes::AnchorPrefixes) => {
+                self.anchor_prefixes = true;
+            }
+            Some(AnchorPrefixes::NoAnchorPrefixes) => {
+                self.anchor_prefixes = false;
+            }
+            None => { /* Keep the existing value. */ }
         }
         match cli.common_options.examples {
-            Some(Examples::Examples) => { self.examples = true; },
-            Some(Examples::NoExamples) => { self.examples = false; },
-            None => { /* Keep the existing value. */ },
+            Some(Examples::Examples) => {
+                self.examples = true;
+            }
+            Some(Examples::NoExamples) => {
+                self.examples = false;
+            }
+            None => { /* Keep the existing value. */ }
         }
         match cli.common_options.simplified {
-            Some(Simplified::Simplified) => { self.simplified = true; },
-            Some(Simplified::NotSimplified) => { self.simplified = false; },
-            None => { /* Keep the existing value. */ },
+            Some(Simplified::Simplified) => {
+                self.simplified = true;
+            }
+            Some(Simplified::NotSimplified) => {
+                self.simplified = false;
+            }
+            None => { /* Keep the existing value. */ }
         }
         // TODO: Because the verbosity field isn't optional on the CLI, but rather
         // defaults to the `Default` value, the CLI always overrides the config files,
@@ -90,9 +112,13 @@ impl Options {
         // Consider if it's useful to configure verbosity, and if so,
         // change the behavior so that the config files have effect.
         match cli.common_options.verbosity {
-            Verbosity::Verbose => { self.verbosity = Verbosity::Verbose; },
-            Verbosity::Quiet => { self.verbosity = Verbosity::Quiet; },
-            Verbosity::Default => { /* Keep the existing value. */ },
+            Verbosity::Verbose => {
+                self.verbosity = Verbosity::Verbose;
+            }
+            Verbosity::Quiet => {
+                self.verbosity = Verbosity::Quiet;
+            }
+            Verbosity::Default => { /* Keep the existing value. */ }
         }
 
         // These options only exist on the command line, not in config files.

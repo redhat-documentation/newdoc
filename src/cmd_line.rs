@@ -45,10 +45,10 @@ pub struct CommonOptions {
     /// Save the generated files in this directory
     #[bpaf(short('T'), long, argument("DIRECTORY"), fallback(".".into()))]
     pub target_dir: PathBuf,
-    
+
     #[bpaf(external, optional)]
     pub comments: Option<Comments>,
-    
+
     #[bpaf(external, optional)]
     pub examples: Option<Examples>,
 
