@@ -21,7 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //! This module defines the global options merged from the command line,
 //! the configuration files, and the defaults.
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use color_eyre::eyre::{Result, WrapErr};
 use directories::ProjectDirs;
@@ -31,7 +31,7 @@ use figment::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::cmd_line::{Cli, Comments, Simplified, Verbosity};
+use crate::cmd_line::{AnchorPrefixes, Cli, Comments, Examples, FilePrefixes, Simplified, Verbosity};
 
 const PKG_NAME: &str = env!("CARGO_PKG_NAME");
 
@@ -49,73 +49,65 @@ pub struct Options {
 }
 
 impl Options {
-    /// Set current options based on the command-line options
-    #[must_use]
-    pub fn new(cli: &Cli) -> Self {
-        Self {
-            // Comments and prefixes are enabled (true) by default unless you disable them
-            // on the command line. If the no-comments or no-prefixes option is passed,
-            // the feature is disabled, so the option is set to false.
-            comments: match cli.common_options.comments {
-                Comments::Comments => true,
-                Comments::NoComments => false,
-            },
-            file_prefixes: !cli.common_options.no_file_prefixes,
-            anchor_prefixes: cli.common_options.anchor_prefixes,
-            examples: !cli.common_options.no_examples,
-            // Set the target directory as specified or fall back on the current directory
-            target_dir: cli.common_options.target_dir.clone(),
-            simplified: match cli.common_options.simplified {
-                Simplified::Simplified => true,
-                Simplified::NotSimplified => false,
-            },
-            verbosity: cli.common_options.verbosity,
-        }
-    }
-
-    /// Update the values in this instance from another instance, but only in cases
-    /// where the other instance's values are non-default.
-    /// Where the other instance keeps default values, preserve the value in self.
-    fn update_from_non_default(&mut self, cli_options: &Self) {
-        let default = Self::default();
-
+    /// Update the values in this instance from the command line, but only in cases
+    /// where the command line's values are specified.
+    /// Where the command line options are missing, preserve the value in self.
+    fn update_from_cli(&mut self, cli: &Cli) {
         // This code is kinda ugly and could be solved by figment merging:
         // https://steezeburger.com/2023/03/rust-hierarchical-configuration/
         // However, given how few options there are and how special the figment
         // solution is, I prefer this more explicit approach that gives manual control.
 
-        // Update the non-default values:
-        if cli_options.comments != default.comments {
-            self.comments = cli_options.comments;
+        // Update the manually specified values:
+        match cli.common_options.comments {
+            Some(Comments::Comments) => { self.comments = true; },
+            Some(Comments::NoComments) => { self.comments = false; },
+            None => { /* Keep the existing value. */ },
         }
-        if cli_options.file_prefixes != default.file_prefixes {
-            self.file_prefixes = cli_options.file_prefixes;
+        match cli.common_options.file_prefixes {
+            Some(FilePrefixes::FilePrefixes) => { self.file_prefixes = true; },
+            Some(FilePrefixes::NoFilePrefixes) => { self.comments = false; },
+            None => { /* Keep the existing value. */ },
         }
-        if cli_options.anchor_prefixes != default.anchor_prefixes {
-            self.anchor_prefixes = cli_options.anchor_prefixes;
+        match cli.common_options.anchor_prefixes {
+            Some(AnchorPrefixes::AnchorPrefixes) => { self.anchor_prefixes = true; },
+            Some(AnchorPrefixes::NoAnchorPrefixes) => { self.anchor_prefixes = false; },
+            None => { /* Keep the existing value. */ },
         }
-        if cli_options.examples != default.examples {
-            self.examples = cli_options.examples;
+        match cli.common_options.examples {
+            Some(Examples::Examples) => { self.examples = true; },
+            Some(Examples::NoExamples) => { self.examples = false; },
+            None => { /* Keep the existing value. */ },
         }
-        if cli_options.simplified != default.simplified {
-            self.simplified = cli_options.simplified;
+        match cli.common_options.simplified {
+            Some(Simplified::Simplified) => { self.simplified = true; },
+            Some(Simplified::NotSimplified) => { self.simplified = false; },
+            None => { /* Keep the existing value. */ },
         }
-        if cli_options.verbosity != default.verbosity {
-            self.verbosity = cli_options.verbosity;
+        match cli.common_options.verbosity {
+            Verbosity::Verbose => { self.verbosity = Verbosity::Verbose; },
+            Verbosity::Quiet => { self.verbosity = Verbosity::Quiet; },
+            Verbosity::Default => { /* Keep the existing value. */ },
         }
 
         // These options only exist on the command line, not in config files.
-        // Always use the non-default value from CLI arguments.
-        self.target_dir = cli_options.target_dir.clone();
+        // Always use the value from CLI arguments.
+        self.target_dir = cli.common_options.target_dir.clone();
     }
 }
 
 impl Default for Options {
+    /// This is the canonical source of default runtime options.
     fn default() -> Self {
-        // Synchronize the `Options` defaults with the default command-line arguments.
-        let default_cli_args = Cli::default();
-
-        Self::new(&default_cli_args)
+        Self {
+            comments: false,
+            file_prefixes: true,
+            anchor_prefixes: false,
+            examples: true,
+            simplified: false,
+            verbosity: Verbosity::Default,
+            target_dir: ".".into(),
+        }
     }
 }
 
@@ -140,9 +132,7 @@ fn home_conf_file() -> Option<PathBuf> {
 /// If the target location is in a Git repository, construct the path
 /// to a configuration file at the repository's root.
 /// Find all such configuration files if the Git repository is nested.
-fn git_conf_files(cli_options: &Options) -> Vec<PathBuf> {
-    let target_dir = &cli_options.target_dir;
-
+fn git_conf_files(target_dir: &Path) -> Vec<PathBuf> {
     // Find all ancestor directories that appear to be the root of a Git repo.
     let git_roots = target_dir.ancestors().filter(|dir| {
         // The simple heuristic is that the directory is the Git root if it contains
@@ -160,8 +150,11 @@ fn git_conf_files(cli_options: &Options) -> Vec<PathBuf> {
 
 /// Combine the configuration found on the command line, in configuration files,
 /// and in the defaults. Follows the standard hierarchy.
-pub fn merge_configs(cli_options: &Options) -> Result<Options> {
+pub fn merge_configs(cli: &Cli) -> Result<Options> {
+    // The default options are the base for further merging.
     let default_options = Options::default();
+
+    // Prepare a figment instance to load config files.
     let mut figment = Figment::from(Serialized::defaults(default_options));
 
     // Load the home configuration file, if it exists:
@@ -175,7 +168,7 @@ pub fn merge_configs(cli_options: &Options) -> Result<Options> {
     };
 
     // All config files in Git repo roots:
-    let mut git_conf_files = git_conf_files(cli_options);
+    let mut git_conf_files = git_conf_files(&cli.common_options.target_dir);
     // Reverse their order so that the inner repo configuration takes precedence over outer:
     git_conf_files.reverse();
     // Load each Git repo configuration file:
@@ -190,7 +183,7 @@ pub fn merge_configs(cli_options: &Options) -> Result<Options> {
         .extract()
         .wrap_err("Failed to load configuration files.")?;
 
-    conf_options.update_from_non_default(cli_options);
+    conf_options.update_from_cli(cli);
 
     Ok(conf_options)
 }

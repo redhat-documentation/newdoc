@@ -26,7 +26,7 @@ use bpaf::Bpaf;
 use serde::{Deserialize, Serialize};
 
 /// Generate pre-populated module files formatted with AsciiDoc that are used in Red Hat and Fedora documentation.
-#[derive(Clone, Debug, Bpaf, Default)]
+#[derive(Clone, Debug, Bpaf)]
 #[bpaf(options, version)]
 pub struct Cli {
     #[bpaf(
@@ -40,35 +40,32 @@ pub struct Cli {
     pub common_options: CommonOptions,
 }
 
-#[derive(Clone, Debug, Bpaf, Default)]
+#[derive(Clone, Debug, Bpaf)]
 pub struct CommonOptions {
-    /// Add module type prefixes (such as `proc_`) in AsciiDoc anchors
-    #[bpaf(short('A'), long)]
-    pub anchor_prefixes: bool,
-
-    /// Generate the file without any example, placeholder content
-    #[bpaf(short('E'), long, long("expert-mode"))]
-    pub no_examples: bool,
-
-    /// Do not use module type prefixes (such as `proc_`) in file names
-    #[bpaf(short('P'), long, long("no-prefixes"))]
-    pub no_file_prefixes: bool,
-
     /// Save the generated files in this directory
     #[bpaf(short('T'), long, argument("DIRECTORY"), fallback(".".into()))]
     pub target_dir: PathBuf,
+    
+    #[bpaf(external, optional)]
+    pub comments: Option<Comments>,
+    
+    #[bpaf(external, optional)]
+    pub examples: Option<Examples>,
 
-    #[bpaf(external, fallback(Comments::default()))]
-    pub comments: Comments,
+    #[bpaf(external, optional)]
+    pub file_prefixes: Option<FilePrefixes>,
 
-    #[bpaf(external, fallback(Simplified::default()))]
-    pub simplified: Simplified,
+    #[bpaf(external, optional)]
+    pub anchor_prefixes: Option<AnchorPrefixes>,
+
+    #[bpaf(external, optional)]
+    pub simplified: Option<Simplified>,
 
     #[bpaf(external, fallback(Verbosity::default()))]
     pub verbosity: Verbosity,
 }
 
-#[derive(Clone, Debug, Bpaf, Default)]
+#[derive(Clone, Debug, Bpaf)]
 pub struct Action {
     /// Create an assembly file
     #[bpaf(short, long, argument("TITLE"))]
@@ -128,6 +125,17 @@ pub enum Comments {
 }
 
 #[derive(Clone, Copy, Debug, Bpaf, Serialize, Deserialize, Default, PartialEq)]
+pub enum Examples {
+    /// Generate the file with the example, placeholder content. (Default)
+    #[default]
+    #[bpaf(long)]
+    Examples,
+    /// Generate the file without any example, placeholder content.
+    #[bpaf(short('E'), long, long("expert-mode"))]
+    NoExamples,
+}
+
+#[derive(Clone, Copy, Debug, Bpaf, Serialize, Deserialize, Default, PartialEq)]
 pub enum Simplified {
     /// Generate the file without conditionals for the Red Hat documentation pipeline. Suitable for upstream.
     #[bpaf(short('S'), long)]
@@ -136,6 +144,28 @@ pub enum Simplified {
     #[default]
     #[bpaf(long)]
     NotSimplified,
+}
+
+#[derive(Clone, Copy, Debug, Bpaf, Serialize, Deserialize, Default, PartialEq)]
+pub enum FilePrefixes {
+    /// Use module type prefixes (such as `proc_`) in file names. (Default)
+    #[default]
+    #[bpaf(long)]
+    FilePrefixes,
+    /// Do not use module type prefixes (such as `proc_`) in file names.
+    #[bpaf(short('P'), long, long("no-prefixes"))]
+    NoFilePrefixes,
+}
+
+#[derive(Clone, Copy, Debug, Bpaf, Serialize, Deserialize, Default, PartialEq)]
+pub enum AnchorPrefixes {
+    /// Add module type prefixes (such as `proc_`) in AsciiDoc anchors.
+    #[bpaf(short('A'), long)]
+    AnchorPrefixes,
+    /// Do not add module type prefixes (such as `proc_`) in AsciiDoc anchors. (Default)
+    #[default]
+    #[bpaf(long)]
+    NoAnchorPrefixes,
 }
 
 /// Check that the current command generates or validates at least one file.
