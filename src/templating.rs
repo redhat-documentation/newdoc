@@ -87,7 +87,7 @@ struct SnippetTemplate<'a> {
     examples: bool,
     generator_version: &'a str,
     current_day: &'a str,
-    simplified: bool,
+    // simplified: bool,
 }
 
 // We're implementing the template functions on the Input struct, not on Module,
@@ -161,7 +161,7 @@ impl Input {
                 examples: self.options.examples,
                 generator_version,
                 current_day: &current_day,
-                simplified: self.options.simplified,
+                // simplified: self.options.simplified,
             }
             .render(),
         }
