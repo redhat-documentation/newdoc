@@ -100,7 +100,7 @@ pub struct Action {
 
 /// The verbosity level set on the command line.
 /// The default option is invisible as a command-line argument.
-#[derive(Clone, Copy, Debug, Bpaf, Serialize, Deserialize, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Bpaf, Default, PartialEq, Serialize, Deserialize)]
 pub enum Verbosity {
     /// Display additional, debug messages
     #[bpaf(short, long)]
@@ -113,7 +113,7 @@ pub enum Verbosity {
     Default,
 }
 
-#[derive(Clone, Copy, Debug, Bpaf, Serialize, Deserialize, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Bpaf, Default, PartialEq)]
 pub enum Comments {
     /// Generate the file without any comments. (Default)
     #[default]
@@ -124,7 +124,7 @@ pub enum Comments {
     Comments,
 }
 
-#[derive(Clone, Copy, Debug, Bpaf, Serialize, Deserialize, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Bpaf, Default, PartialEq)]
 pub enum Examples {
     /// Generate the file with the example, placeholder content. (Default)
     #[default]
@@ -135,7 +135,7 @@ pub enum Examples {
     NoExamples,
 }
 
-#[derive(Clone, Copy, Debug, Bpaf, Serialize, Deserialize, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Bpaf, Default, PartialEq)]
 pub enum Simplified {
     /// Generate the file without conditionals for the Red Hat documentation pipeline. Suitable for upstream.
     #[bpaf(short('S'), long)]
@@ -146,7 +146,7 @@ pub enum Simplified {
     NotSimplified,
 }
 
-#[derive(Clone, Copy, Debug, Bpaf, Serialize, Deserialize, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Bpaf, Default, PartialEq)]
 pub enum FilePrefixes {
     /// Use module type prefixes (such as `proc_`) in file names. (Default)
     #[default]
@@ -157,7 +157,7 @@ pub enum FilePrefixes {
     NoFilePrefixes,
 }
 
-#[derive(Clone, Copy, Debug, Bpaf, Serialize, Deserialize, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Bpaf, Default, PartialEq)]
 pub enum AnchorPrefixes {
     /// Add module type prefixes (such as `proc_`) in AsciiDoc anchors.
     #[bpaf(short('A'), long)]
