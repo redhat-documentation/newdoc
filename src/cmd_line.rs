@@ -23,6 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 use std::path::PathBuf;
 
 use bpaf::Bpaf;
+use serde::{Deserialize, Serialize};
 
 /// Generate pre-populated module files formatted with AsciiDoc that are used in Red Hat and Fedora documentation.
 #[derive(Clone, Debug, Bpaf)]
@@ -41,38 +42,26 @@ pub struct Cli {
 
 #[derive(Clone, Debug, Bpaf)]
 pub struct CommonOptions {
-    /// Add module type prefixes (such as `proc_`) in AsciiDoc anchors
-    #[bpaf(short('A'), long)]
-    pub anchor_prefixes: bool,
-
-    /// Generate the file without any comments.
-    /// This option is now the default.
-    /// The option is hidden, has no effect, and exists only for compatibility
-    /// with previous releases.
-    #[bpaf(short('C'), long, hide)]
-    pub no_comments: bool,
-
-    /// Generate the file without any example, placeholder content
-    #[bpaf(short('E'), long, long("expert-mode"))]
-    pub no_examples: bool,
-
-    /// Generate the file with explanatory comments
-    #[bpaf(short('M'), long)]
-    pub comments: bool,
-
-    /// Do not use module type prefixes (such as `proc_`) in file names
-    #[bpaf(short('P'), long, long("no-prefixes"))]
-    pub no_file_prefixes: bool,
-
-    /// Generate the file without conditionals for the Red Hat documentation pipeline. Suitable for upstream.
-    #[bpaf(short('S'), long)]
-    pub simplified: bool,
-
     /// Save the generated files in this directory
     #[bpaf(short('T'), long, argument("DIRECTORY"), fallback(".".into()))]
     pub target_dir: PathBuf,
 
-    #[bpaf(external, fallback(Verbosity::Default))]
+    #[bpaf(external, optional)]
+    pub comments: Option<Comments>,
+
+    #[bpaf(external, optional)]
+    pub examples: Option<Examples>,
+
+    #[bpaf(external, optional)]
+    pub file_prefixes: Option<FilePrefixes>,
+
+    #[bpaf(external, optional)]
+    pub anchor_prefixes: Option<AnchorPrefixes>,
+
+    #[bpaf(external, optional)]
+    pub simplified: Option<Simplified>,
+
+    #[bpaf(external, fallback(Verbosity::default()))]
     pub verbosity: Verbosity,
 }
 
@@ -111,7 +100,8 @@ pub struct Action {
 
 /// The verbosity level set on the command line.
 /// The default option is invisible as a command-line argument.
-#[derive(Clone, Copy, Debug, Bpaf)]
+#[derive(Clone, Copy, Debug, Bpaf, Default, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum Verbosity {
     /// Display additional, debug messages
     #[bpaf(short, long)]
@@ -119,8 +109,64 @@ pub enum Verbosity {
     /// Hide info-level messages. Display only warnings and errors
     #[bpaf(short, long)]
     Quiet,
+    #[default]
     #[bpaf(hide)]
     Default,
+}
+
+#[derive(Clone, Copy, Debug, Bpaf, Default, PartialEq)]
+pub enum Comments {
+    /// Generate the file without any comments. (Default)
+    #[default]
+    #[bpaf(short('C'), long)]
+    NoComments,
+    /// Generate the file with explanatory comments
+    #[bpaf(short('M'), long)]
+    Comments,
+}
+
+#[derive(Clone, Copy, Debug, Bpaf, Default, PartialEq)]
+pub enum Examples {
+    /// Generate the file with the example, placeholder content. (Default)
+    #[default]
+    #[bpaf(long)]
+    Examples,
+    /// Generate the file without any example, placeholder content.
+    #[bpaf(short('E'), long, long("expert-mode"))]
+    NoExamples,
+}
+
+#[derive(Clone, Copy, Debug, Bpaf, Default, PartialEq)]
+pub enum Simplified {
+    /// Generate the file without conditionals for the Red Hat documentation pipeline. Suitable for upstream.
+    #[bpaf(short('S'), long)]
+    Simplified,
+    /// Generate the file with conditionals for the Red Hat documentation pipeline. (Default)
+    #[default]
+    #[bpaf(long)]
+    NotSimplified,
+}
+
+#[derive(Clone, Copy, Debug, Bpaf, Default, PartialEq)]
+pub enum FilePrefixes {
+    /// Use module type prefixes (such as `proc_`) in file names. (Default)
+    #[default]
+    #[bpaf(long)]
+    FilePrefixes,
+    /// Do not use module type prefixes (such as `proc_`) in file names.
+    #[bpaf(short('P'), long, long("no-prefixes"))]
+    NoFilePrefixes,
+}
+
+#[derive(Clone, Copy, Debug, Bpaf, Default, PartialEq)]
+pub enum AnchorPrefixes {
+    /// Add module type prefixes (such as `proc_`) in AsciiDoc anchors.
+    #[bpaf(short('A'), long)]
+    AnchorPrefixes,
+    /// Do not add module type prefixes (such as `proc_`) in AsciiDoc anchors. (Default)
+    #[default]
+    #[bpaf(long)]
+    NoAnchorPrefixes,
 }
 
 /// Check that the current command generates or validates at least one file.
