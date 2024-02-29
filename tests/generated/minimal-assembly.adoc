@@ -6,8 +6,6 @@
 [id="minimal-assembly"]
 = Minimal assembly
 
-[role="_abstract"]
-
 == Prerequisites
 
 [role="_additional-resources"]

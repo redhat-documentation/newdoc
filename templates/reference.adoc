@@ -31,7 +31,6 @@ In the title of a reference module, include nouns that are used in the body text
 Be sure to include a line break between the title and the module introduction.
 ////
 
-[role="_abstract"]
 {% if examples -%}
 Write a short introductory paragraph that provides an overview of the module.
 

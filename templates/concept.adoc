@@ -33,7 +33,6 @@ In the title of concept modules, include nouns or noun phrases that are used in 
 Be sure to include a line break between the title and the module introduction.
 ////
 
-[role="_abstract"]
 {% if examples -%}
 Write a short introductory paragraph that provides an overview of the module.
 
