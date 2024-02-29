@@ -2,6 +2,12 @@
 
 The following is a summary of changes in each `newdoc` release, which is also a Git tag by the same name in this repository.
 
+## v2.17.0
+
+* Enable configuration files. [See the documentation](https://redhat-documentation.github.io/newdoc/#_configuration_files). [Issue #20](https://github.com/redhat-documentation/newdoc/issues/20)
+* Remove the outdated `abstract` tag from all templates. [Issue #40](https://github.com/redhat-documentation/newdoc/issues/40)
+* Update various dependencies.
+
 ## v2.16.0
 
 * Enable the `--simplified` option to generate files without the `context` attribute. See [issue #31](https://github.com/redhat-documentation/newdoc/issues/31).
