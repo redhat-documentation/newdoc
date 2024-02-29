@@ -101,6 +101,7 @@ pub struct Action {
 /// The verbosity level set on the command line.
 /// The default option is invisible as a command-line argument.
 #[derive(Clone, Copy, Debug, Bpaf, Default, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum Verbosity {
     /// Display additional, debug messages
     #[bpaf(short, long)]

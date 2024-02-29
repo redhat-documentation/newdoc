@@ -84,6 +84,11 @@ impl Options {
             Some(Simplified::NotSimplified) => { self.simplified = false; },
             None => { /* Keep the existing value. */ },
         }
+        // TODO: Because the verbosity field isn't optional on the CLI, but rather
+        // defaults to the `Default` value, the CLI always overrides the config files,
+        // even though the config files recognize the option in theory.
+        // Consider if it's useful to configure verbosity, and if so,
+        // change the behavior so that the config files have effect.
         match cli.common_options.verbosity {
             Verbosity::Verbose => { self.verbosity = Verbosity::Verbose; },
             Verbosity::Quiet => { self.verbosity = Verbosity::Quiet; },
