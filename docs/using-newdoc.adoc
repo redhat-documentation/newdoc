@@ -283,7 +283,7 @@ If the Git repository is nested, `newdoc` looks for a configuration file in each
 +
 Linux:: `~/.config/newdoc/newdoc.toml`
 macOS:: `/Users/__You__/Library/Application Support/com.Red-Hat.newdoc/newdoc.toml`
-Windows:: `C:\Users\__You__\AppData\Roaming\Red Hat\newdoc\config\newdoc.toml`
+Windows:: `C:\Users++\++__You__\AppData\Roaming\Red Hat\newdoc\config\newdoc.toml`
 
 The configuration file has the following syntax:
 
