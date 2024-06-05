@@ -2,6 +2,10 @@
 
 The following is a summary of changes in each `newdoc` release, which is also a Git tag by the same name in this repository.
 
+## v2.18.1
+
+* Fix the `--no-file-prefixes` (`-P`) option. Previously, the option didn't have the expected effect, and instead, it disabled comments.
+
 ## v2.18.0
 
 * An option to generate files without the metadata attributes header. See [issue #45](https://github.com/redhat-documentation/newdoc/issues/45).
