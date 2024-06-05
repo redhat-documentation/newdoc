@@ -45,6 +45,7 @@ pub struct Options {
     pub file_prefixes: bool,
     pub anchor_prefixes: bool,
     pub examples: bool,
+    pub metadata: bool,
     pub target_dir: PathBuf,
     pub simplified: bool,
     pub verbosity: Verbosity,
@@ -136,6 +137,7 @@ impl Default for Options {
             anchor_prefixes: false,
             examples: true,
             simplified: false,
+            metadata: true,
             verbosity: Verbosity::Default,
             target_dir: ".".into(),
         }

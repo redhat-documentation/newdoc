@@ -124,6 +124,7 @@ fn minimal_options() -> Options {
         file_prefixes: true,
         anchor_prefixes: false,
         examples: false,
+        metadata: false,
         target_dir: PathBuf::from("."),
         verbosity: Verbosity::Default,
         simplified: true,
