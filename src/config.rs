@@ -76,7 +76,7 @@ impl Options {
                 self.file_prefixes = true;
             }
             Some(FilePrefixes::NoFilePrefixes) => {
-                self.comments = false;
+                self.file_prefixes = false;
             }
             None => { /* Keep the existing value. */ }
         }
