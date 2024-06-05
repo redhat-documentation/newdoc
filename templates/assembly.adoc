@@ -1,5 +1,7 @@
+{% if metadata -%}
 :_newdoc-version: {{generator_version}}
 :_template-generated: {{current_day}}
+{%- endif %}
 {% if !simplified -%}
 ////
 Retains the context of the parent assembly if this assembly is nested within another assembly.

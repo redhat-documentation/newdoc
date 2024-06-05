@@ -1,5 +1,7 @@
+{% if metadata -%}
 :_newdoc-version: {{generator_version}}
 :_template-generated: {{current_day}}
+{%- endif %}
 ////
 Base the file name and the ID on the module title. For example:
 * file name: con_my-concept-module-a.adoc

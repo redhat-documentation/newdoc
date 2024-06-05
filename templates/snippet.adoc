@@ -1,5 +1,7 @@
+{% if metadata -%}
 :_newdoc-version: {{generator_version}}
 :_template-generated: {{current_day}}
+{%- endif %}
 ////
 Base the file name on the snippet title. For example:
 * file name: snip-my-snippet-a.adoc
