@@ -2,6 +2,10 @@
 
 The following is a summary of changes in each `newdoc` release, which is also a Git tag by the same name in this repository.
 
+## v2.18.2
+
+* Previously, newdoc didn't recognize configuration files in your Git repository when you entered its sub-directories. This is now fixed, and newdoc can detect configuration files even from sub-directories. See [RHELDOCS-17915](https://issues.redhat.com/browse/RHELDOCS-17915).
+
 ## v2.18.1
 
 * Fix the `--no-file-prefixes` (`-P`) option. Previously, the option didn't have the expected effect, and instead, it disabled comments.
