@@ -195,7 +195,7 @@ fn at_least_one_file(action: &Action) -> bool {
 }
 
 /// The error message if the command does not generate or validate files.
-const SOME_FILES: &str = "Specify at least one file to generate or validate.";
+const SOME_FILES: &str = "Specify at least one file to generate.";
 
 /// Get command-line arguments as the `Cli` struct.
 #[must_use]
