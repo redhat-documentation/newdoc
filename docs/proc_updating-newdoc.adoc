@@ -1,0 +1,80 @@
+:_newdoc-version: 2.18.2
+:_template-generated: 2024-06-05
+:_mod-docs-content-type: PROCEDURE
+
+[id="updating-newdoc_{context}"]
+= Updating newdoc
+
+You can update `newdoc` with the package manager that you used to install it.
+
+.Fedora, RHEL, and CentOS
+
+To update `newdoc` that is installed from RPM on Fedora, RHEL, or CentOS, use the DNF package manager:
+
+. Make sure that you are using a supported release of your Linux distribution. The Copr repository does not publish `newdoc` packages for unsupported distribution releases.
+
+. Refresh repository metadata and update the package:
++
+----
+# dnf --refresh upgrade newdoc
+----
+
+.openSUSE
+
+To update `newdoc` installed on openSUSE:
+
+. Make sure that you are using a supported release of your Linux distribution. The Copr repository does not publish `newdoc` packages for unsupported distribution releases.
+
+. Refresh repository metadata:
++
+----
+# zypper refresh
+----
+
+. Update the package:
++
+----
+# zypper update newdoc
+----
+
+.macOS
+
+To update `newdoc` installed on macOS using **Homebrew**:
+
+. Update the repository metadata:
++
+----
+$ brew update
+----
+
+. Update `newdoc`:
++
+----
+$ brew upgrade newdoc
+----
+
+.Container
+
+To update the `newdoc` container, use Docker or Podman.
+
+On Fedora, RHEL, and CentOS, replace `docker` with `podman` in the following command:
+
+----
+$ docker pull quay.io/msuchane/newdoc
+----
+
+.From source on any platform
+
+To update `newdoc` from source, use the `cargo` package manager:
+
+. Update the Rust toolchain:
++
+----
+$ rustup update
+----
+
+. Update `newdoc`:
++
+----
+$ cargo install newdoc
+----

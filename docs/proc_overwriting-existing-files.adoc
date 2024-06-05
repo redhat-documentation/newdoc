@@ -1,0 +1,13 @@
+:_newdoc-version: 2.18.2
+:_template-generated: 2024-06-05
+:_mod-docs-content-type: PROCEDURE
+
+[id="overwriting-existing-files_{context}"]
+= Overwriting existing files
+
+When generating a new file, `newdoc` warns you if a file by that name already exists in this directory. It prompts you to choose an action.
+
+.Procedure
+
+* To overwrite the existing file with the new file, type `yes`.
+* To preserve the existing file and cancel the newly generated file, type `no`.

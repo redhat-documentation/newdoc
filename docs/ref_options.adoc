@@ -1,0 +1,33 @@
+:_newdoc-version: 2.18.2
+:_template-generated: 2024-06-05
+
+:_mod-docs-content-type: REFERENCE
+
+[id="options_{context}"]
+= Options
+
+You can use several options on the command line to adjust the `newdoc` behavior.
+
+.Command-line options
+* To generate the file with explanatory comments, add the `--comments` or `-M` option when creating documents.
+
+* To generate the file without the example, placeholder content, add the `--no-examples` or `-E` option when creating documents.
+
+* To generate the file without the metadata attributes header, add the `--no-metadata` or `-D` option when creating documents.
+
+* By default, the content type prefix appears in the generated file name and not in the ID (anchor). To change this behavior, use the following options:
++
+`--no-file-prefixes` or `-P`:: Disables the file-name prefix.
+`--anchor-prefixes` or `-A`:: Enables the ID (anchor) prefix.
+
+* To specify the directory where `newdoc` saves the generated file, add the `--target-dir=<directory>` or `-T <directory>` option.
+
+* To generate an assembly with include statements for other generated modules, use the `--include-in` or `-i` option:
++
+----
+$ newdoc --include-in "An assembly for two modules" \
+         --concept "First module" \
+         --procedure "Second module"
+----
++
+This creates the two modules and an assembly that features the include statements for the modules.

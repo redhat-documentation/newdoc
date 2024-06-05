@@ -1,0 +1,36 @@
+:_newdoc-version: 2.18.2
+:_template-generated: 2024-06-05
+
+:_mod-docs-content-type: CONCEPT
+
+[id="configuration-files_{context}"]
+= Configuration files
+
+You can store `newdoc` configuration in several configuration files. These adjust the same behavior that you can also set using command-line options.
+
+The configuration files and arguments take the following precedence, from most important (overriding) to least important (overriden):
+
+. The command-line arguments.
+
+. A `.newdoc.toml` file in the Git repository where you generate the file.
++
+If the Git repository is nested, `newdoc` looks for a configuration file in each repository, and the inner repository takes precedence over the outer one.
+
+. A `newdoc.toml` file in your home directory, depending on your operating system:
++
+Linux:: `~/.config/newdoc/newdoc.toml`
+macOS:: `/Users/__You__/Library/Application Support/com.Red-Hat.newdoc/newdoc.toml`
+Windows:: `C:\Users++\++__You__\AppData\Roaming\Red Hat\newdoc\config\newdoc.toml`
+
+The configuration file has the following syntax:
+
+[source,toml]
+----
+# These are the default values as of newdoc 2.18:
+comments = false
+examples = true
+metadata = true
+file_prefixes = true
+anchor_prefixes = false
+simplified = false
+----

@@ -1,0 +1,31 @@
+:_newdoc-version: 2.18.2
+:_template-generated: 2024-06-05
+
+ifdef::context[:parent-context-of-generating-documentation-files: {context}]
+
+:_mod-docs-content-type: ASSEMBLY
+
+ifndef::context[]
+[id="generating-documentation-files"]
+endif::[]
+ifdef::context[]
+[id="generating-documentation-files_{context}"]
+endif::[]
+= Generating documentation files
+
+:context: generating-documentation-files
+
+You can generate a documentation file outline that conforms to the modular templates.
+
+include::proc_creating-a-new-module.adoc[leveloffset=+1]
+
+include::proc_creating-a-new-assembly.adoc[leveloffset=+1]
+
+include::proc_creating-a-new-snippet-file.adoc[leveloffset=+1]
+
+include::proc_overwriting-existing-files.adoc[leveloffset=+1]
+
+
+ifdef::parent-context-of-generating-documentation-files[:context: {parent-context-of-generating-documentation-files}]
+ifndef::parent-context-of-generating-documentation-files[:!context:]
+

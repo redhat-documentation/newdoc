@@ -1,0 +1,113 @@
+:_newdoc-version: 2.18.2
+:_template-generated: 2024-06-05
+:_mod-docs-content-type: PROCEDURE
+
+[id="installing-newdoc_{context}"]
+= Installing newdoc
+
+You can install `newdoc` on various operating systems using several package managers.
+
+.Fedora, RHEL, and CentOS
+
+To install `newdoc` on current Fedora, RHEL 8 or later, or CentOS 8 or later, enable the Copr package repository:
+
+. Enable the repository:
++
+----
+# dnf copr enable mareksu/newdoc-rs
+----
+
+. Install `newdoc`:
++
+----
+# dnf install newdoc
+----
++
+The Copr repository distributes packages only for *supported* releases of Fedora. If you have enabled the repository but the package fails to install, check if your Fedora is still supported.
+
+.openSUSE Tumbleweed
+
+To install `newdoc` on openSUSE Tumbleweed:
+
+. Enable the Copr package repository:
++
+----
+# zypper addrepo \
+         'https://copr.fedorainfracloud.org/coprs/mareksu/newdoc-rs/repo/opensuse-tumbleweed/mareksu-newdoc-rs-opensuse-tumbleweed.repo'
+----
+
+. Install `newdoc`:
++
+----
+# zypper refresh
+# zypper install --allow-vendor-change newdoc
+----
+
+.macOS
+
+To install `newdoc` on macOS, use the **Homebrew** package manager:
+
+. Install the **Homebrew** package manager as described on <https://brew.sh/>.
+
+. Install `newdoc`:
++
+----
+$ brew install msuchane/repo/newdoc
+----
+
+.Container
+
+To install `newdoc` as a container, use Docker or Podman.
+
+[WARNING]
+--
+The `newdoc` container needs to access files in your host file system. It mounts your current directory into the container.
+
+When the container runs, it relabels the SELinux configuration on all files in your current directory. This is necessary in order for the SELinux permissions system to enable file access on Fedora, RHEL, and CentOS.
+
+As a consequence, you cannot run the `newdoc` container in certain directories specially protected by SELinux, such as at the root of your home directory.
+--
+
+On Fedora, RHEL, and CentOS, replace `docker` with `podman` in the following commands:
+
+. Download the image:
++
+----
+$ docker pull quay.io/msuchane/newdoc
+----
+
+. Configure a command alias. Save this line in your shell configuration file, such as in the `~/.bashrc` file:
++
+----
+alias newdoc="docker run -it -v .:/mnt/newdoc:Z msuchane/newdoc newdoc"
+----
+
+. Open a new terminal to reload the shell configuration.
+
+. Test that `newdoc` works in a documentation directory:
++
+----
+documentation-directory]$ newdoc
+----
+
+NOTE: The default `newdoc` container is based on the Alpine distribution. If you need to install packages from the RHEL ecosystem in the `newdoc` container, you can use the `quay.io/msuchane/newdoc:distro` container variant. It is built on the RHEL 9 UBI Minimal base, and contains the `microdnf` package manager.
+
+.From source on any platform
+
+To install `newdoc` from source on a Linux distribution, on macOS, or on Microsoft Windows, use the `cargo` package manager:
+
+. Install the Rust toolchain: see <https://rustup.rs/>.
+
+. Install `newdoc`:
++
+----
+$ cargo install newdoc
+----
+
+.Verification
+
+* Test that `newdoc` works:
++
+----
+$ newdoc
+----

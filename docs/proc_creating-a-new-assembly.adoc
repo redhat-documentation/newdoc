@@ -1,0 +1,28 @@
+:_newdoc-version: 2.18.2
+:_template-generated: 2024-06-05
+:_mod-docs-content-type: PROCEDURE
+
+[id="creating-a-new-assembly_{context}"]
+= Creating a new assembly
+
+// Write a short introductory paragraph that provides an overview of the module. The introduction should include what the module will help the user do and why it will be beneficial to the user. Include key words that relate to the module to maximize search engine optimization.
+
+// .Procedure
+
+. In the directory where assemblies are located, use `newdoc` to create a new file:
++
+----
+assemblies-dir]$ newdoc --assembly "Achieving thing"
+----
++
+You can use the short form of the `--assembly` option instead:
++
+----
+assemblies-dir]$ newdoc -a "Achieving thing"
+----
+
+. Rewrite the placeholders in the generated file with your docs.
++
+Add AsciiDoc include statements to include modules. See [Include Files](https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#include-files) in the AsciiDoc Syntax Quick Reference.
++
+Alternatively, you can use the `--include-in` option when creating the assembly to generate modules and include them automatically, in a single step. See the description in the *Options* section.

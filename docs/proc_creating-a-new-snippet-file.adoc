@@ -1,0 +1,24 @@
+:_newdoc-version: 2.18.2
+:_template-generated: 2024-06-05
+:_mod-docs-content-type: PROCEDURE
+
+[id="creating-a-new-snippet-file_{context}"]
+= Creating a new snippet file
+
+// Write a short introductory paragraph that provides an overview of the module. The introduction should include what the module will help the user do and why it will be beneficial to the user. Include key words that relate to the module to maximize search engine optimization.
+
+// .Procedure
+
+. In the directory where snippets are located, use `newdoc` to create a new file:
++
+----
+snippets-dir]$ newdoc --snippet "A reusable note"
+----
++
+You can use the short forms instead:
++
+----
+snippets-dir]$ newdoc -s "A reusable note"`
+----
+
+. Rewrite the placeholders in the generated file with your docs.
