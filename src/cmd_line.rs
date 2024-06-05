@@ -53,6 +53,9 @@ pub struct CommonOptions {
     pub examples: Option<Examples>,
 
     #[bpaf(external, optional)]
+    pub metadata: Option<Metadata>,
+
+    #[bpaf(external, optional)]
     pub file_prefixes: Option<FilePrefixes>,
 
     #[bpaf(external, optional)]
@@ -145,6 +148,17 @@ pub enum Simplified {
     #[default]
     #[bpaf(long)]
     NotSimplified,
+}
+
+#[derive(Clone, Copy, Debug, Bpaf, Default, PartialEq)]
+pub enum Metadata {
+    /// Generate the file with the metadata attributes header. (Default)
+    #[default]
+    #[bpaf(long)]
+    Metadata,
+    /// Generate the file without any example, placeholder content.
+    #[bpaf(long)]
+    NoMetadata,
 }
 
 #[derive(Clone, Copy, Debug, Bpaf, Default, PartialEq)]

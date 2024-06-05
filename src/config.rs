@@ -32,7 +32,7 @@ use figment::{
 use serde::{Deserialize, Serialize};
 
 use crate::cmd_line::{
-    AnchorPrefixes, Cli, Comments, Examples, FilePrefixes, Simplified, Verbosity,
+    AnchorPrefixes, Cli, Comments, Examples, Metadata, FilePrefixes, Simplified, Verbosity,
 };
 
 const PKG_NAME: &str = env!("CARGO_PKG_NAME");
@@ -95,6 +95,15 @@ impl Options {
             }
             Some(Examples::NoExamples) => {
                 self.examples = false;
+            }
+            None => { /* Keep the existing value. */ }
+        }
+        match cli.common_options.metadata {
+            Some(Metadata::Metadata) => {
+                self.metadata = true;
+            }
+            Some(Metadata::NoMetadata) => {
+                self.metadata = false;
             }
             None => { /* Keep the existing value. */ }
         }
