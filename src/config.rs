@@ -32,7 +32,7 @@ use figment::{
 use serde::{Deserialize, Serialize};
 
 use crate::cmd_line::{
-    AnchorPrefixes, Cli, Comments, Examples, Metadata, FilePrefixes, Simplified, Verbosity,
+    AnchorPrefixes, Cli, Comments, Examples, FilePrefixes, Metadata, Simplified, Verbosity,
 };
 
 const PKG_NAME: &str = env!("CARGO_PKG_NAME");
