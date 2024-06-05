@@ -174,20 +174,30 @@ fn home_conf_file() -> Option<PathBuf> {
 /// If the target location is in a Git repository, construct the path
 /// to a configuration file at the repository's root.
 /// Find all such configuration files if the Git repository is nested.
-fn git_conf_files(target_dir: &Path) -> Vec<PathBuf> {
+fn git_conf_files(target_dir: &Path) -> Result<Vec<PathBuf>> {
+    let absolute_path = target_dir
+        .canonicalize()
+        .wrap_err("Failed to construct the absolute path to the target directory.")?;
     // Find all ancestor directories that appear to be the root of a Git repo.
-    let git_roots = target_dir.ancestors().filter(|dir| {
+    let git_roots = absolute_path.ancestors().filter(|dir| {
         // The simple heuristic is that the directory is the Git root if it contains
         // the `.git/` sub-directory.
         let git_dir = dir.join(".git");
+        log::debug!(
+            "Testing this directory as a Git repo root: {}",
+            git_dir.display()
+        );
         git_dir.is_dir()
     });
 
     let config_files: Vec<_> = git_roots
-        .map(|root| root.join(config_file_name(true)))
+        .map(|root| {
+            log::debug!("Found a Git repo root: {}", root.display());
+            root.join(config_file_name(true))
+        })
         .collect();
 
-    config_files
+    Ok(config_files)
 }
 
 /// Combine the configuration found on the command line, in configuration files,
@@ -210,7 +220,7 @@ pub fn merge_configs(cli: &Cli) -> Result<Options> {
     };
 
     // All config files in Git repo roots:
-    let mut git_conf_files = git_conf_files(&cli.common_options.target_dir);
+    let mut git_conf_files = git_conf_files(&cli.common_options.target_dir)?;
     // Reverse their order so that the inner repo configuration takes precedence over outer:
     git_conf_files.reverse();
     // Load each Git repo configuration file:
