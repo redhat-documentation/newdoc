@@ -1,12 +1,12 @@
 [package]
 name = "newdoc"
-version = "2.17.0"
+version = "2.18.0"
 description = "Generate pre-populated module files formatted with AsciiDoc that are used in Red Hat and Fedora documentation."
 authors = ["Marek Suchánek <msuchane@redhat.com>"]
 license = "GPL-3.0-or-later"
 edition = "2021"
 # Check the Rust version using `cargo msrv verify`.
-rust-version = "1.67"
+rust-version = "1.70"
 documentation = "https://docs.rs/newdoc"
 readme = "README.md"
 repository = "https://github.com/redhat-documentation/newdoc/"
