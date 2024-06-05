@@ -133,7 +133,7 @@ impl Options {
 
         // These options only exist on the command line, not in config files.
         // Always use the value from CLI arguments.
-        self.target_dir = cli.common_options.target_dir.clone();
+        self.target_dir.clone_from(&cli.common_options.target_dir);
     }
 }
 
