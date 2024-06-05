@@ -2,6 +2,10 @@
 
 The following is a summary of changes in each `newdoc` release, which is also a Git tag by the same name in this repository.
 
+## v2.18.0
+
+* An option to generate files without the metadata attributes header. See [issue #45](https://github.com/redhat-documentation/newdoc/issues/45).
+
 ## v2.17.0
 
 * Enable configuration files. [See the documentation](https://redhat-documentation.github.io/newdoc/#_configuration_files). [Issue #20](https://github.com/redhat-documentation/newdoc/issues/20)
