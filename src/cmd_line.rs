@@ -157,7 +157,7 @@ pub enum Metadata {
     #[bpaf(long)]
     Metadata,
     /// Generate the file without any example, placeholder content.
-    #[bpaf(long)]
+    #[bpaf(long, short('D'))]
     NoMetadata,
 }
 
