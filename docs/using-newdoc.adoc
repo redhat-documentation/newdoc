@@ -249,6 +249,8 @@ When generating a new file, `newdoc` warns you if a file by that name already ex
 
 * To generate the file without the example, placeholder content, add the `--no-examples` or `-E` option when creating documents.
 
+* To generate the file without the metadata attributes header, add the `--no-metadata` or `-D` option when creating documents.
+
 * By default, the content type prefix appears in the generated file name and not in the ID (anchor). To change this behavior, use the following options:
 +
 `--no-file-prefixes` or `-P`:: Disables the file-name prefix.
@@ -289,9 +291,10 @@ The configuration file has the following syntax:
 
 [source,toml]
 ----
-# These are the default values as of newdoc 2.17:
+# These are the default values as of newdoc 2.18:
 comments = false
 examples = true
+metadata = true
 file_prefixes = true
 anchor_prefixes = false
 simplified = false
