@@ -27,7 +27,9 @@ ways:
 Add the prefix assembly- or assembly_ to the file name.
 Add the following attribute before the module ID:
 ////
+{% if metadata -%}
 :_mod-docs-content-type: ASSEMBLY
+{%- endif %}
 
 {% if simplified -%}
 [id="{{module_anchor}}"]

@@ -14,7 +14,9 @@ Add the prefix snip- or snip_ to the file name.
 Add the following attribute before the title:
 :_mod-docs-content-type: SNIPPET
 ////
+{% if metadata -%}
 :_mod-docs-content-type: SNIPPET
+{%- endif %}
 
 .{{module_title}}
 ////

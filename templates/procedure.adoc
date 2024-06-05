@@ -15,7 +15,9 @@ ways:
 Add the prefix proc- or proc_ to the file name.
 Add the following attribute before the module ID:
 ////
+{% if metadata -%}
 :_mod-docs-content-type: PROCEDURE
+{%- endif %}
 
 {% if simplified -%}
 [id="{{module_anchor}}"]

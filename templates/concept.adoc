@@ -15,7 +15,9 @@ ways:
 Add the prefix con- or con_ to the file name.
 Add the following attribute before the module ID:
 ////
+{% if metadata -%}
 :_mod-docs-content-type: CONCEPT
+{%- endif %}
 
 ////
 The ID is an anchor that links to the module. Avoid changing it after the module has been published to ensure existing links are not broken.
