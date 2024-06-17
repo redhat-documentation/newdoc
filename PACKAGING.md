@@ -82,6 +82,17 @@ The following are instructions for the maintainers of `newdoc` to package and di
 7. Commit and push the changes.
 
 
+## Packaging and distributing newdoc on Quay.io
+
+Currently, newdoc is packaged in [msuchane/newdoc](https://quay.io/repository/msuchane/newdoc).
+
+When you push a tagged version to the [msuchane/newdoc](https://github.com/msuchane/newdoc) Git repository, it automatically triggers a rebuild of the container.
+
+The version tag must start with "v" and match the `v.*` regular expression.
+
+Details on configuring the automatic build trigger: TODO.
+
+
 ## Packaging and distributing newdoc on Crates.io
 
 1. If you are publishing to Crates.io for the first time on this system, log into your account:
