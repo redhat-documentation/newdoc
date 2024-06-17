@@ -6,8 +6,8 @@ License: GPLv3+
 URL: https://github.com/redhat-documentation/newdoc
 Group: Applications/Text
 Obsoletes: python3-newdoc, python2-newdoc
-Source0: https://static.crates.io/crates/%{name}/%{name}-%{version}.crate
-#Source1: https://github.com/redhat-documentation/%{name}/archive/refs/tags/v%{version}.tar.gz
+#Source0: https://static.crates.io/crates/%{name}/%{name}-%{version}.crate
+Source0: https://github.com/redhat-documentation/%{name}/archive/refs/tags/v%{version}.tar.gz
 
 # This works fine with Fedora and RHEL, but breaks the SUSE build:
 # ExclusiveArch: %{rust_arches}
