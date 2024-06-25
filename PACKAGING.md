@@ -42,7 +42,7 @@ The following are instructions for the maintainers of `newdoc` to package and di
 
 1. Log into the Copr repository administration.
 
-    Currently, newdoc is packaged in the [mareksu/newdoc-rs](https://copr.fedorainfracloud.org/coprs/mareksu/newdoc-rs/) repository.
+    Currently, newdoc is packaged in the [mmuehlfeldrh/newdoc-rs](https://copr.fedorainfracloud.org/coprs/mmuehlfeldrh/newdoc-rs/) repository.
 
 2. Go to the **Builds** tab.
 
@@ -61,7 +61,7 @@ The following are instructions for the maintainers of `newdoc` to package and di
 
 1. Make sure you have access to the existing Homebrew repository.
 
-    Currently, newdoc is packaged in [msuchane/homebrew-repo](https://github.com/redhat-documentation/homebrew-repo), but a fork at [redhat-documentation/homebrew-repo](https://github.com/redhat-documentation/homebrew-repo) is also available.
+    Currently, newdoc is packaged in [redhat-documentation/homebrew-repo](https://github.com/redhat-documentation/homebrew-repo).
 
 2. Download the `.tar.gz` archive that Github created for your latest tagged version:
 
@@ -84,9 +84,9 @@ The following are instructions for the maintainers of `newdoc` to package and di
 
 ## Packaging and distributing newdoc on Quay.io
 
-Currently, newdoc is packaged in [msuchane/newdoc](https://quay.io/repository/msuchane/newdoc).
+Currently, newdoc is packaged in [mmuehlfeld/newdoc](https://quay.io/repository/mmuehlfeld/newdoc).
 
-When you push a tagged version to the [msuchane/newdoc](https://github.com/msuchane/newdoc) Git repository, it automatically triggers a rebuild of the container.
+When you push a tagged version to the [mmuehlfeldrh/newdoc](https://github.com/mmuehlfeldrh/newdoc) Git repository, it automatically triggers a rebuild of the container.
 
 The version tag must start with "v" and match the `v.*` regular expression.
 

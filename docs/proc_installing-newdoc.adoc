@@ -14,7 +14,7 @@ To install `newdoc` on current Fedora, RHEL 8 or later, or CentOS 8 or later, en
 . Enable the repository:
 +
 ----
-# dnf copr enable mareksu/newdoc-rs
+# dnf copr enable mmuehlfeldrh/newdoc-rs
 ----
 
 . Install `newdoc`:
@@ -33,7 +33,7 @@ To install `newdoc` on openSUSE Tumbleweed:
 +
 ----
 # zypper addrepo \
-         'https://copr.fedorainfracloud.org/coprs/mareksu/newdoc-rs/repo/opensuse-tumbleweed/mareksu-newdoc-rs-opensuse-tumbleweed.repo'
+         'https://copr.fedorainfracloud.org/coprs/mmuehlfeldrh/newdoc-rs/repo/opensuse-tumbleweed/mmuehlfeldrh-newdoc-rs-opensuse-tumbleweed.repo'
 ----
 
 . Install `newdoc`:
@@ -52,7 +52,7 @@ To install `newdoc` on macOS, use the **Homebrew** package manager:
 . Install `newdoc`:
 +
 ----
-$ brew install msuchane/repo/newdoc
+$ brew install redhat-documentation/repo/newdoc
 ----
 
 .Container
@@ -73,13 +73,13 @@ On Fedora, RHEL, and CentOS, replace `docker` with `podman` in the following com
 . Download the image:
 +
 ----
-$ docker pull quay.io/msuchane/newdoc
+$ docker pull quay.io/mmuehlfeld/newdoc
 ----
 
 . Configure a command alias. Save this line in your shell configuration file, such as in the `~/.bashrc` file:
 +
 ----
-alias newdoc="docker run -it -v .:/mnt/newdoc:Z msuchane/newdoc newdoc"
+alias newdoc="docker run -it -v .:/mnt/newdoc:Z mmuehlfeld/newdoc newdoc"
 ----
 
 . Open a new terminal to reload the shell configuration.
@@ -90,7 +90,7 @@ alias newdoc="docker run -it -v .:/mnt/newdoc:Z msuchane/newdoc newdoc"
 documentation-directory]$ newdoc
 ----
 
-NOTE: The default `newdoc` container is based on the Alpine distribution. If you need to install packages from the RHEL ecosystem in the `newdoc` container, you can use the `quay.io/msuchane/newdoc:distro` container variant. It is built on the RHEL 9 UBI Minimal base, and contains the `microdnf` package manager.
+NOTE: The default `newdoc` container is based on the Alpine distribution. If you need to install packages from the RHEL ecosystem in the `newdoc` container, you can use the `quay.io/mmuehlfeld/newdoc:distro` container variant. It is built on the RHEL 9 UBI Minimal base, and contains the `microdnf` package manager.
 
 .From source on any platform
 
