@@ -60,7 +60,7 @@ To update the `newdoc` container, use Docker or Podman.
 On Fedora, RHEL, and CentOS, replace `docker` with `podman` in the following command:
 
 ----
-$ docker pull quay.io/mmuehlfeld/newdoc
+$ docker pull quay.io/redhat-documentation/newdoc
 ----
 
 .From source on any platform

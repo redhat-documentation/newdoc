@@ -84,9 +84,9 @@ The following are instructions for the maintainers of `newdoc` to package and di
 
 ## Packaging and distributing newdoc on Quay.io
 
-Currently, newdoc is packaged in [mmuehlfeld/newdoc](https://quay.io/repository/mmuehlfeld/newdoc).
+Currently, newdoc is packaged in [redhat-documentation/newdoc](https://quay.io/repository/redhat-documentation/newdoc).
 
-When you push a tagged version to the [mmuehlfeldrh/newdoc](https://github.com/mmuehlfeldrh/newdoc) Git repository, it automatically triggers a rebuild of the container.
+When you push a tagged version to the [redhat-documentation/newdoc](https://github.com/redhat-documentation/newdoc) Git repository, it automatically triggers a rebuild of the container.
 
 The version tag must start with "v" and match the `v.*` regular expression.
 

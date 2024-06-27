@@ -73,13 +73,13 @@ On Fedora, RHEL, and CentOS, replace `docker` with `podman` in the following com
 . Download the image:
 +
 ----
-$ docker pull quay.io/mmuehlfeld/newdoc
+$ docker pull quay.io/redhat-documentation/newdoc
 ----
 
 . Configure a command alias. Save this line in your shell configuration file, such as in the `~/.bashrc` file:
 +
 ----
-alias newdoc="docker run -it -v .:/mnt/newdoc:Z mmuehlfeld/newdoc newdoc"
+alias newdoc="docker run -it -v .:/mnt/newdoc:Z redhat-documentation/newdoc newdoc"
 ----
 
 . Open a new terminal to reload the shell configuration.
@@ -90,7 +90,7 @@ alias newdoc="docker run -it -v .:/mnt/newdoc:Z mmuehlfeld/newdoc newdoc"
 documentation-directory]$ newdoc
 ----
 
-NOTE: The default `newdoc` container is based on the Alpine distribution. If you need to install packages from the RHEL ecosystem in the `newdoc` container, you can use the `quay.io/mmuehlfeld/newdoc:distro` container variant. It is built on the RHEL 9 UBI Minimal base, and contains the `microdnf` package manager.
+NOTE: The default `newdoc` container is based on the Alpine distribution. If you need to install packages from the RHEL ecosystem in the `newdoc` container, you can use the `quay.io/redhat-documentation/newdoc:distro` container variant. It is built on the RHEL 9 UBI Minimal base, and contains the `microdnf` package manager.
 
 .From source on any platform
 
