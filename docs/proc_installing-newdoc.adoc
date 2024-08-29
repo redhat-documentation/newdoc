@@ -49,10 +49,16 @@ To install `newdoc` on macOS, use the **Homebrew** package manager:
 
 . Install the **Homebrew** package manager as described on <https://brew.sh/>.
 
+. Add the tap (repository):
++
+----
+$ brew tap redhat-documentation/repo
+----
+
 . Install `newdoc`:
 +
 ----
-$ brew install redhat-documentation/repo/newdoc
+$ brew install newdoc
 ----
 
 .Container
@@ -102,6 +108,20 @@ To install `newdoc` from source on a Linux distribution, on macOS, or on Microso
 +
 ----
 $ cargo install newdoc
+----
+
+. The `cargo install` command installs newdoc in the `~/.cargo/bin/` directory. To run newdoc without entering the path to the utility, add the `~/.cargo/bin/` directory to your `$PATH` variable:
+
+.. Append the following command to your `~/.bashrc` file:
++
+----
+export PATH=$PATH:$HOME/.cargo/bin/"
+----
+
+.. Reload the settings from `~/.bashrc`:
++
+----
+$ source ~/.bashrc
 ----
 
 .Verification
