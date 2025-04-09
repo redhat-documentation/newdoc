@@ -1,14 +1,18 @@
 {% if metadata -%}
 :_newdoc-version: {{generator_version}}
 :_template-generated: {{current_day}}
+////
+Metadata attribute that will help enable correct parsing and conversion to the appropriate DITA topic type.
+////
+:_mod-docs-content-type: ASSEMBLY
 {%- endif %}
+
 {% if !simplified -%}
 ////
 Retains the context of the parent assembly if this assembly is nested within another assembly.
 For more information about nesting assemblies, see: https://redhat-documentation.github.io/modular-docs/#nesting-assemblies
 See also the complementary step on the last line of this file.
 ////
-
 ifdef::context[:parent-context-of-{{module_anchor}}: {context}]
 {%- endif %}
 
@@ -18,19 +22,11 @@ Base the file name and the ID on the assembly title. For example:
 * ID: [id="assembly-my-user-story_{context}"]
 * Title: = My user story
 
-The ID is an anchor that links to the module. Avoid changing it after the module has been published to ensure existing links are not broken. Include {context} in the ID so the assembly can be reused.
-////
+ID is a unique identifier that can be used to reference this assembly. Avoid changing it after the module has been published to ensure existing links are not broken. Include {context} in the ID so the assembly can be reused.
 
+Be sure to include a line break between the title and the :context: variable and the :context: variable and the assembly introduction.
+If the assembly covers a task, start the title with a verb in the gerund form, such as Creating or Configuring.
 ////
-Indicate the content type in one of the following
-ways:
-Add the prefix assembly- or assembly_ to the file name.
-Add the following attribute before the module ID:
-////
-{% if metadata -%}
-:_mod-docs-content-type: ASSEMBLY
-{%- endif %}
-
 {% if simplified -%}
 [id="{{module_anchor}}"]
 {%- else -%}
@@ -42,20 +38,12 @@ ifdef::context[]
 endif::[]
 {%- endif %}
 = {{module_title}}
-////
-{% if !simplified -%}
-Be sure to include a line break between the title and the :context: variable and the :context: variable and the assembly introduction.
-
-{% endif %}
-If the assembly covers a task, start the title with a verb in the gerund form, such as Creating or Configuring.
-////
 
 {% if !simplified -%}
-:context: {{module_anchor}}
-
 ////
 The `context` attribute enables module reuse. Every module ID includes {context}, which ensures that the module has a unique ID so you can include it multiple times in the same guide.
 ////
+:context: {{module_anchor}}
 {%- endif %}
 
 {% if examples -%}
@@ -75,21 +63,16 @@ This paragraph is the assembly introduction. It explains what the user will acco
 ////
 The following include statements pull in the module files that comprise the assembly. Include any combination of concept, procedure, or reference modules required to cover the user story. You can also include other assemblies.
 
-include::modules/TEMPLATE_CONCEPT_explaining_a_concept.adoc[leveloffset=+1]
-////
-
-{{include_statements}}
-
-////
 [leveloffset=+1] ensures that when a module title is a level 1 heading (= Title), the heading will be interpreted as a level-2 heading (== Title) in the assembly. Use [leveloffset=+2] and [leveloffset=+3] to nest modules in an assembly.
 
+Add a blank line after each 'include::' statement.
+
 include::modules/TEMPLATE_PROCEDURE_doing_one_procedure.adoc[leveloffset=+2]
-// Add a blank line after each 'include::' statement.
 
 include::modules/TEMPLATE_PROCEDURE_reference-material.adoc[leveloffset=2]
 ////
+{{include_statements}}
 
-[role="_additional-resources"]
 == Next steps
 
 {% if examples -%}
@@ -98,14 +81,19 @@ include::modules/TEMPLATE_PROCEDURE_reference-material.adoc[leveloffset=2]
 * Use an unnumbered bullet (*) if the list includes only one step.
 {%- endif %}
 
-// If the last module included in your assembly contains an Additional resources section as well, check the appearance of the rendered assembly. If the two Additional resources sections might be confusing for a reader, consider consolidating their content and removing one of them.
+////
+Optional. Delete if not used.
+
+Provide a bulleted list of links and display text relevant to the assembly. These links can include `link:` and `xref:` macros. Do not include additional text.
+
+If the last module included in your assembly contains an Additional resources section as well, check the appearance of the rendered assembly. If the two Additional resources sections might be confusing for a reader, consider consolidating their content and removing one of them.
+////
 [role="_additional-resources"]
 == Additional resources
 
 {% if examples -%}
-* This section is optional.
-* Provide a bulleted list of links to other closely-related material. These links can include `link:` and `xref:` macros.
-* Use an unnumbered bullet (*) if the list includes only one step.
+* link:https://github.com/redhat-documentation/modular-docs#modular-documentation-reference-guide[Modular Documentation Reference Guide]
+* xref:some-module_{context}[]
 {%- endif %}
 
 {% if !simplified -%}
