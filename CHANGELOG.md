@@ -2,6 +2,11 @@
 
 The following is a summary of changes in each `newdoc` release, which is also a Git tag by the same name in this repository.
 
+## v2.18.4
+
+* Update modular templates to synchronize with [modular-docs/pull/236](https://github.com/redhat-documentation/modular-docs/pull/236)
+* Update dependencies
+
 ## v2.18.3
 
 * Update dependencies

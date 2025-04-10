@@ -423,7 +423,7 @@ dependencies = [
 
 [[package]]
 name = "newdoc"
-version = "2.18.2"
+version = "2.18.4"
 dependencies = [
  "askama",
  "bpaf",
