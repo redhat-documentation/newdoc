@@ -30,7 +30,7 @@ The newdoc tool generates pre-populated module and assembly files formatted with
 
 %build
 # Install the latest Rust compiler.
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable --component cargo rust-std rustc
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable --component cargo rustc
 
 # Build the binary.
 ~/.cargo/bin/cargo build --release
