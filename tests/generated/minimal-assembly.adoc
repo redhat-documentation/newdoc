@@ -3,7 +3,6 @@
 
 == Prerequisites
 
-[role="_additional-resources"]
 == Next steps
 
 [role="_additional-resources"]
