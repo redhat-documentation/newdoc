@@ -52,7 +52,18 @@ NOTE: You can add text, tables, code examples, images, and other items to a step
 {%- endif %}
 
 ////
-Only the following block headings can be reliably mapped to DITA: Prerequisites, Procedure, Verification, Troubleshooting, Troubleshooting steps, Next steps, Next step, Additional resources. They must appear in this order and, with the exception of Additional resources, are only allowed in a procedure module. You can also use block headings in figure, table, and example titles.
+Only the following block titles can be reliably mapped to DITA:
+
+* Prerequisites or Prerequisite
+* Procedure
+* Verification, Results, or Result
+* Troubleshooting, Troubleshooting steps, or Troubleshooting step
+* Next steps or Next step
+* Additional resources
+
+With the exception of Additional resources, these titles are only allowed in a procedure module. You can use each title exactly once and cannot use two different variants of the same title in the same module.
+
+Additionally, you can use block titles for figures, tables, and example blocks.
 ////
 .Verification
 {% if examples -%}
