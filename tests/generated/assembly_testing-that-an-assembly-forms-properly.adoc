@@ -36,6 +36,7 @@ The `context` attribute enables module reuse. Every module ID includes {context}
 ////
 :context: testing-that-an-assembly-forms-properly
 
+[role="_abstract"]
 This paragraph is the assembly introduction. It explains what the user will accomplish by working through the modules in the assembly and sets the context for the user story the assembly is based on.
 
 == Prerequisites

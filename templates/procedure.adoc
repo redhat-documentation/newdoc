@@ -30,6 +30,7 @@ Start the title of a procedure module with a gerund, such as Creating, Installin
 ////
 
 {% if examples -%}
+[role="_abstract"]
 Write a short introductory paragraph that provides an overview of the module. The introduction should include what the module will help the user do and why it will be beneficial to the user. Include key words that relate to the module to maximize search engine optimization.
 {%- endif %}
 
