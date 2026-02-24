@@ -2,6 +2,21 @@
 
 The following is a summary of changes in each `newdoc` release, which is also a Git tag by the same name in this repository.
 
+## v2.18.7
+
+* Move `[role=_abstract]` macro in templates so that it's also visible in minimal mode.
+* Update dependencies
+
+## v2.18.6
+
+* Add the `[role="_abstract"]` line to generated output.
+* Update dependencies
+
+## v2.18.5
+
+* Added a complete list of supported block titles.
+* Update dependencies
+
 ## v2.18.4
 
 * Update modular templates to synchronize with [modular-docs/pull/236](https://github.com/redhat-documentation/modular-docs/pull/236)
