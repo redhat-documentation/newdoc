@@ -1,6 +1,8 @@
 [id="minimal-procedure"]
 = Minimal procedure
 
+[role="_abstract"]
+
 .Prerequisites
 
 .Procedure

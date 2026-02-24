@@ -1,6 +1,8 @@
 [id="minimal-assembly"]
 = Minimal assembly
 
+[role="_abstract"]
+
 == Prerequisites
 
 == Next steps
